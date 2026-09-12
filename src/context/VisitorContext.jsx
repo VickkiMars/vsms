@@ -69,6 +69,18 @@ export const VisitorProvider = ({ children }) => {
   const [selectedVisitorForBadge, setSelectedVisitorForBadge] = useState(null);
   const [isCmdKOpen, setIsCmdKOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('vsms_sidebar_collapsed') === 'true';
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('vsms_sidebar_collapsed', isSidebarCollapsed ? 'true' : 'false');
+  }, [isSidebarCollapsed]);
+
+  const toggleSidebarCollapse = () => setIsSidebarCollapsed(prev => !prev);
 
   // Search & Filter Global State
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
@@ -254,6 +266,9 @@ export const VisitorProvider = ({ children }) => {
       setIsCmdKOpen,
       isMobileMenuOpen,
       setIsMobileMenuOpen,
+      isSidebarCollapsed,
+      setIsSidebarCollapsed,
+      toggleSidebarCollapse,
       globalSearchQuery,
       setGlobalSearchQuery,
       selectedDeptFilter,
