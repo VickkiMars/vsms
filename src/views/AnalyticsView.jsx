@@ -211,10 +211,6 @@ export const AnalyticsView = () => {
           </div>
           <div>
             <div className="text-3xl font-black text-neutral-900 dark:text-white tracking-tight">{totalVisitors}</div>
-            <div className="text-[11px] font-bold text-neutral-600 dark:text-neutral-300 flex items-center gap-1 mt-1">
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>100% Indexed & Verified</span>
-            </div>
           </div>
         </div>
 
@@ -228,10 +224,6 @@ export const AnalyticsView = () => {
           </div>
           <div>
             <div className="text-3xl font-black text-neutral-900 dark:text-white tracking-tight">{activeVisitors}</div>
-            <div className="text-[11px] font-bold text-neutral-600 dark:text-neutral-300 flex items-center gap-1.5 mt-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Active badge credentials</span>
-            </div>
           </div>
         </div>
 
@@ -247,9 +239,6 @@ export const AnalyticsView = () => {
           </div>
           <div>
             <div className="text-3xl font-black text-rose-600 dark:text-rose-400 tracking-tight">{overdueCount}</div>
-            <div className="text-[11px] font-bold text-neutral-900 dark:text-white mt-1">
-              {overdueCount > 0 ? 'Requires security escort' : 'Zero overdue breaches'}
-            </div>
           </div>
         </div>
 
@@ -263,9 +252,6 @@ export const AnalyticsView = () => {
           </div>
           <div>
             <div className="text-3xl font-black text-neutral-900 dark:text-white tracking-tight">{avgStayFormatted}</div>
-            <div className="text-[11px] text-neutral-600 dark:text-neutral-300 mt-1 font-semibold">
-              Based on <strong className="text-neutral-900 dark:text-white">{checkedOutCount}</strong> exits
-            </div>
           </div>
         </div>
       </div>
