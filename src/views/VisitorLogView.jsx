@@ -10,16 +10,9 @@ import {
   X, 
   CheckCircle2, 
   LogOut, 
-  Filter,
   ArrowUpDown,
-  Building,
   UserCheck,
-  Clock,
-  User,
-  ShieldCheck,
-  FileSpreadsheet,
-  Phone,
-  FileText
+  ChevronDown
 } from 'lucide-react';
 
 export const VisitorLogView = () => {
@@ -174,10 +167,10 @@ export const VisitorLogView = () => {
           onClick={() => setCurrentPage(i)}
           aria-label={`Go to page ${i}`}
           aria-current={clampedPage === i ? 'page' : undefined}
-          className={`min-w-[32px] h-8 px-2.5 rounded-full text-xs font-bold transition-all ${
+          className={`min-w-[32px] h-8 px-2.5 rounded-full text-xs font-extrabold transition ${
             clampedPage === i
-              ? 'bg-realty-dark text-white shadow-pill-active'
-              : 'bg-white text-realty-textSecondary hover:bg-gray-100 shadow-xs'
+              ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-md'
+              : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700'
           }`}
         >
           {i}
@@ -196,19 +189,19 @@ export const VisitorLogView = () => {
         <div 
           role="status"
           aria-live="polite"
-          className="fixed bottom-6 right-6 z-50 flex items-center space-x-3 p-4 rounded-2xl bg-realty-dark text-white shadow-float-bar animate-fade-in max-w-md"
+          className="fixed bottom-6 right-6 z-50 flex items-center space-x-3 p-4 rounded-2xl bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-2xl animate-fadeIn max-w-md"
         >
-          <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-pastel-lime" aria-hidden="true" />
+          <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-400 dark:text-emerald-600" aria-hidden="true" />
           <div className="flex-1 text-xs">
             <p className="font-extrabold">{toastMessage.title}</p>
-            <p className="text-white/80 font-medium">
+            <p className="font-medium text-neutral-300 dark:text-neutral-700">
               <span className="font-bold">{toastMessage.name}</span> ({toastMessage.badge}) checked out at {toastMessage.time}.
             </p>
           </div>
           <button 
             type="button"
             onClick={() => setToastMessage(null)}
-            className="p-1 text-white/60 hover:text-white rounded-full transition-colors"
+            className="p-1 text-neutral-400 hover:text-white dark:hover:text-neutral-950 transition-colors"
             aria-label="Close notification"
           >
             <X className="w-4 h-4" />
@@ -217,81 +210,78 @@ export const VisitorLogView = () => {
       )}
 
       {/* Hero Header & Quick Stats Banner */}
-      <div className="p-6 rounded-3xl bg-white shadow-soft-card border border-white/80 space-y-5">
+      <div className="p-6 rounded-3xl bg-white dark:bg-neutral-900 shadow-sm border border-neutral-200 dark:border-neutral-800 space-y-5">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="space-y-1 text-center sm:text-left">
             <div className="flex items-center justify-center sm:justify-start gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-realty-dark flex items-center justify-center text-white font-bold text-sm shadow-sm">
-                <Table className="w-4 h-4 text-pastel-mint" />
+              <div className="w-8 h-8 rounded-xl bg-neutral-950 dark:bg-white flex items-center justify-center text-white dark:text-neutral-950 font-bold text-sm shadow-sm">
+                <Table className="w-4 h-4" />
               </div>
-              <h2 className="text-xl font-extrabold text-realty-dark tracking-tight">
-                Master Visitor Information Register
+              <h2 className="text-xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
+                Master Visitor Log (SQLite Database)
               </h2>
             </div>
-            <p className="text-xs text-realty-textMuted font-medium">
-              Real-time audit log of all registered guests, check-in timestamps, stay duration, NDPR compliance, and exit records.
+            <p className="text-xs text-neutral-600 dark:text-neutral-300 font-semibold">
+              Real-time audit log of all registered guests loaded directly from local SQLite database tables.
             </p>
           </div>
 
           <button
             type="button"
             onClick={exportToCSV}
-            className="px-5 py-2.5 rounded-full bg-realty-dark hover:bg-realty-darkHover text-white text-xs font-bold shadow-pill-active flex items-center space-x-2 transition-all active:scale-95 whitespace-nowrap"
+            className="px-5 py-2.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-extrabold shadow-md flex items-center space-x-2 transition active:scale-95 whitespace-nowrap"
             aria-label="Export visitor logs to CSV"
           >
-            <Download className="w-4 h-4 text-pastel-lime" aria-hidden="true" />
+            <Download className="w-4 h-4" aria-hidden="true" />
             <span>Export CSV Report</span>
           </button>
         </div>
 
-        {/* Signature Rainbow Gradient Divider */}
-        <div className="h-1.5 w-full rounded-full gradient-bar-hero"></div>
-
         {/* Quick Stats Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
-          <div className="p-3.5 rounded-2xl bg-realty-cardSubtle border border-gray-100 flex items-center justify-between">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 border-t border-neutral-100 dark:border-neutral-800">
+          <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
             <div>
-              <span className="text-[11px] text-realty-textMuted font-medium block">Total Logged</span>
-              <span className="text-lg font-extrabold text-realty-dark">{totalCount}</span>
+              <span className="text-[11px] text-neutral-600 dark:text-neutral-400 font-bold block uppercase">Total Logged</span>
+              <span className="text-lg font-black text-neutral-900 dark:text-white">{totalCount}</span>
             </div>
-            <span className="w-8 h-8 rounded-full bg-white text-realty-dark flex items-center justify-center text-xs font-bold shadow-xs">
+            <span className="w-8 h-8 rounded-full bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white flex items-center justify-center text-xs font-extrabold shadow-xs">
               {totalCount}
             </span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-realty-cardSubtle border border-gray-100 flex items-center justify-between">
+          <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
             <div>
-              <span className="text-[11px] text-realty-textMuted font-medium block">Active Inside</span>
-              <span className="text-lg font-extrabold text-tag-rental">{insideCount}</span>
+              <span className="text-[11px] text-neutral-600 dark:text-neutral-400 font-bold block uppercase">Active Inside</span>
+              <span className="text-lg font-black text-neutral-900 dark:text-white">{insideCount}</span>
             </div>
-            <span className="w-8 h-8 rounded-full bg-pastel-mint text-pastel-mintDark flex items-center justify-center text-xs font-bold shadow-xs">
+            <span className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 flex items-center justify-center text-xs font-extrabold border border-emerald-300 dark:border-emerald-800">
               {insideCount}
             </span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-realty-cardSubtle border border-gray-100 flex items-center justify-between">
+          <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
             <div>
-              <span className="text-[11px] text-realty-textMuted font-medium block">Overdue Alerts</span>
-              <span className="text-lg font-extrabold text-tag-sale">{overdueCount}</span>
+              <span className="text-[11px] text-neutral-600 dark:text-neutral-400 font-bold block uppercase">Overdue Alerts</span>
+              <span className="text-lg font-black text-rose-600 dark:text-rose-400">{overdueCount}</span>
             </div>
-            <span className="w-8 h-8 rounded-full bg-pastel-pink text-pastel-pinkDark flex items-center justify-center text-xs font-bold shadow-xs">
+            <span className="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 flex items-center justify-center text-xs font-extrabold border border-rose-300 dark:border-rose-800">
               {overdueCount}
             </span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-realty-cardSubtle border border-gray-100 flex items-center justify-between">
+          <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
             <div>
-              <span className="text-[11px] text-realty-textMuted font-medium block">Checked-Out</span>
-              <span className="text-lg font-extrabold text-realty-textSecondary">{checkedOutCount}</span>
+              <span className="text-[11px] text-neutral-600 dark:text-neutral-400 font-bold block uppercase">Checked-Out</span>
+              <span className="text-lg font-black text-neutral-900 dark:text-white">{checkedOutCount}</span>
             </div>
-            <span className="w-8 h-8 rounded-full bg-white text-realty-textMuted flex items-center justify-center text-xs font-bold shadow-xs">
+            <span className="w-8 h-8 rounded-full bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white flex items-center justify-center text-xs font-extrabold shadow-xs">
               {checkedOutCount}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Status Capsule Filter Pills & Search Bar */}
+      {/* Filters Bar */}
       <div className="space-y-3">
         <div className="flex flex-col md:flex-row items-center justify-between gap-3">
           
@@ -300,16 +290,14 @@ export const VisitorLogView = () => {
             <button
               type="button"
               onClick={() => setSelectedStatusFilter('All')}
-              className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center space-x-2 ${
+              className={`px-4 py-2 rounded-full text-xs font-extrabold transition flex items-center gap-2 ${
                 selectedStatusFilter === 'All'
-                  ? 'bg-realty-dark text-white shadow-pill-active'
-                  : 'bg-white text-realty-textSecondary hover:text-realty-dark shadow-xs'
+                  ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-md'
+                  : 'bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700'
               }`}
             >
               <span>All Statuses</span>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                selectedStatusFilter === 'All' ? 'bg-tag-rental text-white' : 'bg-gray-100 text-realty-dark'
-              }`}>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-white">
                 {totalCount}
               </span>
             </button>
@@ -317,16 +305,14 @@ export const VisitorLogView = () => {
             <button
               type="button"
               onClick={() => setSelectedStatusFilter('Checked-In')}
-              className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center space-x-2 ${
+              className={`px-4 py-2 rounded-full text-xs font-extrabold transition flex items-center gap-2 ${
                 selectedStatusFilter === 'Checked-In'
-                  ? 'bg-realty-dark text-white shadow-pill-active'
-                  : 'bg-white text-realty-textSecondary hover:text-realty-dark shadow-xs'
+                  ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-md'
+                  : 'bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700'
               }`}
             >
               <span>Inside</span>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                selectedStatusFilter === 'Checked-In' ? 'bg-tag-rental text-white' : 'bg-gray-100 text-realty-dark'
-              }`}>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-white">
                 {insideCount}
               </span>
             </button>
@@ -334,16 +320,14 @@ export const VisitorLogView = () => {
             <button
               type="button"
               onClick={() => setSelectedStatusFilter('Overdue')}
-              className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center space-x-2 ${
+              className={`px-4 py-2 rounded-full text-xs font-extrabold transition flex items-center gap-2 ${
                 selectedStatusFilter === 'Overdue'
-                  ? 'bg-realty-dark text-white shadow-pill-active'
-                  : 'bg-white text-realty-textSecondary hover:text-realty-dark shadow-xs'
+                  ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-md'
+                  : 'bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700'
               }`}
             >
               <span>Overdue</span>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                selectedStatusFilter === 'Overdue' ? 'bg-tag-sale text-white' : 'bg-gray-100 text-realty-dark'
-              }`}>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500 text-white">
                 {overdueCount}
               </span>
             </button>
@@ -351,16 +335,14 @@ export const VisitorLogView = () => {
             <button
               type="button"
               onClick={() => setSelectedStatusFilter('Checked-Out')}
-              className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center space-x-2 ${
+              className={`px-4 py-2 rounded-full text-xs font-extrabold transition flex items-center gap-2 ${
                 selectedStatusFilter === 'Checked-Out'
-                  ? 'bg-realty-dark text-white shadow-pill-active'
-                  : 'bg-white text-realty-textSecondary hover:text-realty-dark shadow-xs'
+                  ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-md'
+                  : 'bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700'
               }`}
             >
               <span>Checked-Out</span>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                selectedStatusFilter === 'Checked-Out' ? 'bg-gray-700 text-white' : 'bg-gray-100 text-realty-dark'
-              }`}>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-white">
                 {checkedOutCount}
               </span>
             </button>
@@ -369,20 +351,20 @@ export const VisitorLogView = () => {
           {/* Department Filter & Search Pill */}
           <div className="flex items-center gap-2.5 w-full md:w-auto justify-end">
             <div className="relative flex-1 md:w-72">
-              <Search className="w-4 h-4 absolute left-3.5 top-2.5 text-realty-textMuted pointer-events-none" aria-hidden="true" />
+              <Search className="w-4 h-4 absolute left-3.5 top-2.5 text-neutral-400 pointer-events-none" aria-hidden="true" />
               <input
                 type="text"
                 placeholder="Search name, NIN, host, badge..."
                 value={globalSearchQuery}
                 onChange={(e) => setGlobalSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-8 py-2 rounded-full text-xs bg-white text-realty-dark placeholder-realty-textMuted focus:outline-none focus:ring-2 focus:ring-realty-dark/10 transition-all font-medium shadow-xs"
+                className="w-full pl-9 pr-8 py-2 rounded-full text-xs bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-400 border border-neutral-200 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-950 dark:focus:ring-white transition font-semibold"
                 aria-label="Search master log"
               />
               {globalSearchQuery && (
                 <button
                   type="button"
                   onClick={() => setGlobalSearchQuery('')}
-                  className="absolute right-2.5 top-2.5 p-0.5 text-realty-textMuted hover:text-realty-dark rounded-full"
+                  className="absolute right-2.5 top-2.5 p-0.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-full"
                   aria-label="Clear log search input"
                 >
                   <X className="w-3.5 h-3.5" aria-hidden="true" />
@@ -394,14 +376,14 @@ export const VisitorLogView = () => {
               <select
                 value={selectedDeptFilter}
                 onChange={(e) => setSelectedDeptFilter(e.target.value)}
-                className="appearance-none px-4 py-2 pr-8 rounded-full text-xs bg-white text-realty-dark focus:outline-none cursor-pointer font-bold shadow-xs border border-white/80"
+                className="appearance-none px-4 py-2 pr-8 rounded-full text-xs bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white focus:outline-none font-bold border border-neutral-200 dark:border-neutral-700"
               >
                 <option value="All">All Departments</option>
                 {departments.map(d => (
                   <option key={d.id} value={d.name}>{d.name}</option>
                 ))}
               </select>
-              <ChevronDown className="w-3 h-3 absolute right-3 top-3 text-realty-textMuted pointer-events-none" />
+              <ChevronDown className="w-3 h-3 absolute right-3 top-3 text-neutral-400 pointer-events-none" />
             </div>
           </div>
 
@@ -409,83 +391,83 @@ export const VisitorLogView = () => {
 
         {hasActiveFilters && (
           <div className="flex items-center justify-between px-2 pt-1">
-            <span className="text-xs text-realty-textMuted font-medium">
-              Found <span className="font-bold text-realty-dark">{filtered.length}</span> matching visitor records
+            <span className="text-xs text-neutral-600 dark:text-neutral-300 font-bold">
+              Found <span className="text-neutral-900 dark:text-white font-extrabold">{filtered.length}</span> matching visitor records in SQLite DB
             </span>
             <button
               type="button"
               onClick={handleClearFilters}
-              className="px-3 py-1 rounded-full text-xs font-bold bg-white text-realty-dark hover:bg-gray-50 transition-colors shadow-xs"
+              className="px-3 py-1 rounded-full text-xs font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-200 transition"
             >
-              Reset All Filters
+              Reset Filters
             </button>
           </div>
         )}
       </div>
 
       {/* Main Table Card Container */}
-      <div className="bg-white rounded-3xl overflow-hidden shadow-soft-card border border-white/80">
+      <div className="bg-white dark:bg-neutral-900 rounded-3xl overflow-hidden shadow-sm border border-neutral-200 dark:border-neutral-800">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-sans border-collapse">
-            <thead className="bg-realty-cardSubtle text-realty-dark font-extrabold uppercase tracking-wider text-[11px]">
+            <thead className="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white font-extrabold uppercase tracking-wider text-[11px]">
               <tr>
-                <th className="py-4 px-5 cursor-pointer select-none hover:bg-gray-200/50 transition-colors" onClick={() => toggleSort('status')}>
-                  <div className="flex items-center space-x-1.5">
+                <th className="py-4 px-5 cursor-pointer select-none" onClick={() => toggleSort('status')}>
+                  <div className="flex items-center gap-1.5">
                     <span>Status</span>
-                    <ArrowUpDown className="w-3 h-3 text-realty-textMuted" aria-hidden="true" />
+                    <ArrowUpDown className="w-3 h-3 text-neutral-400" aria-hidden="true" />
                   </div>
                 </th>
-                <th className="py-4 px-5 cursor-pointer select-none hover:bg-gray-200/50 transition-colors" onClick={() => toggleSort('badgeId')}>
-                  <div className="flex items-center space-x-1.5">
+                <th className="py-4 px-5 cursor-pointer select-none" onClick={() => toggleSort('badgeId')}>
+                  <div className="flex items-center gap-1.5">
                     <span>Badge ID</span>
-                    <ArrowUpDown className="w-3 h-3 text-realty-textMuted" aria-hidden="true" />
+                    <ArrowUpDown className="w-3 h-3 text-neutral-400" aria-hidden="true" />
                   </div>
                 </th>
-                <th className="py-4 px-5 cursor-pointer select-none hover:bg-gray-100 transition-colors" onClick={() => toggleSort('fullName')}>
-                  <div className="flex items-center space-x-1.5">
-                    <span>Visitor & Organization</span>
-                    <ArrowUpDown className="w-3 h-3 text-realty-textMuted" aria-hidden="true" />
+                <th className="py-4 px-5 cursor-pointer select-none" onClick={() => toggleSort('fullName')}>
+                  <div className="flex items-center gap-1.5">
+                    <span>Visitor & Company</span>
+                    <ArrowUpDown className="w-3 h-3 text-neutral-400" aria-hidden="true" />
                   </div>
                 </th>
-                <th className="py-4 px-5">Contact & NIN/FRSC ID</th>
+                <th className="py-4 px-5">Contact & ID</th>
                 <th className="py-4 px-5">Host Officer & Dept</th>
                 <th className="py-4 px-5">Visit Purpose</th>
-                <th className="py-4 px-5 cursor-pointer select-none hover:bg-gray-100 transition-colors" onClick={() => toggleSort('checkInTime')}>
-                  <div className="flex items-center space-x-1.5">
+                <th className="py-4 px-5 cursor-pointer select-none" onClick={() => toggleSort('checkInTime')}>
+                  <div className="flex items-center gap-1.5">
                     <span>Check-In</span>
-                    <ArrowUpDown className="w-3 h-3 text-realty-textMuted" aria-hidden="true" />
+                    <ArrowUpDown className="w-3 h-3 text-neutral-400" aria-hidden="true" />
                   </div>
                 </th>
-                <th className="py-4 px-5 cursor-pointer select-none hover:bg-gray-100 transition-colors" onClick={() => toggleSort('checkOutTime')}>
-                  <div className="flex items-center space-x-1.5">
+                <th className="py-4 px-5 cursor-pointer select-none" onClick={() => toggleSort('checkOutTime')}>
+                  <div className="flex items-center gap-1.5">
                     <span>Check-Out</span>
-                    <ArrowUpDown className="w-3 h-3 text-realty-textMuted" aria-hidden="true" />
+                    <ArrowUpDown className="w-3 h-3 text-neutral-400" aria-hidden="true" />
                   </div>
                 </th>
-                <th className="py-4 px-5 cursor-pointer select-none hover:bg-gray-100 transition-colors" onClick={() => toggleSort('duration')}>
-                  <div className="flex items-center space-x-1.5">
+                <th className="py-4 px-5 cursor-pointer select-none" onClick={() => toggleSort('duration')}>
+                  <div className="flex items-center gap-1.5">
                     <span>Duration</span>
-                    <ArrowUpDown className="w-3 h-3 text-realty-textMuted" aria-hidden="true" />
+                    <ArrowUpDown className="w-3 h-3 text-neutral-400" aria-hidden="true" />
                   </div>
                 </th>
                 <th className="py-4 px-5 text-right">Actions</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-gray-100 text-realty-dark font-sans">
+            <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800 text-neutral-900 dark:text-white font-sans">
               {paginatedVisitors.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="py-16 text-center text-realty-textMuted font-medium">
+                  <td colSpan={10} className="py-16 text-center text-neutral-500 font-medium">
                     <div className="space-y-3">
-                      <UserCheck className="w-10 h-10 mx-auto text-realty-textMuted opacity-60" aria-hidden="true" />
-                      <p className="font-bold text-realty-dark text-sm">No visitor records match the current filter criteria.</p>
+                      <UserCheck className="w-10 h-10 mx-auto text-neutral-400" aria-hidden="true" />
+                      <p className="font-bold text-neutral-900 dark:text-white text-sm">No visitor records match the current filter criteria in SQLite database.</p>
                       {hasActiveFilters && (
                         <button
                           type="button"
                           onClick={handleClearFilters}
-                          className="mt-2 px-5 py-2 rounded-full bg-realty-dark text-white text-xs font-bold shadow-pill-active"
+                          className="mt-2 px-5 py-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold shadow-md"
                         >
-                          Reset All Filters
+                          Reset Filters
                         </button>
                       )}
                     </div>
@@ -501,27 +483,24 @@ export const VisitorLogView = () => {
                     : '—';
 
                   const durationFormatted = calculateStayDuration(v.checkInTime, v.checkOutTime);
-                  const isEven = index % 2 === 0;
 
                   return (
                     <tr 
                       key={v.id} 
-                      className={`hover:bg-realty-cardSubtle transition-colors ${
-                        isEven ? 'bg-white' : 'bg-realty-cardSubtle/40'
-                      }`}
+                      className="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition"
                     >
                       {/* Status Tag Badge */}
                       <td className="py-4 px-5 whitespace-nowrap">
                         {v.status === 'Checked-Out' ? (
-                          <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-gray-100 text-realty-textMuted uppercase tracking-wider">
+                          <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 uppercase tracking-wider border border-neutral-200 dark:border-neutral-700">
                             Checked-Out
                           </span>
                         ) : v.status === 'Overdue' ? (
-                          <span className="px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-extrabold bg-tag-sale text-white shadow-xs">
+                          <span className="px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-extrabold bg-rose-500 text-white shadow-xs">
                             Overdue
                           </span>
                         ) : (
-                          <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-tag-rental text-white uppercase tracking-wider shadow-xs">
+                          <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 uppercase tracking-wider shadow-xs">
                             Inside
                           </span>
                         )}
@@ -529,31 +508,28 @@ export const VisitorLogView = () => {
 
                       {/* Badge ID */}
                       <td className="py-4 px-5 whitespace-nowrap">
-                        <span className="text-xs font-extrabold text-realty-dark px-3 py-1 rounded-full bg-realty-cardSubtle">
+                        <span className="text-xs font-black text-neutral-900 dark:text-white px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
                           {v.badgeId}
                         </span>
                       </td>
 
                       {/* Visitor Name & Company */}
                       <td className="py-4 px-5">
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center gap-3">
                           <img 
                             src={v.avatar} 
                             alt={v.fullName} 
-                            className="w-9 h-9 rounded-xl object-cover flex-shrink-0 shadow-xs" 
+                            className="w-9 h-9 rounded-xl object-cover shrink-0 border border-neutral-200 dark:border-neutral-700 shadow-xs" 
                             onError={(e) => {
-                              e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(v.fullName)}&backgroundColor=111625&textColor=ffffff`;
+                              e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(v.fullName)}`;
                             }}
                           />
                           <div>
-                            <div className="font-extrabold text-realty-dark text-sm leading-snug">
+                            <div className="font-extrabold text-neutral-900 dark:text-white text-sm leading-snug">
                               {v.fullName}
                             </div>
-                            <div className="text-xs text-realty-textMuted font-medium">
+                            <div className="text-xs text-neutral-600 dark:text-neutral-300 font-semibold">
                               {v.company || 'Private Guest'}
-                            </div>
-                            <div className="text-[10px] font-bold text-realty-textMuted">
-                              {v.id}
                             </div>
                           </div>
                         </div>
@@ -561,66 +537,64 @@ export const VisitorLogView = () => {
 
                       {/* Contact & Document */}
                       <td className="py-4 px-5">
-                        <div className="text-xs text-realty-dark font-bold">
+                        <div className="text-xs text-neutral-900 dark:text-white font-bold">
                           {v.phone}
                         </div>
-                        <div className="text-[10px] text-realty-textMuted font-medium truncate max-w-[160px]">
+                        <div className="text-[10px] text-neutral-600 dark:text-neutral-400 font-semibold truncate max-w-[160px]">
                           {v.idType ? `${v.idType}: ` : ''}{v.idNumber}
                         </div>
                       </td>
 
                       {/* Host & Department */}
                       <td className="py-4 px-5">
-                        <div className="font-bold text-realty-dark">{v.hostName}</div>
-                        <div className="text-[10px] text-realty-textMuted font-medium">{v.department}</div>
+                        <div className="font-extrabold text-neutral-900 dark:text-white">{v.hostName}</div>
+                        <div className="text-[10px] text-neutral-600 dark:text-neutral-400 font-semibold">{v.department}</div>
                       </td>
 
                       {/* Purpose Pill */}
                       <td className="py-4 px-5">
-                        <span className="px-3 py-1 rounded-full bg-realty-cardSubtle text-realty-dark text-[11px] font-bold inline-block max-w-[160px] truncate">
+                        <span className="px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white text-[11px] font-bold inline-block max-w-[160px] truncate border border-neutral-200 dark:border-neutral-700">
                           {v.purpose}
                         </span>
                       </td>
 
                       {/* Check In */}
-                      <td className="py-4 px-5 text-[11px] font-bold text-realty-dark whitespace-nowrap">
+                      <td className="py-4 px-5 text-[11px] font-bold text-neutral-900 dark:text-white whitespace-nowrap">
                         {checkInFormatted}
                       </td>
 
                       {/* Check Out */}
-                      <td className="py-4 px-5 text-[11px] font-bold text-realty-dark whitespace-nowrap">
+                      <td className="py-4 px-5 text-[11px] font-bold text-neutral-900 dark:text-white whitespace-nowrap">
                         {checkOutFormatted}
                       </td>
 
                       {/* Stay Duration */}
-                      <td className="py-4 px-5 text-[11px] font-extrabold text-realty-dark whitespace-nowrap">
-                        <span className="px-2.5 py-0.5 rounded-full bg-realty-cardSubtle">
+                      <td className="py-4 px-5 text-[11px] font-black text-neutral-900 dark:text-white whitespace-nowrap">
+                        <span className="px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
                           {durationFormatted}
                         </span>
                       </td>
 
                       {/* Action buttons */}
                       <td className="py-4 px-5 text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end space-x-1.5">
+                        <div className="flex items-center justify-end gap-1.5">
                           <button
                             type="button"
                             onClick={() => openBadgeModal(v)}
-                            className="p-2 rounded-full bg-gray-100 text-realty-dark hover:bg-gray-200 transition-colors shadow-xs"
+                            className="p-2 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-200 transition"
                             title="View Digital Badge Pass"
-                            aria-label={`View Pass Badge for ${v.fullName}`}
                           >
-                            <QrCode className="w-4 h-4" aria-hidden="true" />
+                            <QrCode className="w-4 h-4" />
                           </button>
 
                           {v.status !== 'Checked-Out' && (
                             <button
                               type="button"
                               onClick={() => handleCheckOut(v)}
-                              className="px-3.5 py-1.5 rounded-full bg-realty-dark text-white hover:bg-realty-darkHover font-bold text-[10px] transition-all active:scale-95 shadow-pill-active flex items-center space-x-1"
+                              className="px-3.5 py-1.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-bold text-[10px] shadow-sm active:scale-95 flex items-center gap-1"
                               title="Process Visitor Check-Out"
-                              aria-label={`Check Out ${v.fullName}`}
                             >
-                              <LogOut className="w-3 h-3 text-pastel-lime" aria-hidden="true" />
+                              <LogOut className="w-3 h-3" />
                               <span>Check-Out</span>
                             </button>
                           )}
@@ -634,31 +608,30 @@ export const VisitorLogView = () => {
           </table>
         </div>
 
-        {/* Executive Pagination Bar */}
-        <div className="px-6 py-4 bg-realty-cardSubtle flex flex-wrap items-center justify-between gap-3 text-xs text-realty-textMuted font-medium">
+        {/* Pagination Bar */}
+        <div className="px-6 py-4 bg-neutral-50 dark:bg-neutral-800/50 border-t border-neutral-100 dark:border-neutral-800 flex flex-wrap items-center justify-between gap-3 text-xs text-neutral-600 dark:text-neutral-300 font-semibold">
           <div>
             {sortedVisitors.length > 0 ? (
               <span>
-                Showing <span className="font-bold text-realty-dark">{startIndex + 1}</span> to <span className="font-bold text-realty-dark">{endIndex}</span> of <span className="font-bold text-realty-dark">{sortedVisitors.length}</span> visitor records
+                Showing <span className="font-extrabold text-neutral-900 dark:text-white">{startIndex + 1}</span> to <span className="font-extrabold text-neutral-900 dark:text-white">{endIndex}</span> of <span className="font-extrabold text-neutral-900 dark:text-white">{sortedVisitors.length}</span> visitor records in SQLite DB
               </span>
             ) : (
               <span>0 records found</span>
             )}
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               disabled={clampedPage === 1}
               onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
-              className="p-2 rounded-full bg-white text-realty-dark shadow-xs disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+              className="p-2 rounded-full bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white shadow-xs disabled:opacity-30 disabled:cursor-not-allowed hover:bg-neutral-100 transition"
               aria-label="Previous Page"
             >
-              <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
 
-            {/* Page number buttons */}
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center gap-1">
               {renderPaginationButtons()}
             </div>
 
@@ -666,10 +639,10 @@ export const VisitorLogView = () => {
               type="button"
               disabled={clampedPage === totalPages || totalPages === 0}
               onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
-              className="p-2 rounded-full bg-white text-realty-dark shadow-xs disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+              className="p-2 rounded-full bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white shadow-xs disabled:opacity-30 disabled:cursor-not-allowed hover:bg-neutral-100 transition"
               aria-label="Next Page"
             >
-              <ChevronRight className="w-4 h-4" aria-hidden="true" />
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>

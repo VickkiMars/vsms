@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useVisitorContext } from '../context/VisitorContext';
+import { useAuthContext } from '../context/AuthContext';
 import { 
   Search, 
   UserPlus, 
@@ -14,11 +15,9 @@ import {
   Moon,
   Download,
   RefreshCw,
-  ShieldCheck,
   QrCode,
   LogOut,
-  AlertTriangle,
-  UserCheck
+  Database
 } from 'lucide-react';
 
 export const CommandPalette = () => {
@@ -33,15 +32,14 @@ export const CommandPalette = () => {
     theme,
     toggleTheme,
     exportToCSV,
-    resetToDemoData,
-    userRole,
-    setUserRole
+    resetToDemoData
   } = useVisitorContext();
+
+  const { switchUserRole } = useAuthContext();
 
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef(null);
-  const itemRefs = useRef([]);
 
   // Define static navigation & utility actions
   const allActions = useMemo(() => [
@@ -93,364 +91,223 @@ export const CommandPalette = () => {
     { 
       type: 'action',
       id: 'action-settings',
-      label: 'Go to System Settings', 
+      label: 'Go to System Settings & SQLite', 
       category: 'Navigation',
       icon: Settings, 
-      keywords: 'settings configuration preferences system options',
+      keywords: 'settings configuration preferences system options sqlite db',
       run: () => { setIsCmdKOpen(false); setActiveView('settings'); } 
     },
     { 
       type: 'action',
-      id: 'action-theme',
-      label: `Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Theme`, 
-      category: 'Utility',
-      icon: theme === 'dark' ? Sun : Moon, 
-      keywords: 'theme dark light mode toggle contrast style switch',
-      run: () => { setIsCmdKOpen(false); toggleTheme(); } 
-    },
-    { 
-      type: 'action',
-      id: 'action-export-csv',
-      label: 'Export Master Log to CSV', 
-      category: 'Utility',
+      id: 'action-export',
+      label: 'Export Master Log (CSV)', 
+      category: 'Database Tool',
       icon: Download, 
-      keywords: 'export csv download spreadsheet excel backup file data',
+      keywords: 'export csv download data backup log spreadsheet',
       run: () => { setIsCmdKOpen(false); exportToCSV(); } 
     },
     { 
       type: 'action',
-      id: 'action-reset-data',
-      label: 'Reset to Initial Demo Data', 
-      category: 'Utility',
-      icon: RefreshCw, 
-      keywords: 'reset restore demo initial data clear storage reload seed',
-      run: () => { setIsCmdKOpen(false); resetToDemoData(); } 
+      id: 'action-theme',
+      label: `Switch Theme to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`, 
+      category: 'Appearance',
+      icon: theme === 'dark' ? Sun : Moon, 
+      keywords: 'theme dark mode light mode toggle appearance color',
+      run: () => { setIsCmdKOpen(false); toggleTheme(); } 
     },
     { 
       type: 'action',
-      id: 'action-toggle-role',
-      label: `Switch Role (Current: ${userRole.toUpperCase()})`, 
-      category: 'Utility',
-      icon: ShieldCheck, 
-      keywords: 'role switch admin security permission toggle user account',
-      run: () => { 
-        setIsCmdKOpen(false); 
-        setUserRole(userRole === 'admin' ? 'security' : 'admin'); 
-      } 
+      id: 'action-role-admin',
+      label: 'Switch Active Role: Administrator', 
+      category: 'Security Access',
+      icon: Database, 
+      keywords: 'switch role admin manager director full control',
+      run: () => { setIsCmdKOpen(false); switchUserRole('admin'); } 
     },
-  ], [setActiveView, setIsCheckInOpen, setIsCmdKOpen, theme, toggleTheme, exportToCSV, resetToDemoData, userRole, setUserRole]);
+    { 
+      type: 'action',
+      id: 'action-role-guard',
+      label: 'Switch Active Role: Security Guard', 
+      category: 'Security Access',
+      icon: Database, 
+      keywords: 'switch role security guard desk officer',
+      run: () => { setIsCmdKOpen(false); switchUserRole('security'); } 
+    },
+    { 
+      type: 'action',
+      id: 'action-reset',
+      label: 'Reset SQLite Database to Demo Seed', 
+      category: 'Database Tool',
+      icon: RefreshCw, 
+      keywords: 'reset clear data restore default sample seed clean',
+      run: () => { setIsCmdKOpen(false); resetToDemoData(); } 
+    }
+  ], [theme, setIsCmdKOpen, setIsCheckInOpen, setActiveView, exportToCSV, toggleTheme, switchUserRole, resetToDemoData]);
 
-  // Filter visitors based on query (capped to max 5 instant results)
-  const filteredVisitors = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return [];
-    return visitors.filter(v => 
-      v.fullName.toLowerCase().includes(q) ||
-      v.company.toLowerCase().includes(q) ||
-      v.hostName.toLowerCase().includes(q) ||
-      v.badgeId.toLowerCase().includes(q) ||
-      v.id.toLowerCase().includes(q) ||
-      (v.phone && v.phone.toLowerCase().includes(q)) ||
-      (v.department && v.department.toLowerCase().includes(q))
-    ).slice(0, 5).map(v => ({
+  // Combine actions and dynamic visitor records
+  const filteredItems = useMemo(() => {
+    const q = query.toLowerCase().trim();
+
+    const matchingActions = allActions.filter(act => 
+      !q || 
+      act.label.toLowerCase().includes(q) || 
+      act.category.toLowerCase().includes(q) || 
+      act.keywords.includes(q)
+    );
+
+    const matchingVisitors = visitors.filter(v => 
+      q && (
+        v.fullName.toLowerCase().includes(q) ||
+        (v.company && v.company.toLowerCase().includes(q)) ||
+        (v.hostName && v.hostName.toLowerCase().includes(q)) ||
+        (v.badgeId && v.badgeId.toLowerCase().includes(q)) ||
+        (v.id && v.id.toLowerCase().includes(q))
+      )
+    ).map(v => ({
       type: 'visitor',
       id: `visitor-${v.id}`,
-      data: v,
+      label: `${v.fullName} (${v.badgeId})`,
+      subtitle: `${v.company || 'Guest'} • Host: ${v.hostName}`,
+      visitor: v,
+      category: 'Visitor Search',
       run: () => {
         setIsCmdKOpen(false);
         openBadgeModal(v);
       }
     }));
-  }, [query, visitors, setIsCmdKOpen, openBadgeModal]);
 
-  // Filter actions based on query
-  const filteredActions = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return allActions;
-    return allActions.filter(act => 
-      act.label.toLowerCase().includes(q) ||
-      act.category.toLowerCase().includes(q) ||
-      (act.keywords && act.keywords.toLowerCase().includes(q))
-    );
-  }, [query, allActions]);
+    return [...matchingActions, ...matchingVisitors];
+  }, [allActions, visitors, query, setIsCmdKOpen, openBadgeModal]);
 
-  // Combined flat list for keyboard arrow navigation
-  const flatItems = useMemo(() => {
-    return [...filteredVisitors, ...filteredActions];
-  }, [filteredVisitors, filteredActions]);
-
-  // Reset selectedIndex when query changes
-  useEffect(() => {
-    setSelectedIndex(0);
-  }, [query]);
-
-  // Focus search input when opened
+  // Focus input when opened
   useEffect(() => {
     if (isCmdKOpen) {
       setQuery('');
       setSelectedIndex(0);
-      const timer = setTimeout(() => {
-        inputRef.current?.focus();
-      }, 30);
-      return () => clearTimeout(timer);
+      setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [isCmdKOpen]);
 
-  // Keep selected item visible in list
+  // Handle keyboard navigation inside command palette
   useEffect(() => {
-    if (itemRefs.current[selectedIndex]) {
-      itemRefs.current[selectedIndex].scrollIntoView({
-        block: 'nearest',
-        behavior: 'smooth'
-      });
-    }
-  }, [selectedIndex]);
+    if (!isCmdKOpen) return;
 
-  // Keyboard navigation handler inside the palette
-  const handleKeyDown = (e) => {
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      setIsCmdKOpen(false);
-      return;
-    }
-
-    if (flatItems.length === 0) return;
-
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setSelectedIndex(prev => (prev + 1) % flatItems.length);
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setSelectedIndex(prev => (prev - 1 + flatItems.length) % flatItems.length);
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      const currentItem = flatItems[selectedIndex];
-      if (currentItem && currentItem.run) {
-        currentItem.run();
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setSelectedIndex(prev => (filteredItems.length === 0 ? 0 : (prev + 1) % filteredItems.length));
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setSelectedIndex(prev => (filteredItems.length === 0 ? 0 : (prev - 1 + filteredItems.length) % filteredItems.length));
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (filteredItems[selectedIndex]) {
+          filteredItems[selectedIndex].run();
+        }
       }
-    }
-  };
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isCmdKOpen, filteredItems, selectedIndex]);
 
   if (!isCmdKOpen) return null;
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 p-4 bg-black/40 backdrop-blur-xs animate-fade-in select-none"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) setIsCmdKOpen(false);
-      }}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="command-palette-title"
+      aria-modal="true" 
+      role="dialog" 
+      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 p-4 bg-black/70 backdrop-blur-sm animate-fadeIn font-sans"
     >
       <div 
-        className="w-full max-w-xl bg-white rounded-3xl shadow-float-bar overflow-hidden animate-scale-in flex flex-col font-sans"
-        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
       >
-        {/* Search Input Bar */}
-        <div className="px-5 py-4 flex items-center space-x-3 bg-white">
-          <Search className="w-5 h-5 text-realty-textMuted flex-shrink-0" aria-hidden="true" />
+        {/* Search Bar */}
+        <div className="relative p-4 border-b border-neutral-100 dark:border-neutral-800 flex items-center gap-3">
+          <Search className="w-5 h-5 text-neutral-400 shrink-0" />
           <input
             ref={inputRef}
             type="text"
-            placeholder="Type visitor name, badge ID, host, or command..."
+            placeholder="Type a command or search visitor..."
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            aria-label="Command palette search input"
-            aria-autocomplete="list"
-            aria-controls="command-palette-results"
-            className="w-full bg-transparent text-sm font-bold text-realty-dark placeholder-realty-textMuted focus:outline-none"
+            onChange={(e) => { setQuery(e.target.value); setSelectedIndex(0); }}
+            className="w-full bg-transparent text-sm font-bold text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none"
           />
           {query && (
             <button
               type="button"
               onClick={() => setQuery('')}
-              aria-label="Clear search query"
-              className="p-1 rounded-full text-realty-textMuted hover:text-realty-dark"
+              className="p-1 text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-full"
             >
-              <X className="w-4 h-4" aria-hidden="true" />
+              <X className="w-4 h-4" />
             </button>
           )}
-          <button
-            type="button"
-            onClick={() => setIsCmdKOpen(false)}
-            aria-label="Close command palette"
-            className="px-2.5 py-1 rounded-full bg-realty-cardSubtle text-[10px] font-bold text-realty-textMuted hover:text-realty-dark"
-          >
+          <span className="px-2 py-1 rounded bg-neutral-100 dark:bg-neutral-800 text-[10px] font-mono font-bold text-neutral-400 uppercase">
             ESC
-          </button>
+          </span>
         </div>
 
-        {/* Results Container */}
-        <div 
-          id="command-palette-results"
-          role="listbox"
-          aria-label="Command suggestions"
-          className="p-4 max-h-[390px] overflow-y-auto space-y-4 text-xs"
-        >
-          {/* Visitor Matches Section */}
-          {query.trim() !== '' && (
-            <div>
-              <div className="px-3 py-1 text-[10px] font-extrabold text-realty-textMuted uppercase tracking-wider">
-                Matching Guests ({filteredVisitors.length})
-              </div>
-              {filteredVisitors.length === 0 ? (
-                <div className="px-3 py-3 text-realty-textMuted text-center font-medium">
-                  No guests found matching &ldquo;{query}&rdquo;
-                </div>
-              ) : (
-                <div className="space-y-1.5 mt-1">
-                  {filteredVisitors.map((item, idx) => {
-                    const v = item.data;
-                    const isSelected = selectedIndex === idx;
-                    return (
-                      <div
-                        key={item.id}
-                        ref={(el) => { itemRefs.current[idx] = el; }}
-                        role="option"
-                        aria-selected={isSelected}
-                        onMouseEnter={() => setSelectedIndex(idx)}
-                        onClick={() => item.run()}
-                        className={`px-4 py-3 rounded-2xl flex items-center justify-between transition-all cursor-pointer ${
-                          isSelected
-                            ? 'bg-realty-dark text-white shadow-pill-active'
-                            : 'bg-realty-cardSubtle text-realty-dark hover:bg-gray-100'
-                        }`}
-                      >
-                        <div className="flex items-center space-x-3 min-w-0 flex-1 mr-2">
-                          <img 
-                            src={v.avatar} 
-                            alt={v.fullName} 
-                            className="w-9 h-9 rounded-xl object-cover flex-shrink-0"
-                            onError={(e) => {
-                              e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(v.fullName)}&backgroundColor=111625&textColor=ffffff`;
-                            }}
-                          />
-                          <div className="min-w-0 flex-1">
-                            <div className="font-extrabold flex items-center space-x-2 truncate">
-                              <span className="truncate">{v.fullName}</span>
-                              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase flex-shrink-0 ${
-                                isSelected ? 'bg-white/20 text-white' : 'bg-white text-realty-dark shadow-xs'
-                              }`}>
-                                {v.badgeId}
-                              </span>
-                              <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase flex-shrink-0 ${
-                                v.status === 'Checked-In'
-                                  ? 'bg-tag-rental text-white'
-                                  : v.status === 'Overdue'
-                                  ? 'bg-tag-sale text-white'
-                                  : 'bg-gray-200 text-realty-textMuted'
-                              }`}>
-                                {v.status}
-                              </span>
-                            </div>
-                            <div className={`text-[10px] font-medium truncate ${isSelected ? 'text-white/80' : 'text-realty-textMuted'}`}>
-                              {v.company} • Host: {v.hostName} ({v.department})
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Direct Action Buttons */}
-                        <div className="flex items-center space-x-1.5 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-                          {v.status !== 'Checked-Out' && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                checkOutVisitor(v.id);
-                                setIsCmdKOpen(false);
-                              }}
-                              title="1-Click Check Out"
-                              aria-label={`Check out ${v.fullName}`}
-                              className="px-3 py-1 rounded-full bg-tag-sale text-white font-extrabold text-[10px] shadow-xs active:scale-95"
-                            >
-                              Check-Out
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setIsCmdKOpen(false);
-                              openBadgeModal(v);
-                            }}
-                            title="View Security Pass Badge"
-                            aria-label={`View pass badge for ${v.fullName}`}
-                            className={`px-3 py-1 rounded-full font-extrabold text-[10px] transition-all active:scale-95 ${
-                              isSelected ? 'bg-white text-realty-dark' : 'bg-realty-dark text-white'
-                            }`}
-                          >
-                            View Pass
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+        {/* Action List */}
+        <div className="flex-1 overflow-y-auto p-2 space-y-1">
+          {filteredItems.length === 0 ? (
+            <div className="p-8 text-center text-xs text-neutral-500 font-semibold">
+              No matching commands or visitor records found for "{query}".
             </div>
+          ) : (
+            filteredItems.map((item, index) => {
+              const isSelected = index === selectedIndex;
+              const IconComp = item.icon || QrCode;
+
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => item.run()}
+                  onMouseEnter={() => setSelectedIndex(index)}
+                  className={`w-full text-left px-3.5 py-2.5 rounded-2xl flex items-center justify-between transition text-xs font-semibold ${
+                    isSelected
+                      ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 shadow-sm'
+                      : 'text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                      isSelected 
+                        ? 'bg-white/20 text-white dark:bg-neutral-950/20 dark:text-neutral-950' 
+                        : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white'
+                    }`}>
+                      <IconComp className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-extrabold truncate">{item.label}</div>
+                      {item.subtitle && (
+                        <div className={`text-[10px] truncate ${isSelected ? 'opacity-80' : 'text-neutral-500'}`}>
+                          {item.subtitle}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                      isSelected 
+                        ? 'bg-white/20 text-white dark:bg-neutral-950/20 dark:text-neutral-950' 
+                        : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500'
+                    }`}>
+                      {item.category}
+                    </span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </div>
+                </button>
+              );
+            })
           )}
-
-          {/* Quick Actions & Navigation Section */}
-          <div>
-            <div className="px-3 py-1 text-[10px] font-extrabold text-realty-textMuted uppercase tracking-wider">
-              System Commands & Navigation
-            </div>
-            {filteredActions.length === 0 ? (
-              <div className="px-3 py-2 text-realty-textMuted text-center font-medium">No actions found</div>
-            ) : (
-              <div className="space-y-1.5 mt-1">
-                {filteredActions.map((act, i) => {
-                  const Icon = act.icon;
-                  const itemIndex = filteredVisitors.length + i;
-                  const isSelected = selectedIndex === itemIndex;
-                  return (
-                    <button
-                      key={act.id}
-                      ref={(el) => { itemRefs.current[itemIndex] = el; }}
-                      type="button"
-                      role="option"
-                      aria-selected={isSelected}
-                      onMouseEnter={() => setSelectedIndex(itemIndex)}
-                      onClick={act.run}
-                      className={`w-full px-4 py-3 rounded-2xl text-left flex items-center justify-between font-bold transition-all ${
-                        isSelected
-                          ? 'bg-realty-dark text-white shadow-pill-active'
-                          : 'text-realty-dark bg-realty-cardSubtle hover:bg-gray-100'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <Icon className={`w-4 h-4 ${isSelected ? 'text-pastel-lime' : 'text-realty-dark'}`} aria-hidden="true" />
-                        <span className="text-xs">{act.label}</span>
-                      </div>
-                      <div className="flex items-center space-x-2 text-[10px] font-bold opacity-80 uppercase tracking-wider">
-                        <span>{act.category}</span>
-                        <ArrowRight className="w-3 h-3" aria-hidden="true" />
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
         </div>
 
-        {/* Footer Shortcut Bar */}
-        <div className="px-5 py-3 bg-realty-cardSubtle text-[10px] text-realty-textMuted font-bold flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <span className="flex items-center space-x-1">
-              <kbd className="px-1.5 py-0.5 rounded-full bg-white text-realty-dark shadow-xs font-bold text-[9px]">↑</kbd>
-              <kbd className="px-1.5 py-0.5 rounded-full bg-white text-realty-dark shadow-xs font-bold text-[9px]">↓</kbd>
-              <span>Navigate</span>
-            </span>
-            <span className="flex items-center space-x-1">
-              <kbd className="px-2 py-0.5 rounded-full bg-white text-realty-dark shadow-xs font-bold text-[9px]">↵</kbd>
-              <span>Execute</span>
-            </span>
-            <span className="flex items-center space-x-1">
-              <kbd className="px-2 py-0.5 rounded-full bg-white text-realty-dark shadow-xs font-bold text-[9px]">ESC</kbd>
-              <span>Close</span>
-            </span>
-          </div>
-          <span className="hidden sm:inline font-bold uppercase text-[10px] text-realty-dark">VSMS Command Engine</span>
+        {/* Footer info */}
+        <div className="px-4 py-2 bg-neutral-50 dark:bg-neutral-950 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between text-[10px] text-neutral-400 font-semibold">
+          <span>Navigation: <kbd className="font-mono bg-neutral-200 dark:bg-neutral-800 px-1 rounded">↑</kbd> <kbd className="font-mono bg-neutral-200 dark:bg-neutral-800 px-1 rounded">↓</kbd> to move, <kbd className="font-mono bg-neutral-200 dark:bg-neutral-800 px-1 rounded">↵</kbd> to select</span>
+          <span>SQLite Engine Connected</span>
         </div>
       </div>
     </div>

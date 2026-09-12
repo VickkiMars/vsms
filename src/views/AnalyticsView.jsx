@@ -12,9 +12,6 @@ import {
   FileSpreadsheet,
   Sun,
   PieChart,
-  Calendar,
-  Layers,
-  Activity,
   ArrowUpRight
 } from 'lucide-react';
 
@@ -142,27 +139,27 @@ export const AnalyticsView = () => {
   return (
     <div className="space-y-6 font-sans">
       {/* Top Banner */}
-      <div className="p-6 rounded-3xl bg-white shadow-soft-card flex flex-wrap justify-between items-center gap-4">
+      <div className="p-6 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-base font-extrabold text-realty-dark flex items-center space-x-2.5">
-            <BarChart3 className="w-5 h-5 text-realty-dark" />
+          <h2 className="text-base font-extrabold text-neutral-900 dark:text-white flex items-center gap-2">
+            <BarChart3 className="w-5 h-5" />
             <span>Administrative Analytics & Visitor Intelligence</span>
           </h2>
-          <p className="text-xs text-realty-textMuted font-medium mt-1">
-            Real-time traffic telemetry, department resource distribution, stay duration metrics, and facility security compliance.
+          <p className="text-xs text-neutral-600 dark:text-neutral-300 font-semibold mt-1">
+            Real-time telemetry, department resource distribution, and security compliance directly from SQLite database.
           </p>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center gap-3">
           {/* Time Range Filter Switcher */}
-          <div className="inline-flex rounded-full bg-realty-cardSubtle p-1 text-xs">
+          <div className="inline-flex rounded-full bg-neutral-100 dark:bg-neutral-800 p-1 text-xs border border-neutral-200 dark:border-neutral-700">
             <button
               type="button"
               onClick={() => setTimeRange('all')}
-              className={`px-3 py-1.5 rounded-full font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-full font-extrabold transition ${
                 timeRange === 'all'
-                  ? 'bg-realty-dark text-white shadow-pill-active'
-                  : 'text-realty-textSecondary hover:text-realty-dark'
+                  ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-md'
+                  : 'text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
               All Time
@@ -170,10 +167,10 @@ export const AnalyticsView = () => {
             <button
               type="button"
               onClick={() => setTimeRange('week')}
-              className={`px-3 py-1.5 rounded-full font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-full font-extrabold transition ${
                 timeRange === 'week'
-                  ? 'bg-realty-dark text-white shadow-pill-active'
-                  : 'text-realty-textSecondary hover:text-realty-dark'
+                  ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-md'
+                  : 'text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
               Past 7 Days
@@ -181,10 +178,10 @@ export const AnalyticsView = () => {
             <button
               type="button"
               onClick={() => setTimeRange('today')}
-              className={`px-3 py-1.5 rounded-full font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-full font-extrabold transition ${
                 timeRange === 'today'
-                  ? 'bg-realty-dark text-white shadow-pill-active'
-                  : 'text-realty-textSecondary hover:text-realty-dark'
+                  ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-md'
+                  : 'text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
               Today
@@ -194,9 +191,9 @@ export const AnalyticsView = () => {
           <button
             type="button"
             onClick={exportToCSV}
-            className="px-4 py-2.5 rounded-full bg-realty-dark hover:bg-realty-darkHover text-white font-bold text-xs flex items-center space-x-1.5 transition-all shadow-pill-active"
+            className="px-4 py-2.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-200 font-extrabold text-xs flex items-center gap-1.5 transition shadow-md"
           >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-pastel-lime" />
+            <FileSpreadsheet className="w-3.5 h-3.5" />
             <span>Export CSV</span>
           </button>
         </div>
@@ -205,69 +202,69 @@ export const AnalyticsView = () => {
       {/* 4 High-Contrast KPI Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* KPI 1: Total Visitors */}
-        <div className="p-5 rounded-3xl bg-white shadow-soft-card space-y-3">
-          <div className="flex items-center justify-between text-realty-textMuted font-semibold">
-            <span className="text-xs font-bold uppercase tracking-wider">Total Visitors</span>
-            <div className="w-8 h-8 rounded-full bg-pastel-lime/60 text-pastel-limeDark flex items-center justify-center">
+        <div className="p-5 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-3">
+          <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400 font-bold">
+            <span className="text-xs uppercase tracking-wider">Total Visitors</span>
+            <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white flex items-center justify-center">
               <Users className="w-4 h-4" />
             </div>
           </div>
           <div>
-            <div className="text-3xl font-extrabold text-realty-dark tracking-tight">{totalVisitors}</div>
-            <div className="text-[11px] font-bold text-realty-textMuted flex items-center space-x-1 mt-1">
-              <TrendingUp className="w-3.5 h-3.5 text-tag-rental" />
-              <span>100% indexed in master log</span>
+            <div className="text-3xl font-black text-neutral-900 dark:text-white tracking-tight">{totalVisitors}</div>
+            <div className="text-[11px] font-bold text-neutral-600 dark:text-neutral-300 flex items-center gap-1 mt-1">
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>100% indexed in SQLite log</span>
             </div>
           </div>
         </div>
 
         {/* KPI 2: Active Now */}
-        <div className="p-5 rounded-3xl bg-white shadow-soft-card space-y-3">
-          <div className="flex items-center justify-between text-realty-textMuted font-semibold">
-            <span className="text-xs font-bold uppercase tracking-wider">Active Now</span>
-            <div className="w-8 h-8 rounded-full bg-pastel-mint/60 text-pastel-mintDark flex items-center justify-center">
+        <div className="p-5 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-3">
+          <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400 font-bold">
+            <span className="text-xs uppercase tracking-wider">Active Now</span>
+            <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white flex items-center justify-center">
               <Clock className="w-4 h-4" />
             </div>
           </div>
           <div>
-            <div className="text-3xl font-extrabold text-realty-dark tracking-tight">{activeVisitors}</div>
-            <div className="text-[11px] font-bold text-realty-textMuted flex items-center space-x-1.5 mt-1">
-              <span className="w-2 h-2 rounded-full bg-tag-rental animate-pulse" />
+            <div className="text-3xl font-black text-neutral-900 dark:text-white tracking-tight">{activeVisitors}</div>
+            <div className="text-[11px] font-bold text-neutral-600 dark:text-neutral-300 flex items-center gap-1.5 mt-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>Active badge credentials</span>
             </div>
           </div>
         </div>
 
         {/* KPI 3: Overdue Alerts */}
-        <div className={`p-5 rounded-3xl bg-white shadow-soft-card space-y-3 ${
-          overdueCount > 0 ? 'ring-2 ring-tag-sale/40 bg-pastel-pink/20' : ''
+        <div className={`p-5 rounded-3xl bg-white dark:bg-neutral-900 border shadow-sm space-y-3 ${
+          overdueCount > 0 ? 'border-rose-400 bg-rose-50/50 dark:bg-rose-950/20' : 'border-neutral-200 dark:border-neutral-800'
         }`}>
-          <div className="flex items-center justify-between text-realty-textMuted font-semibold">
-            <span className="text-xs font-bold uppercase tracking-wider">Overdue</span>
-            <div className="w-8 h-8 rounded-full bg-pastel-pink/60 text-pastel-pinkDark flex items-center justify-center">
+          <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400 font-bold">
+            <span className="text-xs uppercase tracking-wider">Overdue</span>
+            <div className="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 flex items-center justify-center border border-rose-300 dark:border-rose-800">
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
           <div>
-            <div className="text-3xl font-extrabold text-realty-dark tracking-tight">{overdueCount}</div>
-            <div className="text-[11px] font-bold text-realty-dark mt-1">
+            <div className="text-3xl font-black text-rose-600 dark:text-rose-400 tracking-tight">{overdueCount}</div>
+            <div className="text-[11px] font-bold text-neutral-900 dark:text-white mt-1">
               {overdueCount > 0 ? 'Requires security escort' : 'Zero overdue breaches'}
             </div>
           </div>
         </div>
 
         {/* KPI 4: Average Stay Duration */}
-        <div className="p-5 rounded-3xl bg-white shadow-soft-card space-y-3">
-          <div className="flex items-center justify-between text-realty-textMuted font-semibold">
-            <span className="text-xs font-bold uppercase tracking-wider">Average Stay</span>
-            <div className="w-8 h-8 rounded-full bg-gray-100 text-realty-dark flex items-center justify-center">
+        <div className="p-5 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-3">
+          <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400 font-bold">
+            <span className="text-xs uppercase tracking-wider">Average Stay</span>
+            <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
           <div>
-            <div className="text-3xl font-extrabold text-realty-dark tracking-tight">{avgStayFormatted}</div>
-            <div className="text-[11px] text-realty-textMuted mt-1 font-medium">
-              Based on <strong className="text-realty-dark">{checkedOutCount}</strong> exits
+            <div className="text-3xl font-black text-neutral-900 dark:text-white tracking-tight">{avgStayFormatted}</div>
+            <div className="text-[11px] text-neutral-600 dark:text-neutral-300 mt-1 font-semibold">
+              Based on <strong className="text-neutral-900 dark:text-white">{checkedOutCount}</strong> exits
             </div>
           </div>
         </div>
@@ -276,34 +273,33 @@ export const AnalyticsView = () => {
       {/* Main Analytics Grid: Department Distribution & Purpose Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Department Distribution */}
-        <div className="p-6 rounded-3xl bg-white shadow-soft-card space-y-5">
-          <div className="flex items-center justify-between pb-2">
-            <h3 className="text-sm font-extrabold text-realty-dark uppercase tracking-wider flex items-center space-x-2">
-              <Building className="w-4 h-4 text-realty-dark" />
+        <div className="p-6 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-5">
+          <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
+            <h3 className="text-sm font-extrabold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+              <Building className="w-4 h-4" />
               <span>Department Distribution</span>
             </h3>
-            <span className="text-[11px] font-bold text-realty-textMuted uppercase">Share %</span>
+            <span className="text-[11px] font-bold text-neutral-400 uppercase">Share %</span>
           </div>
 
           <div className="space-y-4">
             {deptStats.map(d => (
               <div key={d.id} className="space-y-1.5">
                 <div className="flex justify-between items-center text-xs">
-                  <div className="flex items-center space-x-2">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-realty-cardSubtle text-realty-dark">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700">
                       {d.code}
                     </span>
-                    <span className="font-extrabold text-realty-dark">{d.name}</span>
+                    <span className="font-extrabold text-neutral-900 dark:text-white">{d.name}</span>
                   </div>
-                  <span className="font-bold text-realty-dark">
-                    {d.count} guests <span className="text-realty-textMuted">({d.percentage}%)</span>
+                  <span className="font-extrabold text-neutral-900 dark:text-white">
+                    {d.count} guests <span className="text-neutral-500">({d.percentage}%)</span>
                   </span>
                 </div>
                 
-                {/* Soft Pastel Progress Bar */}
-                <div className="w-full h-3 rounded-full bg-realty-cardSubtle overflow-hidden">
+                <div className="w-full h-3 rounded-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
                   <div 
-                    className="h-full rounded-full bg-realty-dark transition-all duration-500"
+                    className="h-full rounded-full bg-neutral-950 dark:bg-white transition-all duration-500"
                     style={{ width: `${Math.max(d.percentage, d.count > 0 ? 5 : 0)}%` }}
                   />
                 </div>
@@ -313,13 +309,13 @@ export const AnalyticsView = () => {
         </div>
 
         {/* Visit Purpose Breakdown */}
-        <div className="p-6 rounded-3xl bg-white shadow-soft-card space-y-5">
-          <div className="flex items-center justify-between pb-2">
-            <h3 className="text-sm font-extrabold text-realty-dark uppercase tracking-wider flex items-center space-x-2">
-              <PieChart className="w-4 h-4 text-realty-dark" />
+        <div className="p-6 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-5">
+          <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
+            <h3 className="text-sm font-extrabold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+              <PieChart className="w-4 h-4" />
               <span>Purpose Breakdown</span>
             </h3>
-            <span className="text-[11px] font-bold text-realty-textMuted uppercase">Traffic Count</span>
+            <span className="text-[11px] font-bold text-neutral-400 uppercase">Traffic Count</span>
           </div>
 
           <div className="space-y-2.5">
@@ -328,23 +324,21 @@ export const AnalyticsView = () => {
               return (
                 <div 
                   key={purpose} 
-                  className="p-3.5 rounded-2xl bg-realty-cardSubtle flex items-center justify-between transition-colors"
+                  className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700 flex items-center justify-between"
                 >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-7 h-7 rounded-full bg-realty-dark text-white flex items-center justify-center font-extrabold text-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 flex items-center justify-center font-extrabold text-xs">
                       #{idx + 1}
                     </div>
                     <div>
-                      <div className="font-extrabold text-xs text-realty-dark">{purpose}</div>
-                      <div className="text-[10px] text-realty-textMuted font-medium">{pct}% of facility foot traffic</div>
+                      <div className="font-extrabold text-xs text-neutral-900 dark:text-white">{purpose}</div>
+                      <div className="text-[10px] text-neutral-600 dark:text-neutral-400 font-semibold">{pct}% of facility foot traffic</div>
                     </div>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-white text-realty-dark shadow-xs">
-                      {count}
-                    </span>
-                  </div>
+                  <span className="px-3 py-1 rounded-full text-xs font-black bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-xs border border-neutral-200 dark:border-neutral-600">
+                    {count}
+                  </span>
                 </div>
               );
             })}
@@ -355,13 +349,13 @@ export const AnalyticsView = () => {
       {/* Secondary Row: Peak Hours Traffic Distribution & Security ID Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Peak Hours Traffic Distribution */}
-        <div className="p-6 rounded-3xl bg-white shadow-soft-card space-y-4">
-          <div className="flex items-center justify-between pb-2">
-            <h3 className="text-sm font-extrabold text-realty-dark uppercase tracking-wider flex items-center space-x-2">
-              <Sun className="w-4 h-4 text-realty-dark" />
+        <div className="p-6 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
+            <h3 className="text-sm font-extrabold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+              <Sun className="w-4 h-4" />
               <span>Peak Hours Traffic Distribution</span>
             </h3>
-            <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-pastel-lime text-pastel-limeDark">
+            <span className="px-3 py-1 rounded-full text-[10px] font-extrabold bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700">
               Peak: {peakTimeWindow.label.split(' ')[0]}
             </span>
           </div>
@@ -373,16 +367,16 @@ export const AnalyticsView = () => {
               return (
                 <div key={windowLabel} className="space-y-1">
                   <div className="flex justify-between text-xs font-bold">
-                    <span className={`flex items-center gap-1.5 ${isPeak ? 'text-realty-dark font-extrabold' : 'text-realty-textSecondary'}`}>
-                      {isPeak && <ArrowUpRight className="w-3.5 h-3.5 text-tag-rental" />}
+                    <span className="flex items-center gap-1.5 text-neutral-900 dark:text-white">
+                      {isPeak && <ArrowUpRight className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
                       <span>{windowLabel}</span>
                     </span>
-                    <span className="text-realty-textMuted">{count} check-ins ({pct}%)</span>
+                    <span className="text-neutral-600 dark:text-neutral-400">{count} check-ins ({pct}%)</span>
                   </div>
-                  <div className="w-full h-2.5 rounded-full bg-realty-cardSubtle overflow-hidden">
+                  <div className="w-full h-2.5 rounded-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
                     <div 
                       className={`h-full rounded-full transition-all duration-500 ${
-                        isPeak ? 'bg-realty-dark' : 'bg-realty-dark/40'
+                        isPeak ? 'bg-neutral-950 dark:bg-white' : 'bg-neutral-400 dark:bg-neutral-600'
                       }`}
                       style={{ width: `${Math.max(pct, count > 0 ? 6 : 0)}%` }}
                     />
@@ -394,13 +388,13 @@ export const AnalyticsView = () => {
         </div>
 
         {/* Security & ID Compliance Breakdown */}
-        <div className="p-6 rounded-3xl bg-white shadow-soft-card space-y-4">
-          <div className="flex items-center justify-between pb-2">
-            <h3 className="text-sm font-extrabold text-realty-dark uppercase tracking-wider flex items-center space-x-2">
-              <ShieldCheck className="w-4 h-4 text-realty-dark" />
+        <div className="p-6 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
+            <h3 className="text-sm font-extrabold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4" />
               <span>Identity Verification & Credential Types</span>
             </h3>
-            <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-tag-rental text-white">
+            <span className="px-3 py-1 rounded-full text-[10px] font-extrabold bg-neutral-950 dark:bg-white text-white dark:text-neutral-950">
               {idComplianceRate}% VERIFIED
             </span>
           </div>
@@ -409,12 +403,12 @@ export const AnalyticsView = () => {
             {Object.entries(idTypeCounts).map(([type, count]) => (
               <div 
                 key={type} 
-                className="p-3.5 rounded-2xl bg-realty-cardSubtle space-y-1 transition-colors"
+                className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700 space-y-1"
               >
-                <div className="text-[10px] text-realty-textMuted font-bold uppercase tracking-wider truncate">{type}</div>
+                <div className="text-[10px] text-neutral-600 dark:text-neutral-400 font-bold uppercase truncate">{type}</div>
                 <div className="flex items-baseline justify-between">
-                  <div className="text-lg font-extrabold text-realty-dark">{count}</div>
-                  <div className="text-[10px] text-realty-textMuted font-bold">
+                  <div className="text-lg font-black text-neutral-900 dark:text-white">{count}</div>
+                  <div className="text-[10px] text-neutral-600 dark:text-neutral-300 font-bold">
                     {totalVisitors > 0 ? Math.round((count / totalVisitors) * 100) : 0}% share
                   </div>
                 </div>
