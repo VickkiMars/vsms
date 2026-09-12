@@ -217,20 +217,12 @@ export const LiveTrackerView = () => {
         {/* 3 Summary Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           
-          {/* Card 1: Active Guests */}
+          {/* Card 1: On-Premises Guests */}
           <div className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white rounded-3xl p-5 flex flex-col justify-between min-h-[140px] shadow-sm border border-neutral-200 dark:border-neutral-800">
             <div className="flex items-start justify-between">
               <span className="text-sm font-extrabold block leading-tight text-neutral-900 dark:text-white">
                 Inside Facility<br />On-Premises Guests
               </span>
-              <button 
-                type="button"
-                onClick={() => setIsCheckInOpen(true)}
-                className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700 flex items-center justify-center text-xs transition"
-                title="Register Guest"
-              >
-                <UserPlus className="w-4 h-4" />
-              </button>
             </div>
 
             <div className="flex items-end justify-between mt-4">
@@ -249,9 +241,6 @@ export const LiveTrackerView = () => {
               <span className="text-sm font-extrabold block leading-tight text-neutral-900 dark:text-white">
                 On-Time Guests<br />Within Duration
               </span>
-              <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-200 dark:border-emerald-800/80">
-                <CheckCircle2 className="w-4 h-4" />
-              </div>
             </div>
 
             <div className="flex items-end justify-between mt-4">
@@ -270,9 +259,6 @@ export const LiveTrackerView = () => {
               <span className="text-sm font-extrabold block leading-tight text-neutral-900 dark:text-white">
                 Overdue Alerts<br />Exceeded Stay
               </span>
-              <div className="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center border border-rose-200 dark:border-rose-800/80">
-                <ShieldAlert className="w-4 h-4" />
-              </div>
             </div>
 
             <div className="flex items-end justify-between mt-4">
