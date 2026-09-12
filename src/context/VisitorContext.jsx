@@ -71,16 +71,40 @@ export const VisitorProvider = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('vsms_sidebar_collapsed') === 'true';
+      const saved = localStorage.getItem('vsms_sidebar_collapsed');
+      if (saved !== null) return saved === 'true';
+      return window.innerWidth < 1024;
     }
     return false;
   });
+
+  const [hasManuallyToggledSidebar, setHasManuallyToggledSidebar] = useState(false);
+
+  // Auto-collapse sidebar on smaller screens (< 1024px) unless manually toggled
+  useEffect(() => {
+    const handleResize = () => {
+      if (!hasManuallyToggledSidebar && typeof window !== 'undefined') {
+        if (window.innerWidth < 1024 && window.innerWidth >= 768) {
+          setIsSidebarCollapsed(true);
+        } else if (window.innerWidth >= 1024) {
+          setIsSidebarCollapsed(false);
+        }
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [hasManuallyToggledSidebar]);
 
   useEffect(() => {
     localStorage.setItem('vsms_sidebar_collapsed', isSidebarCollapsed ? 'true' : 'false');
   }, [isSidebarCollapsed]);
 
-  const toggleSidebarCollapse = () => setIsSidebarCollapsed(prev => !prev);
+  const toggleSidebarCollapse = () => {
+    setHasManuallyToggledSidebar(true);
+    setIsSidebarCollapsed(prev => !prev);
+  };
 
   // Search & Filter Global State
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');

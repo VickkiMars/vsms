@@ -44,6 +44,10 @@ export const Sidebar = () => {
   const handleNavClick = (viewName) => {
     setActiveView(viewName);
     setIsMobileMenuOpen(false);
+    // Auto-collapse sidebar on smaller desktop viewports (< 1024px) after selection
+    if (typeof window !== 'undefined' && window.innerWidth < 1024 && window.innerWidth >= 768) {
+      setIsSidebarCollapsed(true);
+    }
   };
 
   const renderNavContent = (isCollapsed) => (
