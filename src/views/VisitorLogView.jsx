@@ -12,7 +12,9 @@ import {
   LogOut, 
   ArrowUpDown,
   UserCheck,
-  ChevronDown
+  ChevronDown,
+  FileSpreadsheet,
+  ShieldAlert
 } from 'lucide-react';
 
 export const VisitorLogView = () => {
@@ -244,9 +246,9 @@ export const VisitorLogView = () => {
               <span className="text-[11px] text-neutral-600 dark:text-neutral-400 font-bold block uppercase">Total Logged</span>
               <span className="text-lg font-black text-neutral-900 dark:text-white">{totalCount}</span>
             </div>
-            <span className="w-8 h-8 rounded-full bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white flex items-center justify-center text-xs font-extrabold shadow-xs">
-              {totalCount}
-            </span>
+            <div className="w-8 h-8 rounded-full bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white flex items-center justify-center border border-neutral-200 dark:border-neutral-700 shadow-xs">
+              <FileSpreadsheet className="w-4 h-4 text-neutral-600 dark:text-neutral-300" />
+            </div>
           </div>
 
           <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
@@ -254,9 +256,9 @@ export const VisitorLogView = () => {
               <span className="text-[11px] text-neutral-600 dark:text-neutral-400 font-bold block uppercase">Active Inside</span>
               <span className="text-lg font-black text-neutral-900 dark:text-white">{insideCount}</span>
             </div>
-            <span className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 flex items-center justify-center text-xs font-extrabold border border-emerald-300 dark:border-emerald-800">
-              {insideCount}
-            </span>
+            <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center border border-emerald-300 dark:border-emerald-800">
+              <UserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            </div>
           </div>
 
           <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
@@ -264,9 +266,9 @@ export const VisitorLogView = () => {
               <span className="text-[11px] text-neutral-600 dark:text-neutral-400 font-bold block uppercase">Overdue Alerts</span>
               <span className="text-lg font-black text-rose-600 dark:text-rose-400">{overdueCount}</span>
             </div>
-            <span className="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 flex items-center justify-center text-xs font-extrabold border border-rose-300 dark:border-rose-800">
-              {overdueCount}
-            </span>
+            <div className="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 flex items-center justify-center border border-rose-300 dark:border-rose-800">
+              <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+            </div>
           </div>
 
           <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
@@ -274,9 +276,9 @@ export const VisitorLogView = () => {
               <span className="text-[11px] text-neutral-600 dark:text-neutral-400 font-bold block uppercase">Checked-Out</span>
               <span className="text-lg font-black text-neutral-900 dark:text-white">{checkedOutCount}</span>
             </div>
-            <span className="w-8 h-8 rounded-full bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white flex items-center justify-center text-xs font-extrabold shadow-xs">
-              {checkedOutCount}
-            </span>
+            <div className="w-8 h-8 rounded-full bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white flex items-center justify-center border border-neutral-200 dark:border-neutral-700 shadow-xs">
+              <LogOut className="w-4 h-4 text-neutral-600 dark:text-neutral-300" />
+            </div>
           </div>
         </div>
       </div>

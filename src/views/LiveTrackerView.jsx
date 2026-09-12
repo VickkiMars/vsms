@@ -17,7 +17,8 @@ import {
   Maximize2,
   CheckCircle2,
   X,
-  ShieldCheck
+  ShieldCheck,
+  ShieldAlert
 } from 'lucide-react';
 
 export const LiveTrackerView = () => {
@@ -236,7 +237,7 @@ export const LiveTrackerView = () => {
               <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
                 Status: <span className="font-extrabold text-neutral-900 dark:text-white">Live Count</span>
               </div>
-              <div className="w-10 h-10 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-black text-base flex items-center justify-center shadow-md">
+              <div className="text-3xl font-black text-neutral-900 dark:text-white tracking-tight">
                 {allActiveCount}
               </div>
             </div>
@@ -248,13 +249,16 @@ export const LiveTrackerView = () => {
               <span className="text-sm font-extrabold block leading-tight text-neutral-900 dark:text-white">
                 On-Time Guests<br />Within Duration
               </span>
+              <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-200 dark:border-emerald-800/80">
+                <CheckCircle2 className="w-4 h-4" />
+              </div>
             </div>
 
             <div className="flex items-end justify-between mt-4">
               <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
                 Status: <span className="font-extrabold text-neutral-900 dark:text-white">Within Limit</span>
               </div>
-              <div className="w-10 h-10 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-black text-base flex items-center justify-center shadow-md">
+              <div className="text-3xl font-black text-neutral-900 dark:text-white tracking-tight">
                 {onTimeActiveCount}
               </div>
             </div>
@@ -266,13 +270,16 @@ export const LiveTrackerView = () => {
               <span className="text-sm font-extrabold block leading-tight text-neutral-900 dark:text-white">
                 Overdue Alerts<br />Exceeded Stay
               </span>
+              <div className="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center border border-rose-200 dark:border-rose-800/80">
+                <ShieldAlert className="w-4 h-4" />
+              </div>
             </div>
 
             <div className="flex items-end justify-between mt-4">
               <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
                 Status: <span className="font-extrabold text-rose-600 dark:text-rose-400">Exceeded Limit</span>
               </div>
-              <div className="w-10 h-10 rounded-full bg-rose-500 text-white font-black text-base flex items-center justify-center shadow-md">
+              <div className="text-3xl font-black text-rose-600 dark:text-rose-400 tracking-tight">
                 {overdueCount}
               </div>
             </div>
