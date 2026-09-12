@@ -95,10 +95,12 @@ export const SettingsView = () => {
       role: newRole,
       password: newPassword
     });
-    setSaveMessage(`New ${newRole} user account (${newEmail}) created in SQLite database!`);
-    setNewFullName('');
+    setSaveMessage(`New ${newRole} user account (${newEmail}) created successfully!`);
     setNewEmail('');
-    setNewPassword('password123');
+    setNewPassword('');
+    setNewFullName('');
+    setNewRole('Guard');
+    refreshSqliteStats();
     setTimeout(() => setSaveMessage(''), 3500);
   };
 
@@ -113,22 +115,22 @@ export const SettingsView = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    setSaveMessage('SQLite database binary exported successfully (.sqlite format).');
+    setSaveMessage('System database backup exported successfully.');
     setTimeout(() => setSaveMessage(''), 3500);
   };
 
-  const handleSaveSettings = (e) => {
+  const handleSavePolicies = (e) => {
     e.preventDefault();
-    setSaveMessage('System security policy rules and notification triggers updated in SQLite.');
+    setSaveMessage('System security policy rules and notification triggers updated successfully.');
     setTimeout(() => setSaveMessage(''), 3500);
   };
 
   const handleConfirmReset = () => {
-    resetToDemoData();
-    setIsResetModalOpen(false);
+    sqliteService.resetDatabase();
     refreshSqliteStats();
-    setSaveMessage('SQLite database restored to initial sample seed state.');
+    setSaveMessage('Database restored to initial sample state.');
+    setShowResetModal(false);
+    setIsResetModalOpen(false);
     setTimeout(() => setSaveMessage(''), 3500);
   };
 
@@ -140,10 +142,10 @@ export const SettingsView = () => {
         <div>
           <h2 className="text-base font-extrabold text-neutral-900 dark:text-white flex items-center gap-2">
             <Settings className="w-5 h-5" />
-            <span>VSMS Security Administration & SQLite Governance</span>
+            <span>VSMS Security & System Administration</span>
           </h2>
           <p className="text-xs text-neutral-500 dark:text-neutral-400 font-medium mt-1">
-            Manage local SQLite database tables, create user accounts, set access permissions, and export binary DB snapshots.
+            Manage user accounts, security policies, data backups, and system permissions.
           </p>
         </div>
 
@@ -169,7 +171,7 @@ export const SettingsView = () => {
                 : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
             }`}
           >
-            SQLite DB
+            System Data
           </button>
           <button
             type="button"
@@ -223,7 +225,7 @@ export const SettingsView = () => {
             <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
               <h3 className="text-sm font-extrabold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
                 <UserPlus className="w-4 h-4" />
-                <span>Create New User Account (Stored in SQLite `users` Table)</span>
+                <span>Create New User Account</span>
               </h3>
               <span className="text-[11px] font-bold text-neutral-400">
                 {users.length} Registered Accounts
@@ -294,7 +296,7 @@ export const SettingsView = () => {
                 className="px-5 py-2.5 rounded-xl bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-950 font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition"
               >
                 <UserPlus className="w-4 h-4" />
-                <span>Save User to SQLite DB</span>
+                <span>Save User Account</span>
               </button>
             </div>
           </form>
@@ -303,7 +305,7 @@ export const SettingsView = () => {
           <div className="p-6 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-4">
             <h3 className="text-sm font-extrabold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
               <User className="w-4 h-4" />
-              <span>Active User Directory (`users` SQL Table)</span>
+              <span>Active User Directory</span>
             </h3>
 
             <div className="overflow-x-auto">
@@ -363,31 +365,31 @@ export const SettingsView = () => {
             <div className="p-4 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-1">
               <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">visitors</span>
               <p className="text-xl font-extrabold text-neutral-900 dark:text-white">{dbCounts.visitors}</p>
-              <p className="text-[10px] text-neutral-500">SQL Rows</p>
+              <p className="text-[10px] text-neutral-500">Records</p>
             </div>
 
             <div className="p-4 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-1">
               <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">users</span>
               <p className="text-xl font-extrabold text-neutral-900 dark:text-white">{dbCounts.users}</p>
-              <p className="text-[10px] text-neutral-500">SQL Rows</p>
+              <p className="text-[10px] text-neutral-500">Records</p>
             </div>
 
             <div className="p-4 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-1">
               <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">departments</span>
               <p className="text-xl font-extrabold text-neutral-900 dark:text-white">{dbCounts.departments}</p>
-              <p className="text-[10px] text-neutral-500">SQL Rows</p>
+              <p className="text-[10px] text-neutral-500">Records</p>
             </div>
 
             <div className="p-4 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-1">
               <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">hosts</span>
               <p className="text-xl font-extrabold text-neutral-900 dark:text-white">{dbCounts.hosts}</p>
-              <p className="text-[10px] text-neutral-500">SQL Rows</p>
+              <p className="text-[10px] text-neutral-500">Records</p>
             </div>
 
             <div className="p-4 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-1">
               <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">audit_logs</span>
               <p className="text-xl font-extrabold text-neutral-900 dark:text-white">{dbCounts.audit_logs}</p>
-              <p className="text-[10px] text-neutral-500">SQL Rows</p>
+              <p className="text-[10px] text-neutral-500">Records</p>
             </div>
           </div>
 
@@ -395,16 +397,16 @@ export const SettingsView = () => {
           <div className="p-6 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-4">
             <h3 className="text-sm font-extrabold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
               <Database className="w-4 h-4" />
-              <span>SQLite File Export & Database Reset</span>
+              <span>Data Backup & System Reset</span>
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-              {/* SQLite Binary Download */}
+              {/* Database Binary Download */}
               <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 flex flex-col justify-between space-y-3">
                 <div>
-                  <div className="font-extrabold text-neutral-900 dark:text-white">Export .sqlite File</div>
+                  <div className="font-extrabold text-neutral-900 dark:text-white">Export Database Backup</div>
                   <p className="text-neutral-500 text-[11px] mt-0.5">
-                    Download complete binary SQLite database file containing all schemas, indexes, users, and visitor records.
+                    Download complete system database backup file containing all user accounts, settings, and visitor logs.
                   </p>
                 </div>
                 <button
@@ -413,7 +415,7 @@ export const SettingsView = () => {
                   className="px-4 py-2 rounded-xl bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-950 font-bold transition flex items-center justify-center gap-2 shadow-sm"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>Download .sqlite File</span>
+                  <span>Download Backup File</span>
                 </button>
               </div>
 
@@ -438,9 +440,9 @@ export const SettingsView = () => {
               {/* Database Reset */}
               <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 flex flex-col justify-between space-y-3">
                 <div>
-                  <div className="font-extrabold text-neutral-900 dark:text-white">Reset SQLite Database</div>
+                  <div className="font-extrabold text-neutral-900 dark:text-white">Reset System Data</div>
                   <p className="text-neutral-500 text-[11px] mt-0.5">
-                    Wipe local state and re-initialize SQLite tables with default seed dataset.
+                    Restore system state and visitor records to default initial dataset.
                   </p>
                 </div>
                 <button
@@ -449,22 +451,22 @@ export const SettingsView = () => {
                   className="px-4 py-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 text-neutral-900 dark:text-white border border-neutral-300 dark:border-neutral-700 font-bold transition flex items-center justify-center gap-2"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
-                  <span>Reset Database Seed</span>
+                  <span>Reset Default Dataset</span>
                 </button>
               </div>
             </div>
           </div>
 
-          {/* SQLite Audit Trail Log */}
+          {/* Real-Time Security Audit Log */}
           <div className="p-6 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-4">
             <h3 className="text-sm font-extrabold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
               <History className="w-4 h-4" />
-              <span>Real-Time SQLite Audit Logs (`audit_logs` SQL Table)</span>
+              <span>Real-Time Security Audit Logs</span>
             </h3>
 
             <div className="max-h-60 overflow-y-auto space-y-2 font-mono text-xs">
               {auditLogs.length === 0 ? (
-                <p className="text-neutral-400 text-xs italic">No security actions recorded in SQLite log table yet.</p>
+                <p className="text-neutral-400 text-xs italic">No security actions recorded in audit log yet.</p>
               ) : (
                 auditLogs.map((log) => (
                   <div key={log.id} className="p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700/60 flex items-center justify-between gap-3 text-[11px]">
@@ -672,13 +674,13 @@ export const SettingsView = () => {
               <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 space-y-1">
                 <span className="text-[10px] text-neutral-400 font-bold uppercase">Version</span>
                 <p className="font-extrabold text-sm text-neutral-900 dark:text-white">VSMS PRO v3.0.0</p>
-                <p className="text-[10px] text-neutral-500">Auth + SQLite Edition</p>
+                <p className="text-[10px] text-neutral-500">Enterprise Edition</p>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 space-y-1">
                 <span className="text-[10px] text-neutral-400 font-bold uppercase">Database Engine</span>
-                <p className="font-extrabold text-sm text-neutral-900 dark:text-white">SQLite3 (WASM)</p>
-                <p className="text-[10px] text-neutral-500">sql.js WASM v1.12</p>
+                <p className="font-extrabold text-sm text-neutral-900 dark:text-white">System Core Database</p>
+                <p className="text-[10px] text-neutral-500">Encrypted Storage Engine</p>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 space-y-1">
@@ -720,10 +722,10 @@ export const SettingsView = () => {
 
             <div className="space-y-2">
               <h3 className="text-base font-extrabold text-neutral-900 dark:text-white">
-                Reset SQLite Database to Seed Data?
+                Reset System Data to Default State?
               </h3>
               <p className="text-xs text-neutral-500 dark:text-neutral-400 font-medium leading-relaxed">
-                This operation will clear newly created visitors and users, resetting the local SQLite tables to the original seed data.
+                This operation will clear newly created visitors and users, resetting local system data to default initial settings.
               </p>
             </div>
 

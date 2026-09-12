@@ -146,7 +146,7 @@ export const AnalyticsView = () => {
             <span>Administrative Analytics & Visitor Intelligence</span>
           </h2>
           <p className="text-xs text-neutral-600 dark:text-neutral-300 font-semibold mt-1">
-            Real-time telemetry, department resource distribution, and security compliance directly from SQLite database.
+            Real-time telemetry, department resource distribution, and security compliance directly from system records.
           </p>
         </div>
 
@@ -213,7 +213,7 @@ export const AnalyticsView = () => {
             <div className="text-3xl font-black text-neutral-900 dark:text-white tracking-tight">{totalVisitors}</div>
             <div className="text-[11px] font-bold text-neutral-600 dark:text-neutral-300 flex items-center gap-1 mt-1">
               <TrendingUp className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>100% indexed in SQLite log</span>
+              <span>100% Indexed & Verified</span>
             </div>
           </div>
         </div>

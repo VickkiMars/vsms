@@ -40,7 +40,7 @@ export const RightSidebar = () => {
               <UserCheck className="w-8 h-8 text-neutral-400 mx-auto mb-2" />
               <p className="text-xs font-bold text-neutral-800 dark:text-neutral-200">No Visitors Registered</p>
               <p className="text-[11px] text-neutral-600 dark:text-neutral-400 mt-1">
-                All security live feed events are loaded directly from the SQLite database.
+                All security live feed events will appear here in real time.
               </p>
             </div>
           ) : (

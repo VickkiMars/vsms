@@ -197,7 +197,7 @@ export const QuickCheckInModal = () => {
                 New Visitor Registration
               </h2>
               <p className="text-xs text-neutral-600 dark:text-neutral-300 font-semibold">
-                Direct entry to SQLite database table `visitors`
+                Direct entry to active visitor registry
               </p>
             </div>
           </div>

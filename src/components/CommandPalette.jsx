@@ -91,17 +91,17 @@ export const CommandPalette = () => {
     { 
       type: 'action',
       id: 'action-settings',
-      label: 'Go to System Settings & SQLite', 
+      label: 'Go to System Settings', 
       category: 'Navigation',
       icon: Settings, 
-      keywords: 'settings configuration preferences system options sqlite db',
+      keywords: 'settings configuration preferences system options db',
       run: () => { setIsCmdKOpen(false); setActiveView('settings'); } 
     },
     { 
       type: 'action',
       id: 'action-export',
       label: 'Export Master Log (CSV)', 
-      category: 'Database Tool',
+      category: 'System Tool',
       icon: Download, 
       keywords: 'export csv download data backup log spreadsheet',
       run: () => { setIsCmdKOpen(false); exportToCSV(); } 
@@ -136,8 +136,8 @@ export const CommandPalette = () => {
     { 
       type: 'action',
       id: 'action-reset',
-      label: 'Reset SQLite Database to Demo Seed', 
-      category: 'Database Tool',
+      label: 'Reset Database to Demo Seed', 
+      category: 'System Tool',
       icon: RefreshCw, 
       keywords: 'reset clear data restore default sample seed clean',
       run: () => { setIsCmdKOpen(false); resetToDemoData(); } 
@@ -307,7 +307,7 @@ export const CommandPalette = () => {
         {/* Footer info */}
         <div className="px-4 py-2 bg-neutral-50 dark:bg-neutral-950 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between text-[10px] text-neutral-400 font-semibold">
           <span>Navigation: <kbd className="font-mono bg-neutral-200 dark:bg-neutral-800 px-1 rounded">↑</kbd> <kbd className="font-mono bg-neutral-200 dark:bg-neutral-800 px-1 rounded">↓</kbd> to move, <kbd className="font-mono bg-neutral-200 dark:bg-neutral-800 px-1 rounded">↵</kbd> to select</span>
-          <span>SQLite Engine Connected</span>
+          <span>System Active</span>
         </div>
       </div>
     </div>

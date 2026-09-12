@@ -160,7 +160,7 @@ export const Sidebar = () => {
               <span>Departments & Hosts</span>
             </button>
 
-            {/* Security Settings & SQLite Inspector */}
+            {/* Security Settings & System Administration */}
             <button
               type="button"
               onClick={() => handleNavClick('settings')}
@@ -171,7 +171,7 @@ export const Sidebar = () => {
               }`}
             >
               <Database className="w-4 h-4" />
-              <span>Settings & SQLite</span>
+              <span>Settings & System Admin</span>
             </button>
           </div>
 
@@ -232,7 +232,7 @@ export const Sidebar = () => {
             type="button"
             onClick={() => handleNavClick('settings')}
             className="w-7 h-7 rounded-full bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white flex items-center justify-center text-xs transition hover:scale-105"
-            title="SQLite Database & Settings"
+            title="System Settings & Administration"
           >
             <Database className="w-3.5 h-3.5" />
           </button>

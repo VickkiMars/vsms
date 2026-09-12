@@ -75,7 +75,7 @@ export const LoginModal = () => {
                 Authentication Portal
               </h2>
               <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                Local SQLite Authentication & Access Control
+                Local Authentication & Access Control
               </p>
             </div>
           </div>
@@ -184,7 +184,7 @@ export const LoginModal = () => {
               className="w-full py-3 px-4 rounded-xl bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-950 font-bold text-xs flex items-center justify-center gap-2 transition active:scale-98 shadow-md disabled:opacity-50"
             >
               {isSubmitting ? (
-                <span>Authenticating with SQLite...</span>
+                <span>Authenticating...</span>
               ) : (
                 <>
                   <ShieldCheck className="w-4 h-4" />
@@ -196,7 +196,7 @@ export const LoginModal = () => {
 
           <div className="text-center pt-2 text-[11px] text-neutral-400 flex items-center justify-center gap-1.5">
             <Database className="w-3.5 h-3.5 text-neutral-500" />
-            <span>SQLite Database Engine v3.45 • Local Encryption Active</span>
+            <span>System Security Engine • Local Encryption Active</span>
           </div>
 
         </form>

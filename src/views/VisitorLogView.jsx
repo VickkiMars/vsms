@@ -218,11 +218,11 @@ export const VisitorLogView = () => {
                 <Table className="w-4 h-4" />
               </div>
               <h2 className="text-xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
-                Master Visitor Log (SQLite Database)
+                Master Visitor Log
               </h2>
             </div>
             <p className="text-xs text-neutral-600 dark:text-neutral-300 font-semibold">
-              Real-time audit log of all registered guests loaded directly from local SQLite database tables.
+              Real-time audit log of all registered guests loaded directly from central security records.
             </p>
           </div>
 
@@ -392,7 +392,7 @@ export const VisitorLogView = () => {
         {hasActiveFilters && (
           <div className="flex items-center justify-between px-2 pt-1">
             <span className="text-xs text-neutral-600 dark:text-neutral-300 font-bold">
-              Found <span className="text-neutral-900 dark:text-white font-extrabold">{filtered.length}</span> matching visitor records in SQLite DB
+              Found <span className="text-neutral-900 dark:text-white font-extrabold">{filtered.length}</span> matching visitor records
             </span>
             <button
               type="button"
@@ -460,7 +460,7 @@ export const VisitorLogView = () => {
                   <td colSpan={10} className="py-16 text-center text-neutral-500 font-medium">
                     <div className="space-y-3">
                       <UserCheck className="w-10 h-10 mx-auto text-neutral-400" aria-hidden="true" />
-                      <p className="font-bold text-neutral-900 dark:text-white text-sm">No visitor records match the current filter criteria in SQLite database.</p>
+                      <p className="font-bold text-neutral-900 dark:text-white text-sm">No visitor records match the current filter criteria.</p>
                       {hasActiveFilters && (
                         <button
                           type="button"
@@ -613,7 +613,7 @@ export const VisitorLogView = () => {
           <div>
             {sortedVisitors.length > 0 ? (
               <span>
-                Showing <span className="font-extrabold text-neutral-900 dark:text-white">{startIndex + 1}</span> to <span className="font-extrabold text-neutral-900 dark:text-white">{endIndex}</span> of <span className="font-extrabold text-neutral-900 dark:text-white">{sortedVisitors.length}</span> visitor records in SQLite DB
+                Showing <span className="font-extrabold text-neutral-900 dark:text-white">{startIndex + 1}</span> to <span className="font-extrabold text-neutral-900 dark:text-white">{endIndex}</span> of <span className="font-extrabold text-neutral-900 dark:text-white">{sortedVisitors.length}</span> visitor records
               </span>
             ) : (
               <span>0 records found</span>

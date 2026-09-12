@@ -55,10 +55,10 @@ export const DepartmentsView = () => {
         <div>
           <h2 className="text-base font-extrabold text-neutral-900 dark:text-white flex items-center gap-2">
             <Building2 className="w-5 h-5" />
-            <span>Organizational Directory & Host Personnel (SQLite Database)</span>
+            <span>Organizational Directory & Host Personnel</span>
           </h2>
           <p className="text-xs text-neutral-600 dark:text-neutral-300 font-semibold mt-1">
-            Department governance, security zones, and host personnel roster stored directly in SQLite tables.
+            Department governance, security zones, and host personnel roster stored directly in organizational records.
           </p>
         </div>
 
