@@ -217,15 +217,15 @@ export const LiveTrackerView = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           
           {/* Card 1: Active Guests */}
-          <div className="bg-neutral-900 text-white dark:bg-neutral-800 rounded-3xl p-5 flex flex-col justify-between min-h-[140px] shadow-sm border border-neutral-800 dark:border-neutral-700">
+          <div className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white rounded-3xl p-5 flex flex-col justify-between min-h-[140px] shadow-sm border border-neutral-200 dark:border-neutral-800">
             <div className="flex items-start justify-between">
-              <span className="text-sm font-extrabold block leading-tight text-white">
+              <span className="text-sm font-extrabold block leading-tight text-neutral-900 dark:text-white">
                 Inside Facility<br />Active Guests
               </span>
               <button 
                 type="button"
                 onClick={() => setIsCheckInOpen(true)}
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-xs transition"
+                className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700 flex items-center justify-center text-xs transition"
                 title="Register Guest"
               >
                 <UserPlus className="w-4 h-4" />
@@ -233,44 +233,44 @@ export const LiveTrackerView = () => {
             </div>
 
             <div className="flex items-end justify-between mt-4">
-              <div className="text-xs font-semibold text-neutral-300">
-                Status: <span className="font-bold text-white">Live Count</span>
+              <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+                Status: <span className="font-extrabold text-neutral-900 dark:text-white">Live Count</span>
               </div>
-              <div className="w-10 h-10 rounded-full bg-white text-neutral-950 font-black text-base flex items-center justify-center shadow-md">
+              <div className="w-10 h-10 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-black text-base flex items-center justify-center shadow-md">
                 {allActiveCount}
               </div>
             </div>
           </div>
 
           {/* Card 2: On-Time Guests */}
-          <div className="bg-neutral-900 text-white dark:bg-neutral-800 rounded-3xl p-5 flex flex-col justify-between min-h-[140px] shadow-sm border border-neutral-800 dark:border-neutral-700">
+          <div className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white rounded-3xl p-5 flex flex-col justify-between min-h-[140px] shadow-sm border border-neutral-200 dark:border-neutral-800">
             <div className="flex items-start justify-between">
-              <span className="text-sm font-extrabold block leading-tight text-white">
+              <span className="text-sm font-extrabold block leading-tight text-neutral-900 dark:text-white">
                 On-Time Guests<br />Within Duration
               </span>
             </div>
 
             <div className="flex items-end justify-between mt-4">
-              <div className="text-xs font-semibold text-neutral-300">
-                Status: <span className="font-bold text-white">Within Limit</span>
+              <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+                Status: <span className="font-extrabold text-neutral-900 dark:text-white">Within Limit</span>
               </div>
-              <div className="w-10 h-10 rounded-full bg-white text-neutral-950 font-black text-base flex items-center justify-center shadow-md">
+              <div className="w-10 h-10 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-black text-base flex items-center justify-center shadow-md">
                 {onTimeActiveCount}
               </div>
             </div>
           </div>
 
           {/* Card 3: Overdue Alerts */}
-          <div className="bg-neutral-900 text-white dark:bg-neutral-800 rounded-3xl p-5 flex flex-col justify-between min-h-[140px] shadow-sm border border-neutral-800 dark:border-neutral-700">
+          <div className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white rounded-3xl p-5 flex flex-col justify-between min-h-[140px] shadow-sm border border-neutral-200 dark:border-neutral-800">
             <div className="flex items-start justify-between">
-              <span className="text-sm font-extrabold block leading-tight text-white">
+              <span className="text-sm font-extrabold block leading-tight text-neutral-900 dark:text-white">
                 Overdue Alerts<br />Exceeded Stay
               </span>
             </div>
 
             <div className="flex items-end justify-between mt-4">
-              <div className="text-xs font-semibold text-neutral-300">
-                Status: <span className="font-bold text-white">Exceeded Limit</span>
+              <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+                Status: <span className="font-extrabold text-rose-600 dark:text-rose-400">Exceeded Limit</span>
               </div>
               <div className="w-10 h-10 rounded-full bg-rose-500 text-white font-black text-base flex items-center justify-center shadow-md">
                 {overdueCount}

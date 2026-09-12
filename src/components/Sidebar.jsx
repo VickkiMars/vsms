@@ -87,16 +87,16 @@ export const Sidebar = () => {
           
           {/* Visitor Management Category */}
           <div className="space-y-1.5">
-            <div className="px-3 text-[11px] font-bold uppercase tracking-wider text-neutral-400 mb-2">Visitor Desk</div>
+            <div className="px-3 text-[11px] font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-400 mb-2">Visitor Desk</div>
             
             {/* Live Presence Board */}
             <button
               type="button"
               onClick={() => handleNavClick('live')}
-              className={`w-full flex items-center justify-between px-4 py-2.5 rounded-full font-medium text-sm transition-all duration-150 ${
+              className={`w-full flex items-center justify-between px-4 py-2.5 rounded-full font-bold text-sm transition-all duration-150 ${
                 activeView === 'live'
                   ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 shadow-md scale-[1.02]'
-                  : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-neutral-800/60'
+                  : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white hover:bg-white/80 dark:hover:bg-neutral-800/80'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -104,7 +104,7 @@ export const Sidebar = () => {
                 <span>Live Tracker</span>
               </div>
               {currentlyCheckedInCount > 0 && (
-                <span className="w-5 h-5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-[10px] font-bold flex items-center justify-center shadow-xs">
+                <span className="w-5 h-5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-[10px] font-extrabold flex items-center justify-center shadow-xs">
                   {currentlyCheckedInCount}
                 </span>
               )}
@@ -114,10 +114,10 @@ export const Sidebar = () => {
             <button
               type="button"
               onClick={() => handleNavClick('log')}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-full font-medium text-sm transition-all duration-150 ${
+              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-full font-bold text-sm transition-all duration-150 ${
                 activeView === 'log'
                   ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 shadow-md scale-[1.02]'
-                  : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-neutral-800/60'
+                  : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white hover:bg-white/80 dark:hover:bg-neutral-800/80'
               }`}
             >
               <BarChart2 className="w-4 h-4" />
@@ -128,10 +128,10 @@ export const Sidebar = () => {
             <button
               type="button"
               onClick={() => handleNavClick('analytics')}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-full font-medium text-sm transition-all duration-150 ${
+              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-full font-bold text-sm transition-all duration-150 ${
                 activeView === 'analytics'
                   ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 shadow-md scale-[1.02]'
-                  : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-neutral-800/60'
+                  : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white hover:bg-white/80 dark:hover:bg-neutral-800/80'
               }`}
             >
               <LayoutGrid className="w-4 h-4" />
@@ -141,19 +141,19 @@ export const Sidebar = () => {
 
           {/* Directory & Governance Category */}
           <div className="space-y-1.5">
-            <div className="px-3 text-[11px] font-bold uppercase tracking-wider text-neutral-400 mb-2 flex items-center justify-between">
+            <div className="px-3 text-[11px] font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-400 mb-2 flex items-center justify-between">
               <span>Organization</span>
-              <ChevronUp className="w-3 h-3" />
+              <ChevronUp className="w-3 h-3 text-slate-500" />
             </div>
             
             {/* Departments & Hosts Roster */}
             <button
               type="button"
               onClick={() => handleNavClick('departments')}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-full font-medium text-sm transition-all duration-150 ${
+              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-full font-bold text-sm transition-all duration-150 ${
                 activeView === 'departments'
                   ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 shadow-md scale-[1.02]'
-                  : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-neutral-800/60'
+                  : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white hover:bg-white/80 dark:hover:bg-neutral-800/80'
               }`}
             >
               <Users className="w-4 h-4" />
@@ -164,10 +164,10 @@ export const Sidebar = () => {
             <button
               type="button"
               onClick={() => handleNavClick('settings')}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-full font-medium text-sm transition-all duration-150 ${
+              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-full font-bold text-sm transition-all duration-150 ${
                 activeView === 'settings'
                   ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 shadow-md scale-[1.02]'
-                  : 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-neutral-800/60'
+                  : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white hover:bg-white/80 dark:hover:bg-neutral-800/80'
               }`}
             >
               <Database className="w-4 h-4" />
@@ -177,9 +177,9 @@ export const Sidebar = () => {
 
           {/* Pass Badges & Alerts Category */}
           <div className="space-y-1.5">
-            <div className="px-3 text-[11px] font-bold uppercase tracking-wider text-neutral-400 mb-2 flex items-center justify-between">
+            <div className="px-3 text-[11px] font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-400 mb-2 flex items-center justify-between">
               <span>Passes & Comms</span>
-              <ChevronUp className="w-3 h-3" />
+              <ChevronUp className="w-3 h-3 text-slate-500" />
             </div>
             
             {/* Digital Badge Passes */}
@@ -189,7 +189,7 @@ export const Sidebar = () => {
                 if (visitors[0]) openBadgeModal(visitors[0]);
                 setIsMobileMenuOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-full text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-neutral-800/60 font-medium text-sm transition"
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-full text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white hover:bg-white/80 dark:hover:bg-neutral-800/80 font-bold text-sm transition"
             >
               <QrCode className="w-4 h-4" />
               <span>Digital Badge Pass</span>
@@ -199,14 +199,14 @@ export const Sidebar = () => {
             <button
               type="button"
               onClick={() => handleNavClick('settings')}
-              className="w-full flex items-center justify-between px-4 py-2.5 rounded-full text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-neutral-800/60 font-medium text-sm transition"
+              className="w-full flex items-center justify-between px-4 py-2.5 rounded-full text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white hover:bg-white/80 dark:hover:bg-neutral-800/80 font-bold text-sm transition"
             >
               <div className="flex items-center gap-3">
                 <ShieldAlert className="w-4 h-4 text-rose-500" />
                 <span>Security Alerts</span>
               </div>
               {overdueCount > 0 && (
-                <span className="w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center shadow-xs">
+                <span className="w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-extrabold flex items-center justify-center shadow-xs">
                   {overdueCount}
                 </span>
               )}
