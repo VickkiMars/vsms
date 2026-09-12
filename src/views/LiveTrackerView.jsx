@@ -156,11 +156,11 @@ export const LiveTrackerView = () => {
 
               {/* Contact & Unit Pills Grid */}
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-xs text-neutral-700 dark:text-neutral-300">
-                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 font-semibold shadow-xs">
+                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 font-semibold shadow-xs">
                   <ShieldCheck className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />
                   System Online
                 </span>
-                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 font-semibold shadow-xs">
+                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 font-semibold shadow-xs">
                   <Building className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />
                   Federal Security Directorate
                 </span>
@@ -356,8 +356,8 @@ export const LiveTrackerView = () => {
                   <div className="flex items-center justify-between pt-1">
                     <span className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
                       isOverdue 
-                        ? 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-800' 
-                        : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700'
+                        ? 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300' 
+                        : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white'
                     }`}>
                       {v.badgeId} • {v.status}
                     </span>

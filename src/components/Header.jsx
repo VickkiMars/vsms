@@ -186,7 +186,7 @@ export const Header = () => {
                 <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
                   {currentUser.email}
                 </p>
-                <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-[10px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
+                <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[10px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
                   Role: {currentUser.role}
                 </span>
               </div>

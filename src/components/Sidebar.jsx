@@ -219,7 +219,7 @@ export const Sidebar = () => {
       <div className="rounded-3xl p-3.5 bg-white/90 dark:bg-neutral-900/90 border border-neutral-200 dark:border-neutral-800 shadow-md space-y-3 mt-6">
         
         {/* Media Toolbar */}
-        <div className="flex items-center justify-between bg-neutral-100 dark:bg-neutral-800 p-1.5 rounded-full border border-neutral-200 dark:border-neutral-700">
+        <div className="flex items-center justify-between bg-neutral-100 dark:bg-neutral-800 p-1.5 rounded-full">
           <button 
             type="button"
             onClick={() => { setIsLoginModalOpen(true); setIsMobileMenuOpen(false); }}

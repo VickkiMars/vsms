@@ -126,7 +126,7 @@ export const LoginModal = () => {
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           
           {authError && (
-            <div className="p-3 rounded-2xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 text-xs flex items-center gap-2">
+            <div className="p-3 rounded-2xl bg-rose-100/80 dark:bg-rose-950/80 text-rose-900 dark:text-rose-200 text-xs flex items-center gap-2 font-semibold">
               <AlertCircle className="w-4 h-4 text-neutral-900 dark:text-white shrink-0" />
               <span>{authError}</span>
             </div>

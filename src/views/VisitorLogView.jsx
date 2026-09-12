@@ -253,10 +253,10 @@ export const VisitorLogView = () => {
 
           <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
             <div>
-              <span className="text-[11px] text-neutral-600 dark:text-neutral-400 font-bold block uppercase">Active Inside</span>
+              <span className="text-[11px] text-neutral-600 dark:text-neutral-400 font-bold block uppercase">On-Premises</span>
               <span className="text-lg font-black text-neutral-900 dark:text-white">{insideCount}</span>
             </div>
-            <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center border border-emerald-300 dark:border-emerald-800">
+            <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center">
               <UserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
           </div>
@@ -266,7 +266,7 @@ export const VisitorLogView = () => {
               <span className="text-[11px] text-neutral-600 dark:text-neutral-400 font-bold block uppercase">Overdue Alerts</span>
               <span className="text-lg font-black text-rose-600 dark:text-rose-400">{overdueCount}</span>
             </div>
-            <div className="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 flex items-center justify-center border border-rose-300 dark:border-rose-800">
+            <div className="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 flex items-center justify-center">
               <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400" />
             </div>
           </div>
@@ -494,7 +494,7 @@ export const VisitorLogView = () => {
                       {/* Status Tag Badge */}
                       <td className="py-4 px-5 whitespace-nowrap">
                         {v.status === 'Checked-Out' ? (
-                          <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 uppercase tracking-wider border border-neutral-200 dark:border-neutral-700">
+                          <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
                             Checked-Out
                           </span>
                         ) : v.status === 'Overdue' ? (
@@ -510,7 +510,7 @@ export const VisitorLogView = () => {
 
                       {/* Badge ID */}
                       <td className="py-4 px-5 whitespace-nowrap">
-                        <span className="text-xs font-black text-neutral-900 dark:text-white px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
+                        <span className="text-xs font-black text-neutral-900 dark:text-white px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800">
                           {v.badgeId}
                         </span>
                       </td>
@@ -555,7 +555,7 @@ export const VisitorLogView = () => {
 
                       {/* Purpose Pill */}
                       <td className="py-4 px-5">
-                        <span className="px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white text-[11px] font-bold inline-block max-w-[160px] truncate border border-neutral-200 dark:border-neutral-700">
+                        <span className="px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white text-[11px] font-bold inline-block max-w-[160px] truncate">
                           {v.purpose}
                         </span>
                       </td>
@@ -572,7 +572,7 @@ export const VisitorLogView = () => {
 
                       {/* Stay Duration */}
                       <td className="py-4 px-5 text-[11px] font-black text-neutral-900 dark:text-white whitespace-nowrap">
-                        <span className="px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
+                        <span className="px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800">
                           {durationFormatted}
                         </span>
                       </td>

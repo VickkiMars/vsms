@@ -228,12 +228,12 @@ export const AnalyticsView = () => {
         </div>
 
         {/* KPI 3: Overdue Alerts */}
-        <div className={`p-5 rounded-3xl bg-white dark:bg-neutral-900 border shadow-sm space-y-3 ${
-          overdueCount > 0 ? 'border-rose-400 bg-rose-50/50 dark:bg-rose-950/20' : 'border-neutral-200 dark:border-neutral-800'
+        <div className={`p-5 rounded-3xl border shadow-sm space-y-3 ${
+          overdueCount > 0 ? 'bg-rose-100/80 dark:bg-rose-950/60 text-rose-900 dark:text-rose-200 border-transparent' : 'bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800'
         }`}>
           <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400 font-bold">
             <span className="text-xs uppercase tracking-wider">Overdue</span>
-            <div className="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 flex items-center justify-center border border-rose-300 dark:border-rose-800">
+            <div className="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 flex items-center justify-center">
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
@@ -273,7 +273,7 @@ export const AnalyticsView = () => {
               <div key={d.id} className="space-y-1.5">
                 <div className="flex justify-between items-center text-xs">
                   <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white">
                       {d.code}
                     </span>
                     <span className="font-extrabold text-neutral-900 dark:text-white">{d.name}</span>
@@ -322,7 +322,7 @@ export const AnalyticsView = () => {
                     </div>
                   </div>
                   
-                  <span className="px-3 py-1 rounded-full text-xs font-black bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white shadow-xs border border-neutral-200 dark:border-neutral-600">
+                  <span className="px-3 py-1 rounded-full text-xs font-black bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white shadow-xs">
                     {count}
                   </span>
                 </div>
@@ -341,7 +341,7 @@ export const AnalyticsView = () => {
               <Sun className="w-4 h-4" />
               <span>Peak Hours Traffic Distribution</span>
             </h3>
-            <span className="px-3 py-1 rounded-full text-[10px] font-extrabold bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700">
+            <span className="px-3 py-1 rounded-full text-[10px] font-extrabold bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white">
               Peak: {peakTimeWindow.label.split(' ')[0]}
             </span>
           </div>

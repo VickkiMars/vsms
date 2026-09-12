@@ -89,9 +89,9 @@ export const RightSidebar = () => {
                       </span>
                       <span className={`px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
                         visitor.status === 'Checked-In'
-                          ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                          ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
                           : visitor.status === 'Overdue'
-                          ? 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-800'
+                          ? 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300'
                           : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200'
                       }`}>
                         {visitor.status}

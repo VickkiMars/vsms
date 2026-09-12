@@ -1,26 +1,37 @@
-# Sprint 1 Backlog: Core Frontend MVP
+# Sprint 1 Backlog: Core Authentication, Registration, Check-In & Badge Pass
 
-**Sprint Goal:** Ship a fully interactive, production-ready frontend for VSMS featuring guest registration, real-time tracking, badge generation with QR codes, analytics, and OpenAI + Material 3 design system.
-
----
-
-## Committed Stories for Sprint 1
-
-| Story ID | Title | Estimate | Status | Dependencies |
-|---|---|---|---|---|
-| **VSMS-101** | Visitor Check-In Form Dialog (M3 Modal + Form Validation) | 3 pts | Ready | None |
-| **VSMS-102** | Printable Digital Visitor Badge with Live QR Code | 2 pts | Ready | VSMS-101 |
-| **VSMS-201** | Live Visitors Tracker Dashboard (Real-time Status Board) | 3 pts | Ready | VSMS-101 |
-| **VSMS-202** | Quick Check-Out Action & Time Tracking | 2 pts | Ready | VSMS-201 |
-| **VSMS-301** | Master Log Table with Search, Filter & CSV Export | 3 pts | Ready | VSMS-101 |
-| **VSMS-302** | Admin Analytics Dashboard (Traffic Trends & Department Charts) | 3 pts | Ready | VSMS-301 |
-| **VSMS-401** | OpenAI + Material 3 Theme System (Dark/Light + Cmd+K Palette) | 3 pts | Ready | None |
+**Sprint Duration:** 1 Week Timebox  
+**Sprint Goal:** Deliver a fully functional core visitor entry/exit slice including user authentication, guest registration form with inline validation, automatic ID/Badge generation, printable pass with QR code, and real-time live presence tracking.
 
 ---
 
-## Definition of Done (DoD)
-1. Clean React + Vite build with zero runtime errors or console warnings.
-2. Fully responsive across desktop, tablet, and mobile breakpoints.
-3. OpenAI minimalist dark mode & high-contrast light mode with Material 3 dynamic surfaces.
-4. Interactive mock database in LocalStorage with rich initial data.
-5. All actions (Check-In, Check-Out, Search, Export, Badge Print) function smoothly.
+## Sprint 1 Committed Backlog Items
+
+| Story ID | Story Title | Priority | Points | Owner | Status |
+|---|---|---|---|---|---|
+| **VSMS-101** | User Authentication & Login Interface | P0 | 3 | Fullstack Dev | DONE |
+| **VSMS-102** | User Logout & Role Session Switcher | P0 | 1 | Fullstack Dev | DONE |
+| **VSMS-201** | Guest Registration Form with Validation | P0 | 5 | Frontend Dev | DONE |
+| **VSMS-202** | Department-Host Cascade Selector | P1 | 2 | Frontend Dev | DONE |
+| **VSMS-203** | Auto-ID (`VIS-xxxx`) & Badge ID (`BDG-xxxx`) Generator | P0 | 2 | Backend Dev | DONE |
+| **VSMS-204** | Printable Visitor Badge Pass with QR Code | P1 | 3 | Frontend Dev | DONE |
+| **VSMS-301** | Live Presence Tracking Board | P0 | 3 | Frontend Dev | DONE |
+| **VSMS-302** | 1-Click Check-Out & Duration Calculator | P0 | 2 | Fullstack Dev | DONE |
+| **VSMS-303** | Overdue Visitor Indicator & Duration Alerts | P1 | 2 | Frontend Dev | DONE |
+| **VSMS-601** | WebAssembly SQLite Storage & LocalStorage Persistence | P0 | 5 | Core Dev | DONE |
+
+---
+
+## Total Sprint 1 Commitment
+- **Total Velocity Points:** 28 Points
+- **Status:** 100% Completed & Verified
+
+---
+
+## Definition of Done for Sprint 1
+1. Security officers can log in with valid credentials (`admin@vsms.com`/`admin123` or `guard@vsms.com`/`guard123`).
+2. Visitors can be registered electronically without page reloads.
+3. Visitor passes render crisp QR codes and printable styling.
+4. Active visitors appear on the Live Tracker board immediately.
+5. 1-Click check-out updates status to `Checked-Out` and calculates visit duration.
+6. SQLite database binary persists state cleanly across restarts.

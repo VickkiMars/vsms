@@ -63,7 +63,7 @@ export const DepartmentsView = () => {
         </div>
 
         <div className="flex items-center gap-3 overflow-x-auto whitespace-nowrap">
-          <div className="px-4 py-2 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white text-xs font-bold flex items-center gap-2 border border-neutral-200 dark:border-neutral-700 whitespace-nowrap shrink-0">
+          <div className="px-4 py-2 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white text-xs font-bold flex items-center gap-2 whitespace-nowrap shrink-0">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
             <span className="whitespace-nowrap">{totalGuestsOnPremises} Guests On-Premises</span>
           </div>
@@ -142,7 +142,7 @@ export const DepartmentsView = () => {
                           {dept.code}
                         </span>
                         {onPremisesDeptGuests.length > 0 ? (
-                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1.5 shrink-0">
+                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 shrink-0">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                             <span>{onPremisesDeptGuests.length} On-Premises</span>
                           </span>
@@ -166,7 +166,7 @@ export const DepartmentsView = () => {
 
                   {/* Overdue Warning Pill if any */}
                   {overdueDeptGuests.length > 0 && (
-                    <div className="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-200 text-xs font-bold flex items-center justify-between">
+                    <div className="p-3 rounded-2xl bg-rose-100/70 dark:bg-rose-950/70 text-rose-900 dark:text-rose-200 text-xs font-bold flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
                         <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                         <span>{overdueDeptGuests.length} Overdue Escort Alert</span>
@@ -226,7 +226,7 @@ export const DepartmentsView = () => {
 
                             {/* Host Status Indicator */}
                             {isHostingNow ? (
-                              <span className="shrink-0 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1.5">
+                              <span className="shrink-0 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                 <span>{hostActiveVisitors.length} Checked-In</span>
                               </span>
@@ -250,7 +250,7 @@ export const DepartmentsView = () => {
                       setSelectedDeptFilter(dept.name);
                       setActiveView('log');
                     }}
-                    className="w-full py-2.5 px-4 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white text-xs font-bold flex items-center justify-between transition border border-neutral-200 dark:border-neutral-700"
+                    className="w-full py-2.5 px-4 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white text-xs font-bold flex items-center justify-between transition"
                   >
                     <span className="flex items-center gap-2">
                       <Users className="w-3.5 h-3.5 text-neutral-500" />
