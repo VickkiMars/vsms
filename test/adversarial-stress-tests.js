@@ -26,6 +26,129 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 
+const TEST_SEED_VISITORS = [
+  {
+    id: 'VIS-8921',
+    fullName: 'Babatunde Wright-Adeleke',
+    phone: '+234 803 555 0192',
+    email: 'babatunde.wright@techsolutions.ng',
+    company: 'TechSolutions Nigeria Ltd',
+    idType: 'Driver’s License (FRSC)',
+    idNumber: 'DL-9940218-LAG',
+    hostName: 'Engr. Marcus Sterling',
+    department: 'Information Technology & Cyber Security',
+    purpose: 'Contractor / Technical Maintenance',
+    checkInTime: new Date(Date.now() - 3600000).toISOString(),
+    checkOutTime: null,
+    status: 'Checked-In',
+    badgeId: 'BDG-081',
+    expectedDurationMinutes: 120,
+    vehiclePlate: 'KJA-482-AA',
+    notes: 'Carrying server rack diagnosis toolkit.',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
+  },
+  {
+    id: 'VIS-8922',
+    fullName: 'Fatima Abubakar',
+    phone: '+234 812 444 8921',
+    email: 'f.abubakar@globalconsult.ng',
+    company: 'Global Consult Partners Nigeria',
+    idType: 'National Identity Number (NIN)',
+    idNumber: 'NIN-77401928401',
+    hostName: 'Dr. Elizabeth Vance-Okeke',
+    department: 'Executive Suite',
+    purpose: 'Official Meeting',
+    checkInTime: new Date(Date.now() - 7200000).toISOString(),
+    checkOutTime: null,
+    status: 'Overdue',
+    badgeId: 'BDG-082',
+    expectedDurationMinutes: 30,
+    vehiclePlate: 'ABJ-901-XY',
+    notes: 'Strategy review meeting at Maitama HQ.',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200',
+  },
+  {
+    id: 'VIS-8923',
+    fullName: 'David Okonkwo',
+    phone: '+234 901 888 1234',
+    email: 'david.o@apexlogistics.ng',
+    company: 'Apex Express Logistics Lagos',
+    idType: 'Corporate Staff ID',
+    idNumber: 'APX-5519-NG',
+    hostName: 'Chinedu Eze',
+    department: 'Procurement & Logistics',
+    purpose: 'Document Delivery / Courier',
+    checkInTime: new Date(Date.now() - 1800000).toISOString(),
+    checkOutTime: null,
+    status: 'Checked-In',
+    badgeId: 'BDG-083',
+    expectedDurationMinutes: 30,
+    vehiclePlate: 'LSD-102-GH',
+    notes: 'Delivered dispatch parcel #4812 from Ikeja Cargo Hub.',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200',
+  },
+  {
+    id: 'VIS-8920',
+    fullName: 'Elena Adebayo',
+    phone: '+234 809 111 4455',
+    email: 'elena@auditcorp.ng',
+    company: 'PwC Nigeria Regulatory Audit',
+    idType: 'International Passport',
+    idNumber: 'PASS-A992014',
+    hostName: 'Emeka O’Connor',
+    department: 'Finance & Accounting',
+    purpose: 'Regulatory Inspection / NDPR Audit',
+    checkInTime: new Date(Date.now() - 14400000).toISOString(),
+    checkOutTime: new Date(Date.now() - 3600000).toISOString(),
+    status: 'Checked-Out',
+    badgeId: 'BDG-080',
+    expectedDurationMinutes: 180,
+    vehiclePlate: 'GWA-881-MZ',
+    notes: 'Q3 NDPR Financial audit clearance completed.',
+    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=200',
+  },
+  {
+    id: 'VIS-8919',
+    fullName: 'Dr. Michael Nnamdi',
+    phone: '+234 703 999 2211',
+    email: 'mnnamdi@biotech.ng',
+    company: 'BioTech Innovations Nigeria',
+    idType: 'Driver’s License (FRSC)',
+    idNumber: 'DL-881920-PH',
+    hostName: 'Dr. Alex Rivera',
+    department: 'Information Technology & Cyber Security',
+    purpose: 'Vendor Presentation',
+    checkInTime: new Date(Date.now() - 18000000).toISOString(),
+    checkOutTime: new Date(Date.now() - 7200000).toISOString(),
+    status: 'Checked-Out',
+    badgeId: 'BDG-079',
+    expectedDurationMinutes: 60,
+    vehiclePlate: 'RBC-304-LK',
+    notes: 'Cloud infrastructure demo for Port Harcourt branch.',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200',
+  },
+  {
+    id: 'VIS-8918',
+    fullName: 'Grace Oladipo',
+    phone: '+234 818 222 9900',
+    email: 'grace.oladipo@gmail.com',
+    company: 'Self-employed',
+    idType: 'National Identity Number (NIN)',
+    idNumber: 'NIN-1029384756',
+    hostName: 'Claire Okonjo',
+    department: 'Human Resources & Talent',
+    purpose: 'Job Interview',
+    checkInTime: new Date(Date.now() - 21600000).toISOString(),
+    checkOutTime: new Date(Date.now() - 10800000).toISOString(),
+    status: 'Checked-Out',
+    badgeId: 'BDG-078',
+    expectedDurationMinutes: 90,
+    vehiclePlate: 'N/A',
+    notes: 'Interview for Senior Frontend Lead.',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200',
+  }
+];
+
 // ANSI formatting helpers
 const colors = {
   reset: '\x1b[0m',
@@ -89,7 +212,7 @@ class MockStorage {
   }
 }
 
-function createSimulator(initial = INITIAL_VISITORS) {
+function createSimulator(initial = (INITIAL_VISITORS.length > 0 ? INITIAL_VISITORS : TEST_SEED_VISITORS)) {
   let visitors = JSON.parse(JSON.stringify(initial));
   let isCheckInOpen = false;
   let isBadgeModalOpen = false;
@@ -151,7 +274,7 @@ function createSimulator(initial = INITIAL_VISITORS) {
   };
 
   const resetToDemoData = () => {
-    visitors = JSON.parse(JSON.stringify(INITIAL_VISITORS));
+    visitors = JSON.parse(JSON.stringify(INITIAL_VISITORS.length > 0 ? INITIAL_VISITORS : TEST_SEED_VISITORS));
     storage.removeItem('vsms_visitors');
   };
 
@@ -650,11 +773,11 @@ runTest('ADV-STO-01', 'Malformed, truncated, or invalid JSON syntax in localStor
       try {
         return JSON.parse(badJson);
       } catch (e) {
-        return INITIAL_VISITORS;
+        return TEST_SEED_VISITORS;
       }
     };
     const result = parseStorage();
-    assert.strictEqual(result, INITIAL_VISITORS);
+    assert.strictEqual(result, TEST_SEED_VISITORS);
     assert.strictEqual(result.length, 6);
   });
 });
@@ -672,13 +795,14 @@ runTest('ADV-STO-02', 'Non-array JSON primitives (number, boolean, string, objec
     const parseStorage = () => {
       try {
         const parsed = JSON.parse(prim);
-        return Array.isArray(parsed) ? parsed : INITIAL_VISITORS;
+        return Array.isArray(parsed) ? parsed : (INITIAL_VISITORS.length > 0 ? INITIAL_VISITORS : TEST_SEED_VISITORS);
       } catch (e) {
-        return INITIAL_VISITORS;
+        return (INITIAL_VISITORS.length > 0 ? INITIAL_VISITORS : TEST_SEED_VISITORS);
       }
     };
     const result = parseStorage();
-    assert.strictEqual(result, INITIAL_VISITORS);
+    const defaultFixture = INITIAL_VISITORS.length > 0 ? INITIAL_VISITORS : TEST_SEED_VISITORS;
+    assert.strictEqual(result, defaultFixture);
   });
 });
 
@@ -687,9 +811,9 @@ runTest('ADV-STO-03', 'Empty array in localStorage preserved without overwriting
   const parseStorage = () => {
     try {
       const parsed = JSON.parse(emptyArrayStr);
-      return Array.isArray(parsed) ? parsed : INITIAL_VISITORS;
+      return Array.isArray(parsed) ? parsed : (INITIAL_VISITORS.length > 0 ? INITIAL_VISITORS : TEST_SEED_VISITORS);
     } catch (e) {
-      return INITIAL_VISITORS;
+      return (INITIAL_VISITORS.length > 0 ? INITIAL_VISITORS : TEST_SEED_VISITORS);
     }
   };
   const result = parseStorage();
@@ -703,13 +827,13 @@ runTest('ADV-STO-04', 'Array containing null, undefined, or corrupt items filter
     undefined,
     {},
     { id: 'VIS-CORRUPT-1' },
-    INITIAL_VISITORS[0]
+    { id: 'VIS-TEST-1', fullName: 'Test Guest' }
   ];
 
   // Simulator for filtering corrupted entries
   const safeVisitors = corruptArray.filter(v => v && typeof v === 'object' && v.id && v.fullName);
   assert.strictEqual(safeVisitors.length, 1);
-  assert.strictEqual(safeVisitors[0].id, 'VIS-8921');
+  assert.strictEqual(safeVisitors[0].id, 'VIS-TEST-1');
 });
 
 runTest('ADV-STO-05', 'Prototype pollution payloads in storage string (__proto__, constructor, prototype) do not alter Object prototype', () => {
@@ -1127,7 +1251,7 @@ runTest('ADV-CSV-08', 'Exporting large 1,000 visitor database produces exactly 1
 console.log(`\n${colors.bold}${colors.yellow}--- SUITE 7: SORTING, FILTERING & PAGINATION BOUNDARIES ---${colors.reset}`);
 
 runTest('ADV-PAG-01', 'Pagination with itemsPerPage = 50 and 6 visitors results in totalPages = 1, showing all 6 records', () => {
-  const visitors = INITIAL_VISITORS;
+  const visitors = TEST_SEED_VISITORS;
   const itemsPerPage = 50;
   const currentPage = 1;
 
@@ -1163,7 +1287,7 @@ runTest('ADV-PAG-02', 'Pagination with 0 results clamps to page 1 and totalPages
 });
 
 runTest('ADV-PAG-03', 'Pagination boundary clamping handles negative pages (page -999) and extreme out-of-bounds (page 999999)', () => {
-  const visitors = INITIAL_VISITORS; // 6 items
+  const visitors = Array.from({ length: 6 }, (_, i) => ({ id: `VIS-${i}` }));
   const itemsPerPage = 2; // totalPages = 3
   const totalPages = Math.ceil(visitors.length / itemsPerPage) || 1;
 

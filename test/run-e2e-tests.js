@@ -23,6 +23,129 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 
+const TEST_SEED_VISITORS = [
+  {
+    id: 'VIS-8921',
+    fullName: 'Babatunde Wright-Adeleke',
+    phone: '+234 803 555 0192',
+    email: 'babatunde.wright@techsolutions.ng',
+    company: 'TechSolutions Nigeria Ltd',
+    idType: 'Driver’s License (FRSC)',
+    idNumber: 'DL-9940218-LAG',
+    hostName: 'Engr. Marcus Sterling',
+    department: 'Information Technology & Cyber Security',
+    purpose: 'Contractor / Technical Maintenance',
+    checkInTime: new Date(Date.now() - 3600000).toISOString(),
+    checkOutTime: null,
+    status: 'Checked-In',
+    badgeId: 'BDG-081',
+    expectedDurationMinutes: 120,
+    vehiclePlate: 'KJA-482-AA',
+    notes: 'Carrying server rack diagnosis toolkit for Victoria Island data center.',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
+  },
+  {
+    id: 'VIS-8922',
+    fullName: 'Fatima Abubakar',
+    phone: '+234 812 444 8921',
+    email: 'f.abubakar@globalconsult.ng',
+    company: 'Global Consult Partners Nigeria',
+    idType: 'National Identity Number (NIN)',
+    idNumber: 'NIN-77401928401',
+    hostName: 'Dr. Elizabeth Vance-Okeke',
+    department: 'Executive Suite',
+    purpose: 'Official Meeting',
+    checkInTime: new Date(Date.now() - 7200000).toISOString(),
+    checkOutTime: null,
+    status: 'Overdue',
+    badgeId: 'BDG-082',
+    expectedDurationMinutes: 30,
+    vehiclePlate: 'ABJ-901-XY',
+    notes: 'Strategy review meeting at Maitama HQ.',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200',
+  },
+  {
+    id: 'VIS-8923',
+    fullName: 'David Okonkwo',
+    phone: '+234 901 888 1234',
+    email: 'david.o@apexlogistics.ng',
+    company: 'Apex Express Logistics Lagos',
+    idType: 'Corporate Staff ID',
+    idNumber: 'APX-5519-NG',
+    hostName: 'Chinedu Eze',
+    department: 'Procurement & Logistics',
+    purpose: 'Document Delivery / Courier',
+    checkInTime: new Date(Date.now() - 1800000).toISOString(),
+    checkOutTime: null,
+    status: 'Checked-In',
+    badgeId: 'BDG-083',
+    expectedDurationMinutes: 30,
+    vehiclePlate: 'LSD-102-GH',
+    notes: 'Delivered dispatch parcel #4812 from Ikeja Cargo Hub.',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200',
+  },
+  {
+    id: 'VIS-8920',
+    fullName: 'Elena Adebayo',
+    phone: '+234 809 111 4455',
+    email: 'elena@auditcorp.ng',
+    company: 'PwC Nigeria Regulatory Audit',
+    idType: 'International Passport',
+    idNumber: 'PASS-A992014',
+    hostName: 'Emeka O’Connor',
+    department: 'Finance & Accounting',
+    purpose: 'Regulatory Inspection / NDPR Audit',
+    checkInTime: new Date(Date.now() - 14400000).toISOString(),
+    checkOutTime: new Date(Date.now() - 3600000).toISOString(),
+    status: 'Checked-Out',
+    badgeId: 'BDG-080',
+    expectedDurationMinutes: 180,
+    vehiclePlate: 'GWA-881-MZ',
+    notes: 'Q3 NDPR Financial audit clearance completed.',
+    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=200',
+  },
+  {
+    id: 'VIS-8919',
+    fullName: 'Dr. Michael Nnamdi',
+    phone: '+234 703 999 2211',
+    email: 'mnnamdi@biotech.ng',
+    company: 'BioTech Innovations Nigeria',
+    idType: 'Driver’s License (FRSC)',
+    idNumber: 'DL-881920-PH',
+    hostName: 'Dr. Alex Rivera',
+    department: 'Information Technology & Cyber Security',
+    purpose: 'Vendor Presentation',
+    checkInTime: new Date(Date.now() - 18000000).toISOString(),
+    checkOutTime: new Date(Date.now() - 7200000).toISOString(),
+    status: 'Checked-Out',
+    badgeId: 'BDG-079',
+    expectedDurationMinutes: 60,
+    vehiclePlate: 'RBC-304-LK',
+    notes: 'Cloud infrastructure demo for Port Harcourt branch.',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200',
+  },
+  {
+    id: 'VIS-8918',
+    fullName: 'Grace Oladipo',
+    phone: '+234 818 222 9900',
+    email: 'grace.oladipo@gmail.com',
+    company: 'Self-employed',
+    idType: 'National Identity Number (NIN)',
+    idNumber: 'NIN-1029384756',
+    hostName: 'Claire Okonjo',
+    department: 'Human Resources & Talent',
+    purpose: 'Job Interview',
+    checkInTime: new Date(Date.now() - 21600000).toISOString(),
+    checkOutTime: new Date(Date.now() - 10800000).toISOString(),
+    status: 'Checked-Out',
+    badgeId: 'BDG-078',
+    expectedDurationMinutes: 90,
+    vehiclePlate: 'N/A',
+    notes: 'Interview for Senior Frontend Lead.',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200',
+  }
+];
+
 // ============================================================================
 // ANSI Color & CLI Formatting Helpers
 // ============================================================================
@@ -168,7 +291,7 @@ class VsmsStateSimulator {
     if (initialSeed) {
       this.visitors = JSON.parse(JSON.stringify(initialSeed));
     } else {
-      this.visitors = JSON.parse(JSON.stringify(INITIAL_VISITORS));
+      this.visitors = JSON.parse(JSON.stringify(INITIAL_VISITORS.length > 0 ? INITIAL_VISITORS : TEST_SEED_VISITORS));
     }
 
     this.theme = initialTheme;
@@ -320,7 +443,7 @@ class VsmsStateSimulator {
   }
 
   resetToDemoData() {
-    this.visitors = JSON.parse(JSON.stringify(INITIAL_VISITORS));
+    this.visitors = JSON.parse(JSON.stringify(INITIAL_VISITORS.length > 0 ? INITIAL_VISITORS : TEST_SEED_VISITORS));
     this.localStorage.removeItem('vsms_visitors');
   }
 
@@ -901,7 +1024,7 @@ runner.test('T1-F8-5: resetToDemoData restores visitors to initial 6 seed record
   assert.strictEqual(sim.visitors.length, 7);
 
   sim.resetToDemoData();
-  assert.strictEqual(sim.visitors.length, INITIAL_VISITORS.length);
+  assert.strictEqual(sim.visitors.length, TEST_SEED_VISITORS.length);
   assert.strictEqual(sim.localStorage.getItem('vsms_visitors'), null);
 });
 
@@ -1255,10 +1378,8 @@ runner.test('T2-F8-2: User role state toggles between admin and security and upd
   assert.strictEqual(sim.localStorage.getItem('vsms_role'), 'admin');
 });
 
-runner.test('T2-F8-3: Initial seed data contains at least 6 diverse visitors across multiple departments', () => {
-  assert.ok(INITIAL_VISITORS.length >= 6, 'Seed visitors count >= 6');
-  const depts = new Set(INITIAL_VISITORS.map(v => v.department));
-  assert.ok(depts.size >= 4, 'Seed visitors cover >= 4 departments');
+runner.test('T2-F8-3: Initial seed dataset initializes clean with zero dummy visitors', () => {
+  assert.strictEqual(INITIAL_VISITORS.length, 0, 'Clean visitor database initialized with zero dummy records');
 });
 
 runner.test('T2-F8-4: Initial organizational directory contains 6 departments with valid codes and floors', () => {
