@@ -288,18 +288,18 @@ export const VisitorLogView = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-3">
           
           {/* Status Filters */}
-          <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1" role="region" aria-label="Status Filters">
+          <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 shrink-0 whitespace-nowrap" role="region" aria-label="Status Filters">
             <button
               type="button"
               onClick={() => setSelectedStatusFilter('All')}
-              className={`px-4 py-2 rounded-full text-xs font-extrabold transition flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-full text-xs font-extrabold transition flex items-center gap-2 whitespace-nowrap shrink-0 ${
                 selectedStatusFilter === 'All'
                   ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-md'
                   : 'bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700'
               }`}
             >
               <span>All Statuses</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-white">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-white whitespace-nowrap shrink-0">
                 {totalCount}
               </span>
             </button>
@@ -307,14 +307,14 @@ export const VisitorLogView = () => {
             <button
               type="button"
               onClick={() => setSelectedStatusFilter('Checked-In')}
-              className={`px-4 py-2 rounded-full text-xs font-extrabold transition flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-full text-xs font-extrabold transition flex items-center gap-2 whitespace-nowrap shrink-0 ${
                 selectedStatusFilter === 'Checked-In'
                   ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-md'
                   : 'bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700'
               }`}
             >
               <span>Inside</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-white">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-white whitespace-nowrap shrink-0">
                 {insideCount}
               </span>
             </button>
@@ -322,14 +322,14 @@ export const VisitorLogView = () => {
             <button
               type="button"
               onClick={() => setSelectedStatusFilter('Overdue')}
-              className={`px-4 py-2 rounded-full text-xs font-extrabold transition flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-full text-xs font-extrabold transition flex items-center gap-2 whitespace-nowrap shrink-0 ${
                 selectedStatusFilter === 'Overdue'
                   ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-md'
                   : 'bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700'
               }`}
             >
               <span>Overdue</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500 text-white">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500 text-white whitespace-nowrap shrink-0">
                 {overdueCount}
               </span>
             </button>
@@ -337,14 +337,14 @@ export const VisitorLogView = () => {
             <button
               type="button"
               onClick={() => setSelectedStatusFilter('Checked-Out')}
-              className={`px-4 py-2 rounded-full text-xs font-extrabold transition flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-full text-xs font-extrabold transition flex items-center gap-2 whitespace-nowrap shrink-0 ${
                 selectedStatusFilter === 'Checked-Out'
                   ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-md'
                   : 'bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700'
               }`}
             >
               <span>Checked-Out</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-white">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-white whitespace-nowrap shrink-0">
                 {checkedOutCount}
               </span>
             </button>

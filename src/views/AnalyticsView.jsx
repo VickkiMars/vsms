@@ -150,13 +150,13 @@ export const AnalyticsView = () => {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-3 overflow-x-auto whitespace-nowrap">
           {/* Time Range Filter Switcher */}
-          <div className="flex flex-wrap sm:inline-flex rounded-2xl sm:rounded-full bg-neutral-100 dark:bg-neutral-800 p-1 text-xs border border-neutral-200 dark:border-neutral-700">
+          <div className="inline-flex items-center rounded-full bg-neutral-100 dark:bg-neutral-800 p-1 text-xs border border-neutral-200 dark:border-neutral-700 shrink-0 whitespace-nowrap">
             <button
               type="button"
               onClick={() => setTimeRange('all')}
-              className={`px-3 py-1.5 rounded-full font-extrabold transition ${
+              className={`px-3 py-1.5 rounded-full font-extrabold transition whitespace-nowrap shrink-0 ${
                 timeRange === 'all'
                   ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-md'
                   : 'text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white'
@@ -167,7 +167,7 @@ export const AnalyticsView = () => {
             <button
               type="button"
               onClick={() => setTimeRange('week')}
-              className={`px-3 py-1.5 rounded-full font-extrabold transition ${
+              className={`px-3 py-1.5 rounded-full font-extrabold transition whitespace-nowrap shrink-0 ${
                 timeRange === 'week'
                   ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-md'
                   : 'text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white'
@@ -178,7 +178,7 @@ export const AnalyticsView = () => {
             <button
               type="button"
               onClick={() => setTimeRange('today')}
-              className={`px-3 py-1.5 rounded-full font-extrabold transition ${
+              className={`px-3 py-1.5 rounded-full font-extrabold transition whitespace-nowrap shrink-0 ${
                 timeRange === 'today'
                   ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-md'
                   : 'text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white'
@@ -191,7 +191,7 @@ export const AnalyticsView = () => {
           <button
             type="button"
             onClick={exportToCSV}
-            className="px-4 py-2.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-200 font-extrabold text-xs flex items-center gap-1.5 transition shadow-md"
+            className="px-4 py-2.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-200 font-extrabold text-xs flex items-center gap-1.5 transition shadow-md whitespace-nowrap shrink-0"
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
             <span>Export CSV</span>

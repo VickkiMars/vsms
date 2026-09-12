@@ -62,19 +62,19 @@ export const DepartmentsView = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="px-4 py-2 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white text-xs font-bold flex items-center gap-2 border border-neutral-200 dark:border-neutral-700">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>{totalActiveGuests} Active Guests Facility-Wide</span>
+        <div className="flex items-center gap-3 overflow-x-auto whitespace-nowrap">
+          <div className="px-4 py-2 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white text-xs font-bold flex items-center gap-2 border border-neutral-200 dark:border-neutral-700 whitespace-nowrap shrink-0">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <span className="whitespace-nowrap">{totalActiveGuests} Active Guests Facility-Wide</span>
           </div>
 
           <button
             type="button"
             onClick={() => setIsCheckInOpen(true)}
-            className="px-4 py-2.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-200 font-extrabold text-xs flex items-center gap-1.5 transition shadow-md active:scale-95"
+            className="px-4 py-2.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-200 font-extrabold text-xs flex items-center gap-1.5 transition shadow-md active:scale-95 whitespace-nowrap shrink-0"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>New Check-In</span>
+            <Plus className="w-3.5 h-3.5 shrink-0" />
+            <span className="whitespace-nowrap">New Check-In</span>
           </button>
         </div>
       </div>

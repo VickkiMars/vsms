@@ -154,7 +154,7 @@ export const SettingsView = () => {
           <button
             type="button"
             onClick={() => setActiveTab('users')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap shrink-0 ${
               activeTab === 'users' 
                 ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 shadow-xs' 
                 : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
@@ -165,7 +165,7 @@ export const SettingsView = () => {
           <button
             type="button"
             onClick={() => setActiveTab('sqlite')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap shrink-0 ${
               activeTab === 'sqlite' 
                 ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 shadow-xs' 
                 : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
@@ -176,7 +176,7 @@ export const SettingsView = () => {
           <button
             type="button"
             onClick={() => setActiveTab('policies')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap shrink-0 ${
               activeTab === 'policies' 
                 ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 shadow-xs' 
                 : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
@@ -187,7 +187,7 @@ export const SettingsView = () => {
           <button
             type="button"
             onClick={() => setActiveTab('theme')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap shrink-0 ${
               activeTab === 'theme' 
                 ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 shadow-xs' 
                 : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
