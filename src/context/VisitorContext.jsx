@@ -5,28 +5,53 @@ import confetti from 'canvas-confetti';
 
 const VisitorContext = createContext(null);
 
+const DUMMY_IDS = new Set(['VIS-1001', 'VIS-1002', 'VIS-1003', 'VIS-1004', 'VIS-1005', 'VIS-1006']);
+const DUMMY_NAMES = new Set([
+  'Chief Marcus Vance', 'Dr. Aisha Sterling', 'Engr. David Okeke', 
+  'Hon. Fatima Bello', 'Captain Emeka Nwosu', 'Barr. Chinedu Orji'
+]);
+
+const sanitizeVisitorList = (list) => {
+  if (!Array.isArray(list)) return [];
+  return list.filter(v => v && !DUMMY_IDS.has(v.id) && !DUMMY_NAMES.has(v.fullName));
+};
+
 export const VisitorProvider = ({ children }) => {
   // State for visitor records synced with SQLite DB & LocalStorage
   const [visitors, setVisitors] = useState(() => {
+    if (typeof window !== 'undefined' && !localStorage.getItem('vsms_v4_clean')) {
+      localStorage.removeItem('vsms_visitors');
+      localStorage.removeItem('vsms_sqlite_db_bin');
+      localStorage.setItem('vsms_theme', 'light');
+      localStorage.setItem('vsms_v4_clean', 'true');
+      return [];
+    }
     const saved = localStorage.getItem('vsms_visitors');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
+      try { 
+        const parsed = JSON.parse(saved); 
+        return sanitizeVisitorList(parsed);
+      } catch (e) { console.error(e); }
     }
-    return INITIAL_VISITORS;
+    return sanitizeVisitorList(INITIAL_VISITORS);
   });
 
   // Sync SQLite visitors on mount
   useEffect(() => {
     sqliteService.initPromise.then(() => {
       const dbVisitors = sqliteService.getAllVisitors();
-      if (dbVisitors && dbVisitors.length > 0) {
-        setVisitors(dbVisitors);
-      }
+      const cleanDbVisitors = sanitizeVisitorList(dbVisitors);
+      setVisitors(cleanDbVisitors);
     });
   }, []);
 
-  // LocalStorage state for light theme
+  // LocalStorage state for light theme (default light theme)
   const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined' && !localStorage.getItem('vsms_theme_v4_light')) {
+      localStorage.setItem('vsms_theme', 'light');
+      localStorage.setItem('vsms_theme_v4_light', 'true');
+      return 'light';
+    }
     return localStorage.getItem('vsms_theme') || 'light';
   });
 

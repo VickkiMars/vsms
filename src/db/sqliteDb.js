@@ -52,6 +52,14 @@ class SQLiteService {
         locateFile: file => `https://sql.js.org/dist/${file}`
       });
 
+      // Clear legacy storage cache containing dummy records if not sanitized
+      if (typeof window !== 'undefined' && !localStorage.getItem('vsms_v3_clean')) {
+        localStorage.removeItem(SQLITE_STORAGE_KEY);
+        localStorage.removeItem('vsms_visitors');
+        localStorage.setItem('vsms_theme', 'light');
+        localStorage.setItem('vsms_v3_clean', 'true');
+      }
+
       // Try loading existing DB binary from LocalStorage
       const savedData = typeof window !== 'undefined' ? localStorage.getItem(SQLITE_STORAGE_KEY) : null;
       if (savedData) {
@@ -168,6 +176,20 @@ class SQLiteService {
         stmt.run([u.id, u.email, u.password_hash, u.fullName, u.role, u.avatar, u.created_at, u.last_login]);
       });
       stmt.free();
+    }
+
+    // Purge any legacy dummy visitor records
+    try {
+      this.db.run(`
+        DELETE FROM visitors 
+        WHERE id IN ('VIS-1001', 'VIS-1002', 'VIS-1003', 'VIS-1004', 'VIS-1005', 'VIS-1006')
+           OR fullName IN (
+             'Chief Marcus Vance', 'Dr. Aisha Sterling', 'Engr. David Okeke', 
+             'Hon. Fatima Bello', 'Captain Emeka Nwosu', 'Barr. Chinedu Orji'
+           );
+      `);
+    } catch (e) {
+      console.warn('Error purging legacy dummy records:', e);
     }
 
     // Seed visitors if empty
