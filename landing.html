@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Realty Hub | Design System Prototype</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons for clean UI elements -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Tailwind CSS via CDN with design system configuration -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            'canvas': {
+              bg: '#eef5f7',
+              gradient: '#e5eff2'
+            },
+            'realty': {
+              dark: '#111625',
+              darkHover: '#1c2336',
+              card: '#ffffff',
+              cardSubtle: '#f7fbfd',
+              border: 'rgba(0, 0, 0, 0.05)',
+              textPrimary: '#111625',
+              textSecondary: '#5e6d82',
+              textMuted: '#94a3b8'
+            },
+            'pastel': {
+              lime: '#d7f4b7',
+              limeDark: '#27520d',
+              limeBadge: '#c8f596',
+              mint: '#9ce5d7',
+              mintDark: '#0a4c41',
+              mintBadge: '#b7f3e8',
+              pink: '#f5b5b5',
+              pinkDark: '#6b1a1a',
+              pinkBadge: '#fcd5d5'
+            },
+            'tag': {
+              rental: '#3dbda7',
+              sale: '#f16462',
+              subtle: '#eef3f6'
+            }
+          },
+          borderRadius: {
+            '2xl': '16px',
+            '3xl': '24px',
+            '4xl': '28px',
+            'full': '9999px'
+          },
+          boxShadow: {
+            'soft-card': '0 10px 30px -5px rgba(17, 22, 37, 0.03), 0 4px 12px 0 rgba(17, 22, 37, 0.02)',
+            'float-bar': '0 14px 35px rgba(17, 22, 37, 0.08)',
+            'pill-active': '0 6px 18px rgba(17, 22, 37, 0.18)',
+            'glass-subtle': '0 8px 32px 0 rgba(31, 38, 135, 0.04)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Gradient Bar Hero Divider */
+    .gradient-bar-hero {
+      background: linear-gradient(90deg, #f5b5b5 0%, #9ce5d7 50%, #d7f4b7 100%);
+    }
+
+    /* Custom Ice Blue Body Background */
+    body {
+      background: linear-gradient(135deg, #f4f8fa 0%, #eef5f7 40%, #e4eff2 100%);
+      min-height: 100vh;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #111625;
+    }
+
+    /* Glassmorphism Floating Bar */
+    .glass-widget {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+    }
+
+    /* Smooth Micro Animations */
+    .transition-card {
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .transition-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 36px -4px rgba(17, 22, 37, 0.06);
+    }
+
+    /* Custom Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(17, 22, 37, 0.15);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(17, 22, 37, 0.3);
+    }
+  </style>
+</head>
+<body class="p-3 md:p-6 antialiased selection:bg-realty-dark selection:text-white">
+
+  <!-- Main Shell Wrapper -->
+  <div class="max-w-[1580px] mx-auto min-h-[92vh] flex flex-col md:flex-row gap-5 rounded-4xl bg-transparent">
+
+    <!-- 1. LEFT SIDEBAR NAVIGATION -->
+    <aside class="w-full md:w-[260px] flex-shrink-0 flex flex-col justify-between p-5 bg-transparent">
+      <div class="space-y-7">
+        
+        <!-- Logo & Collapse Button -->
+        <div class="flex items-center justify-between px-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-realty-dark flex items-center justify-center text-white font-bold text-lg shadow-sm">
+              <i class="fa-solid fa-shapes text-sm"></i>
+            </div>
+            <span class="font-extrabold text-xl tracking-tight text-realty-dark">Realty Hub</span>
+          </div>
+          <button class="w-8 h-8 rounded-full bg-white/80 hover:bg-white text-realty-textSecondary flex items-center justify-center text-xs transition shadow-sm" title="Toggle Sidebar">
+            <i class="fa-solid fa-bars-staggered"></i>
+          </button>
+        </div>
+
+        <!-- Navigation Sections -->
+        <nav class="space-y-6">
+          <!-- Menu Category -->
+          <div class="space-y-1.5">
+            <div class="px-3 text-[11px] font-bold uppercase tracking-wider text-realty-textMuted mb-2">Menu</div>
+            
+            <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-full bg-realty-dark text-white font-medium text-sm shadow-pill-active transition-transform active:scale-95">
+              <i class="fa-solid fa-chart-pie text-xs w-4"></i>
+              <span>My Activity</span>
+            </a>
+            
+            <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-full text-realty-textSecondary hover:text-realty-dark hover:bg-white/60 font-medium text-sm transition">
+              <i class="fa-solid fa-chart-simple text-xs w-4"></i>
+              <span>My Stats</span>
+            </a>
+            
+            <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-full text-realty-textSecondary hover:text-realty-dark hover:bg-white/60 font-medium text-sm transition">
+              <i class="fa-solid fa-border-all text-xs w-4"></i>
+              <span>Overview</span>
+            </a>
+          </div>
+
+          <!-- Leads Category -->
+          <div class="space-y-1.5">
+            <div class="px-3 text-[11px] font-bold uppercase tracking-wider text-realty-textMuted mb-2 flex items-center justify-between">
+              <span>Leads</span>
+              <i class="fa-solid fa-chevron-up text-[10px]"></i>
+            </div>
+            
+            <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-full text-realty-textSecondary hover:text-realty-dark hover:bg-white/60 font-medium text-sm transition">
+              <i class="fa-solid fa-users text-xs w-4"></i>
+              <span>Leads List</span>
+            </a>
+            
+            <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-full text-realty-textSecondary hover:text-realty-dark hover:bg-white/60 font-medium text-sm transition">
+              <i class="fa-solid fa-user-tag text-xs w-4"></i>
+              <span>Buyers List</span>
+            </a>
+
+            <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-full text-realty-textSecondary hover:text-realty-dark hover:bg-white/60 font-medium text-sm transition">
+              <i class="fa-solid fa-file-import text-xs w-4"></i>
+              <span>Import</span>
+            </a>
+          </div>
+
+          <!-- Comms Category -->
+          <div class="space-y-1.5">
+            <div class="px-3 text-[11px] font-bold uppercase tracking-wider text-realty-textMuted mb-2 flex items-center justify-between">
+              <span>Comms</span>
+              <i class="fa-solid fa-chevron-up text-[10px]"></i>
+            </div>
+            
+            <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-full text-realty-textSecondary hover:text-realty-dark hover:bg-white/60 font-medium text-sm transition">
+              <i class="fa-solid fa-envelope text-xs w-4"></i>
+              <span>Emails</span>
+            </a>
+
+            <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-full text-realty-textSecondary hover:text-realty-dark hover:bg-white/60 font-medium text-sm transition">
+              <i class="fa-solid fa-comment-dots text-xs w-4"></i>
+              <span>Texts</span>
+            </a>
+
+            <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-full text-realty-textSecondary hover:text-realty-dark hover:bg-white/60 font-medium text-sm transition justify-between">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-headset text-xs w-4"></i>
+                <span>Live Chat</span>
+              </div>
+              <span class="w-5 h-5 rounded-full bg-tag-rental text-white text-[10px] font-bold flex items-center justify-center">2</span>
+            </a>
+          </div>
+        </nav>
+      </div>
+
+      <!-- Floating Bottom Profile & Controls Widget -->
+      <div class="glass-widget rounded-3xl p-3.5 shadow-float-bar space-y-3 mt-6 border border-white/80">
+        <!-- Media Control Toolbar -->
+        <div class="flex items-center justify-between bg-white/70 p-2 rounded-full border border-gray-100 shadow-inner">
+          <button class="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-realty-dark flex items-center justify-center text-xs transition">
+            <i class="fa-solid fa-headphones"></i>
+          </button>
+          <button class="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-realty-dark flex items-center justify-center text-xs transition">
+            <i class="fa-solid fa-microphone"></i>
+          </button>
+          <button class="w-7 h-7 rounded-full bg-tag-rental text-white flex items-center justify-center text-xs transition shadow-sm">
+            <i class="fa-solid fa-sliders"></i>
+          </button>
+          <button class="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-realty-dark flex items-center justify-center text-xs transition">
+            <i class="fa-solid fa-gear"></i>
+          </button>
+        </div>
+
+        <!-- User Profile Strip -->
+        <div class="flex items-center justify-between px-1 pt-1">
+          <div class="flex items-center gap-2.5">
+            <div class="relative">
+              <img src="044e7aaa9cfc87c60630dd7120c3a756.jpg" alt="Fred Jhonson" class="w-9 h-9 rounded-full object-cover border border-white shadow-sm">
+              <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+            </div>
+            <div class="text-left">
+              <div class="font-bold text-xs text-realty-dark leading-snug">Fred Jhonson</div>
+              <div class="text-[11px] text-realty-textMuted truncate max-w-[110px]">jhonsonfred@gmail.com</div>
+            </div>
+          </div>
+          <button class="text-realty-textMuted hover:text-realty-dark text-xs p-1">
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 2. MAIN CENTER CONTENT AREA -->
+    <main class="flex-1 flex flex-col gap-6 py-2">
+      
+      <!-- Top Search & Header Bar -->
+      <header class="flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
+        <!-- Title & Search Bar -->
+        <div class="flex items-center gap-6 w-full sm:w-auto">
+          <h1 class="text-2xl font-extrabold text-realty-dark tracking-tight">My Activity</h1>
+          
+          <!-- Search Pill Input -->
+          <div class="relative flex-1 sm:w-80">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-realty-textMuted text-xs">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <input type="text" placeholder="Search..." class="w-full pl-9 pr-14 py-2 rounded-full bg-white/80 border border-white/60 focus:bg-white focus:outline-none focus:ring-2 focus:ring-realty-dark/20 text-xs font-medium placeholder-realty-textMuted shadow-sm transition">
+            <div class="absolute inset-y-0 right-0 pr-3 flex items-center gap-1.5 pointer-events-none">
+              <span class="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-[10px] font-bold text-realty-textMuted">⌘ K</span>
+              <i class="fa-solid fa-microphone text-xs text-realty-textMuted"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Header Badges & Online Users -->
+        <div class="flex items-center gap-4 w-full sm:w-auto justify-end">
+          
+          <!-- Integrations Pills -->
+          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 border border-white/80 shadow-sm text-xs font-medium text-realty-textSecondary">
+            <i class="fa-solid fa-plug text-[11px]"></i>
+            <span>Integration</span>
+            <div class="flex items-center gap-1 ml-1">
+              <span class="w-4 h-4 rounded-full bg-blue-500 text-white text-[8px] flex items-center justify-center font-bold">z</span>
+              <span class="w-4 h-4 rounded-full bg-indigo-600 text-white text-[8px] flex items-center justify-center font-bold">S</span>
+              <span class="w-4 h-4 rounded-full bg-red-500 text-white text-[8px] flex items-center justify-center font-bold">M</span>
+            </div>
+          </div>
+
+          <!-- Online Status Avatars -->
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-realty-textSecondary">Now online <span class="text-realty-textMuted font-normal">(3)</span></span>
+            <div class="flex -space-x-2">
+              <div class="relative">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80" class="w-7 h-7 rounded-full object-cover border-2 ring-2 ring-emerald-400 border-white">
+                <span class="absolute top-0 right-0 w-2 h-2 rounded-full bg-emerald-500"></span>
+              </div>
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=80" class="w-7 h-7 rounded-full object-cover border-2 border-white">
+              <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=80&q=80" class="w-7 h-7 rounded-full object-cover border-2 border-white">
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Profile Hero Card -->
+      <div class="bg-white rounded-3xl p-6 shadow-soft-card border border-white/80 transition-card space-y-6">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+          
+          <!-- Agent Info Block -->
+          <div class="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
+            <div class="relative">
+              <img src="044e7aaa9cfc87c60630dd7120c3a756.jpg" alt="Fred Jhonson" class="w-24 h-24 rounded-2xl object-cover shadow-md border-2 border-white">
+            </div>
+            
+            <div class="space-y-2">
+              <div>
+                <h2 class="text-xl font-bold text-realty-dark">Fred Jhonson</h2>
+                <p class="text-xs text-realty-textMuted font-medium">Agent <span class="font-semibold text-realty-dark">286 days</span> on the platform</p>
+              </div>
+
+              <!-- Contact Pills Grid -->
+              <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 text-xs text-realty-textSecondary">
+                <span class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-realty-cardSubtle border border-gray-100 font-medium">
+                  <i class="fa-solid fa-phone text-[10px] text-realty-textMuted"></i>
+                  +1-202-555-0167
+                </span>
+                <span class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-realty-cardSubtle border border-gray-100 font-medium">
+                  <i class="fa-solid fa-envelope text-[10px] text-realty-textMuted"></i>
+                  jhonsonfred@gmail.com
+                </span>
+                <span class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-realty-cardSubtle border border-gray-100 font-medium">
+                  <i class="fa-solid fa-location-dot text-[10px] text-realty-textMuted"></i>
+                  Los Angeles
+                </span>
+                <span class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-realty-cardSubtle border border-gray-100 font-medium">
+                  <i class="fa-solid fa-building text-[10px] text-realty-textMuted"></i>
+                  Horizon Realty Group
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Card Actions -->
+          <div class="flex items-center gap-2">
+            <button class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-realty-dark flex items-center justify-center text-xs transition">
+              <i class="fa-solid fa-upload"></i>
+            </button>
+            <button class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-realty-dark flex items-center justify-center text-xs transition">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Metric Statistics Bar -->
+        <div class="space-y-3 pt-2">
+          <div class="grid grid-cols-3 gap-4 text-left">
+            <div>
+              <span class="text-xs text-realty-textMuted font-medium block">Total Listings</span>
+              <span class="text-2xl sm:text-3xl font-extrabold text-realty-dark tracking-tight">1203</span>
+            </div>
+            <div>
+              <span class="text-xs text-realty-textMuted font-medium block">Properties sold</span>
+              <span class="text-2xl sm:text-3xl font-extrabold text-realty-dark tracking-tight">912</span>
+            </div>
+            <div>
+              <span class="text-xs text-realty-textMuted font-medium block">Properties rent</span>
+              <span class="text-2xl sm:text-3xl font-extrabold text-realty-dark tracking-tight">320</span>
+            </div>
+          </div>
+
+          <!-- Signature Rainbow Gradient Line Divider -->
+          <div class="h-1.5 w-full rounded-full gradient-bar-hero"></div>
+        </div>
+      </div>
+
+      <!-- Pastel Metric Summary Section ("My Summary") -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between px-1">
+          <h3 class="text-lg font-bold text-realty-dark">My Summary</h3>
+          <div class="flex items-center gap-2">
+            <div class="relative">
+              <select class="appearance-none bg-white border border-white/80 rounded-full px-3 py-1 pr-7 text-xs font-bold text-realty-dark shadow-sm focus:outline-none cursor-pointer">
+                <option>This Month</option>
+                <option>Last Quarter</option>
+                <option>Year 2026</option>
+              </select>
+              <i class="fa-solid fa-chevron-down absolute right-2.5 top-2.5 text-[9px] text-realty-textMuted pointer-events-none"></i>
+            </div>
+            <button class="w-7 h-7 rounded-full bg-white hover:bg-gray-50 text-realty-textSecondary flex items-center justify-center text-xs shadow-sm transition">
+              <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3 Pastel Summary Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          <!-- Card 1: Lime Green Pastel -->
+          <div class="bg-pastel-lime rounded-3xl p-5 flex flex-col justify-between min-h-[140px] shadow-sm relative overflow-hidden transition-card">
+            <div class="flex items-start justify-between">
+              <div class="space-y-1">
+                <span class="text-sm font-bold text-pastel-limeDark block leading-tight">Unassigned<br>Leads</span>
+              </div>
+              <button class="w-8 h-8 rounded-full bg-white/30 hover:bg-white/50 text-pastel-limeDark flex items-center justify-center text-xs transition">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </button>
+            </div>
+
+            <div class="flex items-end justify-between mt-4">
+              <div class="text-[11px] text-pastel-limeDark/80 font-medium">
+                Update:<br>
+                <span class="font-bold">16 mar, 01:34 pm</span>
+              </div>
+              <div class="w-10 h-10 rounded-full bg-pastel-limeBadge text-pastel-limeDark font-bold text-sm flex items-center justify-center shadow-inner">
+                23
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Mint Turquoise Pastel -->
+          <div class="bg-pastel-mint rounded-3xl p-5 flex flex-col justify-between min-h-[140px] shadow-sm relative overflow-hidden transition-card">
+            <div class="flex items-start justify-between">
+              <div class="space-y-1">
+                <span class="text-sm font-bold text-pastel-mintDark block leading-tight">Valuation<br>Seller Leads</span>
+              </div>
+              <button class="w-8 h-8 rounded-full bg-white/30 hover:bg-white/50 text-pastel-mintDark flex items-center justify-center text-xs transition">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </button>
+            </div>
+
+            <div class="flex items-end justify-between mt-4">
+              <div class="text-[11px] text-pastel-mintDark/80 font-medium">
+                Update:<br>
+                <span class="font-bold">16 mar, 01:34 pm</span>
+              </div>
+              <div class="w-10 h-10 rounded-full bg-pastel-mintBadge text-pastel-mintDark font-bold text-sm flex items-center justify-center shadow-inner">
+                98
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Soft Coral Pink Pastel -->
+          <div class="bg-pastel-pink rounded-3xl p-5 flex flex-col justify-between min-h-[140px] shadow-sm relative overflow-hidden transition-card">
+            <div class="flex items-start justify-between">
+              <div class="space-y-1">
+                <span class="text-sm font-bold text-pastel-pinkDark block leading-tight">Potential Seller<br>Leads</span>
+              </div>
+              <button class="w-8 h-8 rounded-full bg-white/30 hover:bg-white/50 text-pastel-pinkDark flex items-center justify-center text-xs transition">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </button>
+            </div>
+
+            <div class="flex items-end justify-between mt-4">
+              <div class="text-[11px] text-pastel-pinkDark/80 font-medium">
+                Update:<br>
+                <span class="font-bold">16 mar, 01:34 pm</span>
+              </div>
+              <div class="w-10 h-10 rounded-full bg-pastel-pinkBadge text-pastel-pinkDark font-bold text-sm flex items-center justify-center shadow-inner">
+                231
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- New Objects Grid Showcase -->
+      <div class="space-y-3 pt-2">
+        <div class="flex items-center justify-between px-1">
+          <h3 class="text-lg font-bold text-realty-dark">New Objects <span class="text-realty-textMuted font-medium text-sm">(3)</span></h3>
+          <div class="flex items-center gap-2">
+            <div class="relative">
+              <select class="appearance-none bg-white border border-white/80 rounded-full px-3 py-1 pr-7 text-xs font-bold text-realty-dark shadow-sm focus:outline-none cursor-pointer">
+                <option>This Month</option>
+                <option>All Objects</option>
+              </select>
+              <i class="fa-solid fa-chevron-down absolute right-2.5 top-2.5 text-[9px] text-realty-textMuted pointer-events-none"></i>
+            </div>
+            <button class="w-7 h-7 rounded-full bg-white hover:bg-gray-50 text-realty-textSecondary flex items-center justify-center text-xs shadow-sm transition">
+              <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          
+          <!-- Property Card 1 -->
+          <div class="relative rounded-3xl overflow-hidden shadow-soft-card group border border-white/80 h-52">
+            <img src="villa.jpg" alt="Modern Villa" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 p-4 flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="px-3 py-1 rounded-full bg-tag-rental text-white text-xs font-bold shadow-sm">
+                  Rental
+                </span>
+                <button class="w-8 h-8 rounded-full bg-white/30 backdrop-blur-md text-white flex items-center justify-center text-xs hover:bg-white/50 transition">
+                  <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+                </button>
+              </div>
+
+              <div class="text-white space-y-1">
+                <div class="font-extrabold text-base leading-tight">Contemporary Villa Residence</div>
+                <div class="text-xs text-white/80 font-medium">305 Pomona Ave, Coronado, CA</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Property Card 2 -->
+          <div class="relative rounded-3xl overflow-hidden shadow-soft-card group border border-white/80 h-52">
+            <img src="timber.jpg" alt="Scandinavian Timber House" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 p-4 flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="px-3 py-1 rounded-full bg-tag-sale text-white text-xs font-bold shadow-sm">
+                  Sale
+                </span>
+                <button class="w-8 h-8 rounded-full bg-white/30 backdrop-blur-md text-white flex items-center justify-center text-xs hover:bg-white/50 transition">
+                  <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+                </button>
+              </div>
+
+              <div class="text-white space-y-1">
+                <div class="font-extrabold text-base leading-tight">Nordic Timber Eco-Lodge</div>
+                <div class="text-xs text-white/80 font-medium">128 Pine Hill Rd, Lake Tahoe, CA</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+    <!-- 3. RIGHT SIDEBAR LIVE FEED -->
+    <aside class="w-full md:w-[320px] flex-shrink-0 flex flex-col gap-4 py-2">
+      
+      <div class="bg-white/90 backdrop-blur-md rounded-3xl p-5 shadow-soft-card border border-white/80 space-y-5 h-full flex flex-col justify-between">
+        <div class="space-y-5">
+          <!-- Feed Header -->
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-bold text-realty-dark">Live Feed</h3>
+            <button class="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-realty-textSecondary flex items-center justify-center text-xs transition">
+              <i class="fa-solid fa-rotate-right"></i>
+            </button>
+          </div>
+
+          <!-- Timeline Activity Item 1 -->
+          <div class="space-y-3 relative pl-6 border-l-2 border-dashed border-gray-200">
+            <!-- Timeline Pin -->
+            <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center text-[8px] text-gray-600">
+              <i class="fa-solid fa-flag"></i>
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-realty-textMuted font-medium">
+              <span>Tu, 25.03</span>
+              <span>1:23 pm</span>
+            </div>
+
+            <!-- Property Preview Card -->
+            <div class="bg-realty-cardSubtle rounded-2xl p-2.5 border border-gray-100 space-y-2.5">
+              <div class="relative rounded-xl overflow-hidden h-28">
+                <img src="timber.jpg" class="w-full h-full object-cover">
+                <span class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-tag-sale text-white text-[10px] font-bold">
+                  Sale
+                </span>
+              </div>
+              
+              <div class="space-y-1">
+                <div class="font-bold text-xs text-realty-dark">Single Family Residential</div>
+                <div class="text-[11px] text-realty-textMuted">305 Pomona Ave, Coronado, CA 92118</div>
+              </div>
+
+              <!-- Pill tags & avatars strip -->
+              <div class="flex items-center justify-between pt-1">
+                <span class="px-3 py-1 rounded-full bg-white border border-gray-200 text-[11px] font-medium text-realty-textSecondary">
+                  Property Viewed
+                </span>
+                <div class="flex items-center gap-1">
+                  <span class="w-6 h-6 rounded-full bg-realty-dark text-white text-[10px] font-bold flex items-center justify-center">
+                    +8
+                  </span>
+                  <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80" class="w-6 h-6 rounded-full object-cover">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timeline Activity Item 2 -->
+          <div class="space-y-3 relative pl-6 border-l-2 border-dashed border-gray-200">
+            <!-- Timeline Pin -->
+            <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center text-[8px] text-gray-600">
+              <i class="fa-solid fa-circle"></i>
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-realty-textMuted font-medium">
+              <span>Tu, 25.03</span>
+              <span>1:23 pm</span>
+            </div>
+
+            <!-- Activity Strip Logan -->
+            <div class="flex items-center justify-between bg-realty-cardSubtle p-2.5 rounded-2xl border border-gray-100">
+              <div class="flex items-center gap-2.5">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=80" class="w-8 h-8 rounded-full object-cover">
+                <div>
+                  <div class="font-bold text-xs text-realty-dark">Logan Davidson</div>
+                  <div class="text-[11px] text-realty-textMuted">Follow up mail</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <button class="w-7 h-7 rounded-full bg-white text-realty-dark flex items-center justify-center text-xs shadow-sm">
+                  <i class="fa-solid fa-envelope"></i>
+                </button>
+                <button class="w-7 h-7 rounded-full bg-white text-realty-dark flex items-center justify-center text-xs shadow-sm">
+                  <i class="fa-solid fa-up-right-and-down-left-from-center text-[10px]"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timeline Activity Item 3 -->
+          <div class="space-y-3 relative pl-6">
+            <!-- Timeline Pin -->
+            <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center text-[8px] text-gray-600">
+              <i class="fa-solid fa-circle"></i>
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-realty-textMuted font-medium">
+              <span>Tu, 25.03</span>
+              <span>1:23 pm</span>
+            </div>
+
+            <!-- Activity Strip Megan -->
+            <div class="flex items-center justify-between bg-realty-cardSubtle p-2.5 rounded-2xl border border-gray-100">
+              <div class="flex items-center gap-2.5">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&q=80" class="w-8 h-8 rounded-full object-cover">
+                <div>
+                  <div class="font-bold text-xs text-realty-dark">Megan Pearce</div>
+                  <div class="text-[11px] text-realty-textMuted">First customer call</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <button class="w-7 h-7 rounded-full bg-white text-realty-dark flex items-center justify-center text-xs shadow-sm">
+                  <i class="fa-solid fa-phone text-[10px]"></i>
+                </button>
+                <button class="w-7 h-7 rounded-full bg-white text-realty-dark flex items-center justify-center text-xs shadow-sm">
+                  <i class="fa-solid fa-up-right-and-down-left-from-center text-[10px]"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Bottom Search / Quick Add Action -->
+        <div class="pt-4 border-t border-gray-100 flex items-center gap-2">
+          <div class="relative flex-1">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-[11px] text-realty-textMuted"></i>
+            <input type="text" placeholder="Coronado, Single Family Residential" class="w-full pl-8 pr-3 py-1.5 rounded-full bg-gray-50 border border-gray-200 text-xs placeholder-realty-textMuted focus:outline-none">
+          </div>
+          <button class="px-3 py-1.5 rounded-full bg-white border border-gray-200 text-xs font-bold text-realty-dark hover:bg-gray-50 transition shadow-sm whitespace-nowrap">
+            Add Search
+          </button>
+        </div>
+
+      </div>
+
+    </aside>
+
+  </div>
+
+</body>
+</html>

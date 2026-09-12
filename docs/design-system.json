@@ -1,0 +1,54 @@
+{
+  "metadata": {
+    "url": "044e7aaa9cfc87c60630dd7120c3a756.jpg",
+    "extractedAt": "2026-08-23T14:22:00Z",
+    "name": "Realty Hub / Executive Pastel Dashboard Design System",
+    "vibe": ["Soft Pastel Executive", "Light Icy Blue Atmosphere", "Capsule Pills & Rounded 3XL Surfaces"]
+  },
+  "designSystem": {
+    "colors": {
+      "canvas": {
+        "bg": "#eef5f7",
+        "gradient": "linear-gradient(135deg, #f4f8fa 0%, #eef5f7 40%, #e4eff2 100%)"
+      },
+      "primaries": [
+        { "name": "Realty Midnight Navy", "value": "#111625", "usage": ["Active navigation pills", "Primary text headers", "Primary buttons"] },
+        { "name": "Text Primary", "value": "#111625", "usage": ["Headings", "Card titles", "Key metric numbers"] },
+        { "name": "Text Secondary", "value": "#5e6d82", "usage": ["Subtitle labels", "Contact details", "Secondary nav items"] },
+        { "name": "Text Muted", "value": "#94a3b8", "usage": ["Timestamps", "Placeholder text", "Search shortcuts"] }
+      ],
+      "pastels": [
+        { "name": "Lime Green Card", "bg": "#d7f4b7", "text": "#27520d", "badge": "#c8f596", "usage": ["Unassigned leads card"] },
+        { "name": "Mint Turquoise Card", "bg": "#9ce5d7", "text": "#0a4c41", "badge": "#b7f3e8", "usage": ["Valuation seller leads card"] },
+        { "name": "Soft Coral Pink Card", "bg": "#f5b5b5", "text": "#6b1a1a", "badge": "#fcd5d5", "usage": ["Potential seller leads card"] }
+      ],
+      "tags": {
+        "rental": "#3dbda7",
+        "sale": "#f16462",
+        "subtle": "#eef3f6"
+      },
+      "dividerGradient": "linear-gradient(90deg, #f5b5b5 0%, #9ce5d7 50%, #d7f4b7 100%)"
+    },
+    "typography": {
+      "fontFamily": "Plus Jakarta Sans, Inter, sans-serif",
+      "headings": {
+        "h1": { "size": "1.5rem", "weight": 800, "letterSpacing": "-0.025em" },
+        "h2": { "size": "1.25rem", "weight": 700, "letterSpacing": "-0.02em" },
+        "h3": { "size": "1.125rem", "weight": 700, "letterSpacing": "-0.015em" }
+      },
+      "stats": { "size": "2rem", "weight": 800, "lineHeight": 1 }
+    },
+    "borders": {
+      "radius": {
+        "card": "24px",
+        "container": "28px",
+        "pill": "9999px"
+      }
+    },
+    "shadows": {
+      "softCard": "0 10px 30px -5px rgba(17, 22, 37, 0.03)",
+      "floatingBar": "0 14px 35px rgba(17, 22, 37, 0.08)",
+      "pillActive": "0 6px 18px rgba(17, 22, 37, 0.18)"
+    }
+  }
+}
