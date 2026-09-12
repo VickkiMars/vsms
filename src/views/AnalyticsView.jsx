@@ -217,7 +217,7 @@ export const AnalyticsView = () => {
         {/* KPI 2: Active Now */}
         <div className="p-5 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-3">
           <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400 font-bold">
-            <span className="text-xs uppercase tracking-wider">Active Now</span>
+            <span className="text-xs uppercase tracking-wider">On-Premises Now</span>
             <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white flex items-center justify-center">
               <Clock className="w-4 h-4" />
             </div>

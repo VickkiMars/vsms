@@ -118,7 +118,7 @@ export const CommandPalette = () => {
     { 
       type: 'action',
       id: 'action-role-admin',
-      label: 'Switch Active Role: Administrator', 
+      label: 'Switch Role: Administrator', 
       category: 'Security Access',
       icon: Database, 
       keywords: 'switch role admin manager director full control',
@@ -127,7 +127,7 @@ export const CommandPalette = () => {
     { 
       type: 'action',
       id: 'action-role-guard',
-      label: 'Switch Active Role: Security Guard', 
+      label: 'Switch Role: Security Guard', 
       category: 'Security Access',
       icon: Database, 
       keywords: 'switch role security guard desk officer',
@@ -307,7 +307,7 @@ export const CommandPalette = () => {
         {/* Footer info */}
         <div className="px-4 py-2 bg-neutral-50 dark:bg-neutral-950 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between text-[10px] text-neutral-400 font-semibold">
           <span>Navigation: <kbd className="font-mono bg-neutral-200 dark:bg-neutral-800 px-1 rounded">↑</kbd> <kbd className="font-mono bg-neutral-200 dark:bg-neutral-800 px-1 rounded">↓</kbd> to move, <kbd className="font-mono bg-neutral-200 dark:bg-neutral-800 px-1 rounded">↵</kbd> to select</span>
-          <span>System Active</span>
+          <span>System Online</span>
         </div>
       </div>
     </div>

@@ -240,7 +240,7 @@ export const Sidebar = () => {
             type="button"
             onClick={() => handleNavClick('settings')}
             className="w-7 h-7 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 flex items-center justify-center text-xs transition shadow-xs hover:scale-105"
-            title={`Active Role: ${currentUser?.role || 'admin'}`}
+            title={`Role: ${currentUser?.role || 'admin'}`}
           >
             <Sliders className="w-3.5 h-3.5" />
           </button>

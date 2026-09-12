@@ -196,7 +196,7 @@ export const LoginModal = () => {
 
           <div className="text-center pt-2 text-[11px] text-neutral-400 flex items-center justify-center gap-1.5">
             <Database className="w-3.5 h-3.5 text-neutral-500" />
-            <span>System Security Engine • Local Encryption Active</span>
+            <span>System Security Engine • Local Encryption Online</span>
           </div>
 
         </form>

@@ -190,7 +190,7 @@ export const VisitorProvider = ({ children }) => {
       `"${(v.department || '').replace(/"/g, '""')}"`,
       `"${(v.purpose || '').replace(/"/g, '""')}"`,
       `"${new Date(v.checkInTime).toLocaleString()}"`,
-      v.checkOutTime ? `"${new Date(v.checkOutTime).toLocaleString()}"` : 'Active',
+      v.checkOutTime ? `"${new Date(v.checkOutTime).toLocaleString()}"` : 'On-Premises',
       v.status,
       v.badgeId
     ]);

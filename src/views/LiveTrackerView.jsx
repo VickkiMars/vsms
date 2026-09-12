@@ -158,7 +158,7 @@ export const LiveTrackerView = () => {
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-xs text-neutral-700 dark:text-neutral-300">
                 <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 font-semibold shadow-xs">
                   <ShieldCheck className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />
-                  System Active
+                  System Online
                 </span>
                 <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 font-semibold shadow-xs">
                   <Building className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />
@@ -197,7 +197,7 @@ export const LiveTrackerView = () => {
               <span className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-white tracking-tight">{visitors.length}</span>
             </div>
             <div>
-              <span className="text-xs text-neutral-600 dark:text-neutral-400 font-bold block uppercase tracking-wider">Active Inside</span>
+              <span className="text-xs text-neutral-600 dark:text-neutral-400 font-bold block uppercase tracking-wider">Inside Facility</span>
               <span className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-white tracking-tight">{allActiveCount}</span>
             </div>
             <div>
@@ -221,7 +221,7 @@ export const LiveTrackerView = () => {
           <div className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white rounded-3xl p-5 flex flex-col justify-between min-h-[140px] shadow-sm border border-neutral-200 dark:border-neutral-800">
             <div className="flex items-start justify-between">
               <span className="text-sm font-extrabold block leading-tight text-neutral-900 dark:text-white">
-                Inside Facility<br />Active Guests
+                Inside Facility<br />On-Premises Guests
               </span>
               <button 
                 type="button"
@@ -292,14 +292,14 @@ export const LiveTrackerView = () => {
       <div className="pt-2 space-y-3">
         <div className="flex items-center justify-between px-1">
           <h4 className="text-sm font-extrabold text-neutral-900 dark:text-white uppercase tracking-wider">
-            Active Visitor Cards ({activeVisitors.length})
+            On-Premises Visitor Cards ({activeVisitors.length})
           </h4>
         </div>
 
         {activeVisitors.length === 0 ? (
           <div className="p-8 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm text-center space-y-3">
             <UserCheck className="w-8 h-8 mx-auto text-neutral-400" />
-            <p className="font-extrabold text-neutral-900 dark:text-white text-xs">No active guests currently inside the facility.</p>
+            <p className="font-extrabold text-neutral-900 dark:text-white text-xs">No guests currently inside the facility.</p>
             <button
               type="button"
               onClick={() => setIsCheckInOpen(true)}

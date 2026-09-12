@@ -193,7 +193,7 @@ export const Header = () => {
 
               <div className="px-2 py-1.5 border-b border-neutral-100 dark:border-neutral-800">
                 <p className="px-2 py-1 text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
-                  Switch Active Role:
+                  Switch Role:
                 </p>
                 <button
                   type="button"

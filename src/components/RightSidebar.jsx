@@ -30,7 +30,7 @@ export const RightSidebar = () => {
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
             </div>
             <span className="px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[10px] font-bold text-neutral-800 dark:text-neutral-200">
-              {activeVisitors.length} Active
+              {activeVisitors.length} On-Premises
             </span>
           </div>
 

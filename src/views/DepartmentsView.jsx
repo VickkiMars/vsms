@@ -6,7 +6,7 @@ import {
   Mail, 
   Search, 
   Users, 
-  ShieldCheck, 
+  ShieldAlert, 
   ArrowRight,
   Plus
 } from 'lucide-react';
@@ -44,7 +44,7 @@ export const DepartmentsView = () => {
     });
   }, [departments, hosts, searchQuery]);
 
-  const totalActiveGuests = useMemo(() => {
+  const totalGuestsOnPremises = useMemo(() => {
     return visitors.filter(v => v.status !== 'Checked-Out').length;
   }, [visitors]);
 
@@ -54,24 +54,24 @@ export const DepartmentsView = () => {
       <div className="p-6 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-wrap justify-between items-center gap-4">
         <div>
           <h2 className="text-base font-extrabold text-neutral-900 dark:text-white flex items-center gap-2">
-            <Building2 className="w-5 h-5" />
-            <span>Organizational Directory & Host Personnel</span>
+            <Building2 className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
+            <span>Organizational Directory & Host Roster</span>
           </h2>
-          <p className="text-xs text-neutral-600 dark:text-neutral-300 font-semibold mt-1">
-            Department governance, security zones, and host personnel roster stored directly in organizational records.
+          <p className="text-xs text-neutral-600 dark:text-neutral-400 font-medium mt-1">
+            Department governance, security zones, and host personnel directory.
           </p>
         </div>
 
         <div className="flex items-center gap-3 overflow-x-auto whitespace-nowrap">
           <div className="px-4 py-2 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white text-xs font-bold flex items-center gap-2 border border-neutral-200 dark:border-neutral-700 whitespace-nowrap shrink-0">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-            <span className="whitespace-nowrap">{totalActiveGuests} Active Guests Facility-Wide</span>
+            <span className="whitespace-nowrap">{totalGuestsOnPremises} Guests On-Premises</span>
           </div>
 
           <button
             type="button"
             onClick={() => setIsCheckInOpen(true)}
-            className="px-4 py-2.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-200 font-extrabold text-xs flex items-center gap-1.5 transition shadow-md active:scale-95 whitespace-nowrap shrink-0"
+            className="px-4 py-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-200 font-extrabold text-xs flex items-center gap-1.5 transition shadow-md active:scale-95 whitespace-nowrap shrink-0"
           >
             <Plus className="w-3.5 h-3.5 shrink-0" />
             <span className="whitespace-nowrap">New Check-In</span>
@@ -85,19 +85,19 @@ export const DepartmentsView = () => {
           <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" />
           <input
             type="text"
-            placeholder="Search departments, host personnel, titles, floors, or codes (e.g. EXEC, ITCS, HR, FIN, LEGAL, PROC)..."
+            placeholder="Search departments, host personnel, titles, floors, or codes (EXEC, ITCS, HR)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-full bg-neutral-50 dark:bg-neutral-800 text-xs text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-950 dark:focus:ring-white border border-neutral-200 dark:border-neutral-700 font-semibold transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 rounded-full bg-neutral-50 dark:bg-neutral-800 text-xs text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-950 dark:focus:ring-white border border-neutral-200 dark:border-neutral-700 font-semibold transition-colors"
           />
         </div>
 
-        <div className="flex items-center gap-3 text-xs text-neutral-600 dark:text-neutral-300 font-bold">
+        <div className="flex items-center gap-3 text-xs text-neutral-600 dark:text-neutral-400 font-bold">
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="text-neutral-900 dark:text-white hover:underline font-extrabold text-xs"
+              className="text-neutral-900 dark:text-white hover:underline font-extrabold text-xs cursor-pointer"
             >
               Clear Filter
             </button>
@@ -125,7 +125,7 @@ export const DepartmentsView = () => {
           {filteredDepts.map(dept => {
             const deptHosts = hosts.filter(h => h.deptId === dept.id);
             const deptVisitors = visitors.filter(v => v.department === dept.name);
-            const activeDeptGuests = deptVisitors.filter(v => v.status !== 'Checked-Out');
+            const onPremisesDeptGuests = deptVisitors.filter(v => v.status !== 'Checked-Out');
             const overdueDeptGuests = deptVisitors.filter(v => v.status === 'Overdue');
 
             return (
@@ -134,37 +134,41 @@ export const DepartmentsView = () => {
                 className="p-6 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between space-y-5 hover:shadow-md transition"
               >
                 <div className="space-y-4">
-                  {/* Header Row */}
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <span className="px-3 py-1 rounded-full text-[11px] font-black bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-xs">
-                        {dept.code}
-                      </span>
-                      <h3 className="font-extrabold text-sm text-neutral-900 dark:text-white mt-2.5 tracking-tight">
+                  {/* Top Row: Code Badge & On-Premises Counter */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-xs shrink-0">
+                          {dept.code}
+                        </span>
+                        {onPremisesDeptGuests.length > 0 ? (
+                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1.5 shrink-0">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            <span>{onPremisesDeptGuests.length} On-Premises</span>
+                          </span>
+                        ) : (
+                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 shrink-0">
+                            0 On-Premises
+                          </span>
+                        )}
+                      </div>
+                      
+                      <h3 className="font-extrabold text-base text-neutral-900 dark:text-white mt-2.5 leading-snug">
                         {dept.name}
                       </h3>
-                      <p className="text-xs text-neutral-600 dark:text-neutral-400 font-semibold flex items-center gap-1.5 mt-1">
-                        <MapPin className="w-3.5 h-3.5 text-neutral-400" />
+
+                      <p className="text-xs text-neutral-500 dark:text-neutral-400 font-medium flex items-start gap-1.5 mt-1.5 leading-relaxed">
+                        <MapPin className="w-3.5 h-3.5 text-neutral-400 shrink-0 mt-0.5" />
                         <span>{dept.floor}</span>
                       </p>
-                    </div>
-
-                    {/* Active Guests Badge */}
-                    <div className="px-3.5 py-2 rounded-2xl bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-center shrink-0">
-                      <div className="text-sm font-black text-neutral-900 dark:text-white">
-                        {activeDeptGuests.length}
-                      </div>
-                      <div className="text-[9px] font-extrabold text-neutral-500 uppercase tracking-wider">
-                        Active Guests
-                      </div>
                     </div>
                   </div>
 
                   {/* Overdue Warning Pill if any */}
                   {overdueDeptGuests.length > 0 && (
-                    <div className="p-3 rounded-2xl bg-rose-100 dark:bg-rose-950 border border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200 text-[11px] font-bold flex items-center justify-between">
+                    <div className="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-200 text-xs font-bold flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
-                        <ShieldCheck className="w-3.5 h-3.5" />
+                        <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                         <span>{overdueDeptGuests.length} Overdue Escort Alert</span>
                       </span>
                       <button
@@ -173,75 +177,64 @@ export const DepartmentsView = () => {
                           setSelectedDeptFilter(dept.name);
                           setActiveView('live');
                         }}
-                        className="text-[10px] font-black underline cursor-pointer hover:opacity-80"
+                        className="text-[11px] font-black underline cursor-pointer hover:opacity-80 shrink-0"
                       >
                         View &rarr;
                       </button>
                     </div>
                   )}
 
-                  {/* Department Head Section */}
-                  <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700/60 text-xs space-y-1">
-                    <div className="text-[10px] text-neutral-500 uppercase font-extrabold tracking-wider">
+                  {/* Department Head Section (Clean hairline divider layout, NO nested card) */}
+                  <div className="pt-3.5 border-t border-neutral-100 dark:border-neutral-800 space-y-1">
+                    <div className="text-[10px] text-neutral-400 dark:text-neutral-500 uppercase font-extrabold tracking-wider">
                       Department Executive Head
                     </div>
-                    <div className="font-extrabold text-neutral-900 dark:text-white flex items-center justify-between">
+                    <div className="text-xs font-extrabold text-neutral-900 dark:text-white flex items-center justify-between">
                       <span>{dept.head}</span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-white">
-                        EXECUTIVE
-                      </span>
                     </div>
                   </div>
 
-                  {/* Host Personnel List */}
-                  <div className="space-y-2 pt-2">
-                    <div className="flex items-center justify-between text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+                  {/* Host Personnel Roster (Clean list with dividers, NO nested cards) */}
+                  <div className="pt-3.5 border-t border-neutral-100 dark:border-neutral-800 space-y-2">
+                    <div className="flex items-center justify-between text-[10px] font-extrabold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">
                       <span>Host Directory ({deptHosts.length})</span>
-                      <span>Presence Status</span>
+                      <span>Status</span>
                     </div>
 
-                    <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                    <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
                       {deptHosts.map(h => {
-                        const hostActiveVisitors = activeDeptGuests.filter(v => v.hostName === h.name);
+                        const hostActiveVisitors = onPremisesDeptGuests.filter(v => v.hostName === h.name);
                         const isHostingNow = hostActiveVisitors.length > 0;
 
                         return (
                           <div 
                             key={h.id} 
-                            className="p-3 rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700/60 text-xs space-y-1.5"
+                            className="py-2.5 px-3 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition flex items-center justify-between gap-3 border-b border-neutral-100 dark:border-neutral-800/50 last:border-0"
                           >
-                            <div className="flex items-start justify-between gap-1.5">
-                              <div>
-                                <div className="font-extrabold text-neutral-900 dark:text-white leading-snug">
-                                  {h.name}
-                                </div>
-                                <div className="text-[10px] text-neutral-600 dark:text-neutral-400 font-semibold">
-                                  {h.title}
-                                </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="font-extrabold text-xs text-neutral-900 dark:text-white truncate">
+                                {h.name}
                               </div>
-
-                              {/* Host Status Badge */}
-                              {isHostingNow ? (
-                                <span className="shrink-0 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                  <span>{hostActiveVisitors.length} ACTIVE</span>
-                                </span>
-                              ) : (
-                                <span className="shrink-0 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-white">
-                                  AVAILABLE
-                                </span>
-                              )}
-                            </div>
-
-                            <div className="flex items-center justify-between pt-1 text-[10px] text-neutral-600 dark:text-neutral-400 font-semibold">
-                              <span className="flex items-center gap-1 truncate max-w-[160px]">
+                              <div className="text-[11px] text-neutral-500 dark:text-neutral-400 font-semibold truncate flex items-center gap-1.5 mt-0.5">
+                                <span>{h.title}</span>
+                              </div>
+                              <div className="text-[10px] text-neutral-400 dark:text-neutral-500 font-medium truncate flex items-center gap-1 mt-0.5">
                                 <Mail className="w-3 h-3 text-neutral-400 shrink-0" />
                                 <span className="truncate">{h.email}</span>
-                              </span>
-                              <span className="font-black text-neutral-900 dark:text-white">
-                                HOST
-                              </span>
+                              </div>
                             </div>
+
+                            {/* Host Status Indicator */}
+                            {isHostingNow ? (
+                              <span className="shrink-0 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                <span>{hostActiveVisitors.length} Checked-In</span>
+                              </span>
+                            ) : (
+                              <span className="shrink-0 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
+                                Available
+                              </span>
+                            )}
                           </div>
                         );
                       })}
@@ -250,18 +243,20 @@ export const DepartmentsView = () => {
                 </div>
 
                 {/* Bottom Card Action */}
-                <div className="pt-3">
+                <div className="pt-3 border-t border-neutral-100 dark:border-neutral-800">
                   <button
                     type="button"
                     onClick={() => {
                       setSelectedDeptFilter(dept.name);
                       setActiveView('log');
                     }}
-                    className="w-full py-2.5 px-3 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white text-xs font-bold flex items-center justify-center gap-1.5 transition border border-neutral-200 dark:border-neutral-700"
+                    className="w-full py-2.5 px-4 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white text-xs font-bold flex items-center justify-between transition border border-neutral-200 dark:border-neutral-700"
                   >
-                    <Users className="w-3.5 h-3.5" />
-                    <span>View All {dept.code} Log Entries ({deptVisitors.length})</span>
-                    <ArrowRight className="w-3 h-3 ml-1" />
+                    <span className="flex items-center gap-2">
+                      <Users className="w-3.5 h-3.5 text-neutral-500" />
+                      <span>View {dept.code} Log Entries ({deptVisitors.length})</span>
+                    </span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -272,3 +267,4 @@ export const DepartmentsView = () => {
     </div>
   );
 };
+

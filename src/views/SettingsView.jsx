@@ -305,7 +305,7 @@ export const SettingsView = () => {
           <div className="p-6 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-4">
             <h3 className="text-sm font-extrabold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
               <User className="w-4 h-4" />
-              <span>Active User Directory</span>
+              <span>User Directory</span>
             </h3>
 
             <div className="overflow-x-auto">
