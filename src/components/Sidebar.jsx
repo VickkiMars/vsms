@@ -20,7 +20,8 @@ import {
   ShieldAlert,
   Database,
   LogIn,
-  LogOut
+  LogOut,
+  X
 } from 'lucide-react';
 
 export const Sidebar = () => {
@@ -30,7 +31,9 @@ export const Sidebar = () => {
     setIsCheckInOpen, 
     visitors, 
     resetToDemoData,
-    openBadgeModal
+    openBadgeModal,
+    isMobileMenuOpen,
+    setIsMobileMenuOpen
   } = useVisitorContext();
 
   const { 
@@ -42,29 +45,41 @@ export const Sidebar = () => {
   const currentlyCheckedInCount = visitors.filter(v => v.status !== 'Checked-Out').length;
   const overdueCount = visitors.filter(v => v.status === 'Overdue').length;
 
-  return (
-    <aside 
-      aria-label="Main Navigation"
-      className="w-full md:w-[260px] flex-shrink-0 flex flex-col justify-between p-5 bg-transparent select-none z-30 font-sans"
-    >
+  const handleNavClick = (viewName) => {
+    setActiveView(viewName);
+    setIsMobileMenuOpen(false);
+  };
+
+  const navContent = (
+    <div className="flex flex-col justify-between h-full p-5 bg-white/95 dark:bg-neutral-900/95 md:bg-transparent backdrop-blur-md md:backdrop-blur-none select-none font-sans overflow-y-auto">
       <div className="space-y-7">
         
         {/* Logo & Quick Check-In Collapse Button */}
         <div className="flex items-center justify-between px-2">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveView('live')}>
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleNavClick('live')}>
             <div className="w-8 h-8 rounded-xl bg-neutral-950 dark:bg-white flex items-center justify-center text-white dark:text-neutral-950 font-bold text-lg shadow-sm">
               <ShieldCheck className="w-4 h-4 text-emerald-400 dark:text-emerald-600" />
             </div>
             <span className="font-extrabold text-xl tracking-tight text-neutral-900 dark:text-white">VSMS PRO</span>
           </div>
-          <button 
-            type="button"
-            onClick={() => setIsCheckInOpen(true)}
-            className="w-8 h-8 rounded-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 text-neutral-900 dark:text-white flex items-center justify-center text-xs transition shadow-xs" 
-            title="Register New Guest Check-In"
-          >
-            <UserPlus className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              type="button"
+              onClick={() => { setIsCheckInOpen(true); setIsMobileMenuOpen(false); }}
+              className="w-8 h-8 rounded-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 text-neutral-900 dark:text-white flex items-center justify-center text-xs transition shadow-xs" 
+              title="Register New Guest Check-In"
+            >
+              <UserPlus className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="md:hidden w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white flex items-center justify-center text-xs transition"
+              title="Close navigation menu"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Navigation Sections */}
@@ -77,7 +92,7 @@ export const Sidebar = () => {
             {/* Live Presence Board */}
             <button
               type="button"
-              onClick={() => setActiveView('live')}
+              onClick={() => handleNavClick('live')}
               className={`w-full flex items-center justify-between px-4 py-2.5 rounded-full font-medium text-sm transition-all duration-150 ${
                 activeView === 'live'
                   ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 shadow-md scale-[1.02]'
@@ -98,7 +113,7 @@ export const Sidebar = () => {
             {/* Master Visitor Log */}
             <button
               type="button"
-              onClick={() => setActiveView('log')}
+              onClick={() => handleNavClick('log')}
               className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-full font-medium text-sm transition-all duration-150 ${
                 activeView === 'log'
                   ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 shadow-md scale-[1.02]'
@@ -112,7 +127,7 @@ export const Sidebar = () => {
             {/* Analytics & Reports */}
             <button
               type="button"
-              onClick={() => setActiveView('analytics')}
+              onClick={() => handleNavClick('analytics')}
               className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-full font-medium text-sm transition-all duration-150 ${
                 activeView === 'analytics'
                   ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 shadow-md scale-[1.02]'
@@ -134,7 +149,7 @@ export const Sidebar = () => {
             {/* Departments & Hosts Roster */}
             <button
               type="button"
-              onClick={() => setActiveView('departments')}
+              onClick={() => handleNavClick('departments')}
               className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-full font-medium text-sm transition-all duration-150 ${
                 activeView === 'departments'
                   ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 shadow-md scale-[1.02]'
@@ -148,7 +163,7 @@ export const Sidebar = () => {
             {/* Security Settings & SQLite Inspector */}
             <button
               type="button"
-              onClick={() => setActiveView('settings')}
+              onClick={() => handleNavClick('settings')}
               className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-full font-medium text-sm transition-all duration-150 ${
                 activeView === 'settings'
                   ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 shadow-md scale-[1.02]'
@@ -172,6 +187,7 @@ export const Sidebar = () => {
               type="button"
               onClick={() => {
                 if (visitors[0]) openBadgeModal(visitors[0]);
+                setIsMobileMenuOpen(false);
               }}
               className="w-full flex items-center gap-3 px-4 py-2.5 rounded-full text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-neutral-800/60 font-medium text-sm transition"
             >
@@ -182,7 +198,7 @@ export const Sidebar = () => {
             {/* Security Alerts */}
             <button
               type="button"
-              onClick={() => setActiveView('settings')}
+              onClick={() => handleNavClick('settings')}
               className="w-full flex items-center justify-between px-4 py-2.5 rounded-full text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-neutral-800/60 font-medium text-sm transition"
             >
               <div className="flex items-center gap-3">
@@ -206,7 +222,7 @@ export const Sidebar = () => {
         <div className="flex items-center justify-between bg-neutral-100 dark:bg-neutral-800 p-1.5 rounded-full border border-neutral-200 dark:border-neutral-700">
           <button 
             type="button"
-            onClick={() => setIsLoginModalOpen(true)}
+            onClick={() => { setIsLoginModalOpen(true); setIsMobileMenuOpen(false); }}
             className="w-7 h-7 rounded-full bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white flex items-center justify-center text-xs transition hover:scale-105"
             title="Switch User / Sign In"
           >
@@ -214,7 +230,7 @@ export const Sidebar = () => {
           </button>
           <button 
             type="button"
-            onClick={() => setActiveView('settings')}
+            onClick={() => handleNavClick('settings')}
             className="w-7 h-7 rounded-full bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white flex items-center justify-center text-xs transition hover:scale-105"
             title="SQLite Database & Settings"
           >
@@ -222,7 +238,7 @@ export const Sidebar = () => {
           </button>
           <button 
             type="button"
-            onClick={() => setActiveView('settings')}
+            onClick={() => handleNavClick('settings')}
             className="w-7 h-7 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 flex items-center justify-center text-xs transition shadow-xs hover:scale-105"
             title={`Active Role: ${currentUser?.role || 'admin'}`}
           >
@@ -253,7 +269,7 @@ export const Sidebar = () => {
             </div>
             <button 
               type="button"
-              onClick={logout}
+              onClick={() => { logout(); setIsMobileMenuOpen(false); }}
               className="text-neutral-400 hover:text-neutral-900 dark:hover:text-white text-xs p-1 rounded-full transition"
               title="Sign Out"
             >
@@ -262,7 +278,35 @@ export const Sidebar = () => {
           </div>
         )}
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Persistent Desktop Sidebar (md and up) */}
+      <aside 
+        aria-label="Main Navigation"
+        className="hidden md:flex w-[260px] flex-shrink-0 flex-col justify-between p-5 bg-transparent select-none z-30 font-sans h-full"
+      >
+        {navContent}
+      </aside>
+
+      {/* Mobile Slide-Over Navigation Drawer (< md) */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex animate-fade-in">
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity" 
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+          <aside 
+            aria-label="Mobile Navigation Drawer"
+            className="relative w-4/5 max-w-xs bg-white dark:bg-neutral-900 h-full shadow-2xl z-10 flex flex-col overflow-hidden"
+          >
+            {navContent}
+          </aside>
+        </div>
+      )}
+    </>
   );
 };
-

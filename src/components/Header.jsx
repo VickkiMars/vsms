@@ -11,7 +11,9 @@ import {
   LogIn,
   ChevronDown,
   UserCheck,
-  Database
+  Database,
+  Menu,
+  ShieldCheck
 } from 'lucide-react';
 
 export const Header = () => {
@@ -21,7 +23,8 @@ export const Header = () => {
     setGlobalSearchQuery, 
     setIsCmdKOpen,
     visitors,
-    setIsCheckInOpen
+    setIsCheckInOpen,
+    setIsMobileMenuOpen
   } = useVisitorContext();
 
   const { 
@@ -48,16 +51,47 @@ export const Header = () => {
   return (
     <header 
       aria-label="Top Navigation Header"
-      className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2 py-2 font-sans select-none"
+      className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 px-2 py-2 font-sans select-none"
     >
-      {/* Title & Search Bar */}
-      <div className="flex flex-wrap items-center gap-6 w-full sm:w-auto">
-        <h1 className="text-2xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
-          {getViewTitle()}
-        </h1>
+      {/* Top Mobile Bar + Title & Search */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto flex-1">
         
-        {/* Search Pill Input */}
-        <div className="relative flex-1 sm:w-80">
+        {/* Mobile Hamburger & Logo Header Bar */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="md:hidden p-2 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition shadow-xs"
+              aria-label="Open mobile navigation drawer"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-2">
+              <div className="md:hidden w-7 h-7 rounded-lg bg-neutral-950 dark:bg-white flex items-center justify-center text-white dark:text-neutral-950 font-bold">
+                <ShieldCheck className="w-4 h-4 text-emerald-400 dark:text-emerald-600" />
+              </div>
+              <h1 className="text-xl sm:text-2xl font-extrabold text-neutral-900 dark:text-white tracking-tight truncate">
+                {getViewTitle()}
+              </h1>
+            </div>
+          </div>
+
+          {/* Quick Check-In Button for small screens (< sm) */}
+          <button
+            type="button"
+            onClick={() => setIsCheckInOpen(true)}
+            className="sm:hidden px-3 py-1.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold flex items-center gap-1 shadow-sm active:scale-95 transition"
+            title="Register New Guest"
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            <span>Check In</span>
+          </button>
+        </div>
+
+        {/* Global Search Input Bar */}
+        <div className="relative flex-1 max-w-full sm:max-w-xs md:max-w-sm">
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400 text-xs">
             <Search className="w-4 h-4" />
           </div>
@@ -82,30 +116,31 @@ export const Header = () => {
             <button
               type="button"
               onClick={() => setIsCmdKOpen(true)}
-              className="px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 text-[10px] font-bold text-neutral-500 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition shadow-xs"
+              className="hidden sm:inline-block px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 text-[10px] font-bold text-neutral-500 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition shadow-xs"
               title="Open Command Engine (⌘K)"
             >
               ⌘ K
             </button>
           </div>
         </div>
+
       </div>
 
-      {/* Right Header Controls & Auth User Menu */}
-      <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+      {/* Desktop / Tablet Right Header Controls */}
+      <div className="flex items-center gap-2.5 justify-end">
         
-        {/* Quick Check-In CTA Button */}
+        {/* Quick Check-In CTA Button (sm and up) */}
         <button
           type="button"
           onClick={() => setIsCheckInOpen(true)}
-          className="px-4 py-2 rounded-full bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-950 text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-md"
+          className="hidden sm:flex px-4 py-2 rounded-full bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-950 text-xs font-bold items-center gap-1.5 transition-all active:scale-95 shadow-md shrink-0"
         >
           <UserPlus className="w-3.5 h-3.5 text-neutral-300 dark:text-neutral-700" />
           <span>+ Check In Guest</span>
         </button>
 
-        {/* Authenticated User Menu */}
-        <div className="relative">
+        {/* Authenticated User Profile Menu */}
+        <div className="relative shrink-0">
           {currentUser ? (
             <button
               type="button"
@@ -120,8 +155,8 @@ export const Header = () => {
                 />
                 <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-emerald-500"></span>
               </div>
-              <div className="text-left hidden md:block">
-                <p className="text-xs font-bold text-neutral-900 dark:text-white leading-none">
+              <div className="text-left hidden sm:block">
+                <p className="text-xs font-bold text-neutral-900 dark:text-white leading-none truncate max-w-[100px]">
                   {currentUser.fullName}
                 </p>
                 <p className="text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mt-0.5">
@@ -212,4 +247,3 @@ export const Header = () => {
     </header>
   );
 };
-

@@ -190,7 +190,7 @@ export const LiveTrackerView = () => {
 
         {/* Metric Statistics Bar */}
         <div className="space-y-3 pt-2 border-t border-neutral-100 dark:border-neutral-800">
-          <div className="grid grid-cols-3 gap-4 text-left">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-left">
             <div>
               <span className="text-xs text-neutral-600 dark:text-neutral-400 font-bold block uppercase tracking-wider">Total Registered</span>
               <span className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-white tracking-tight">{visitors.length}</span>

@@ -150,9 +150,9 @@ export const AnalyticsView = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Time Range Filter Switcher */}
-          <div className="inline-flex rounded-full bg-neutral-100 dark:bg-neutral-800 p-1 text-xs border border-neutral-200 dark:border-neutral-700">
+          <div className="flex flex-wrap sm:inline-flex rounded-2xl sm:rounded-full bg-neutral-100 dark:bg-neutral-800 p-1 text-xs border border-neutral-200 dark:border-neutral-700">
             <button
               type="button"
               onClick={() => setTimeRange('all')}

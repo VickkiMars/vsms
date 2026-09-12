@@ -17,9 +17,9 @@ const MainLayout = () => {
   const { activeView } = useVisitorContext();
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(135deg,#f4f8fa_0%,#eef5f7_40%,#e4eff2_100%)] dark:bg-neutral-950 text-neutral-900 dark:text-white selection:bg-neutral-950 selection:text-white font-sans antialiased p-3 md:p-6 transition-colors">
+    <div className="min-h-screen bg-[linear-gradient(135deg,#f4f8fa_0%,#eef5f7_40%,#e4eff2_100%)] dark:bg-neutral-950 text-neutral-900 dark:text-white selection:bg-neutral-950 selection:text-white font-sans antialiased p-2 sm:p-4 md:p-6 transition-colors">
       {/* Main 2-Column Shell Wrapper */}
-      <div className="max-w-[1580px] mx-auto min-h-[92vh] flex flex-col md:flex-row gap-5 rounded-4xl bg-transparent">
+      <div className="max-w-[1580px] mx-auto min-h-[92vh] flex flex-col md:flex-row gap-3 md:gap-5 rounded-4xl bg-transparent">
         
         {/* 1. Left Sidebar Navigation */}
         <Sidebar />

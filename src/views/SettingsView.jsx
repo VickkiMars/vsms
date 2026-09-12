@@ -148,7 +148,7 @@ export const SettingsView = () => {
         </div>
 
         {/* Tab Buttons */}
-        <div className="flex items-center gap-1.5 p-1 bg-neutral-100 dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700">
+        <div className="flex items-center gap-1.5 p-1 bg-neutral-100 dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 overflow-x-auto flex-nowrap max-w-full shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab('users')}

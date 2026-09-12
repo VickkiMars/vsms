@@ -408,7 +408,7 @@ export const VisitorLogView = () => {
       {/* Main Table Card Container */}
       <div className="bg-white dark:bg-neutral-900 rounded-3xl overflow-hidden shadow-sm border border-neutral-200 dark:border-neutral-800">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-sans border-collapse">
+          <table className="w-full min-w-[800px] text-left text-xs font-sans border-collapse">
             <thead className="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white font-extrabold uppercase tracking-wider text-[11px]">
               <tr>
                 <th className="py-4 px-5 cursor-pointer select-none" onClick={() => toggleSort('status')}>

@@ -422,7 +422,7 @@ export const QuickCheckInModal = () => {
                 <label className="block text-neutral-900 dark:text-white font-extrabold text-xs mb-1.5">
                   Expected Duration
                 </label>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {DURATION_CHIPS.map(chip => (
                     <button
                       key={chip.value}

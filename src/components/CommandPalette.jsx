@@ -217,7 +217,7 @@ export const CommandPalette = () => {
     <div 
       aria-modal="true" 
       role="dialog" 
-      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 p-4 bg-black/70 backdrop-blur-sm animate-fadeIn font-sans"
+      className="fixed inset-0 z-50 flex items-start justify-center pt-6 sm:pt-24 p-3 sm:p-4 bg-black/70 backdrop-blur-sm animate-fadeIn font-sans"
     >
       <div 
         className="w-full max-w-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"

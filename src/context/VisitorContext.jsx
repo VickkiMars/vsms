@@ -43,6 +43,7 @@ export const VisitorProvider = ({ children }) => {
   const [isBadgeModalOpen, setIsBadgeModalOpen] = useState(false);
   const [selectedVisitorForBadge, setSelectedVisitorForBadge] = useState(null);
   const [isCmdKOpen, setIsCmdKOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Search & Filter Global State
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
@@ -226,6 +227,8 @@ export const VisitorProvider = ({ children }) => {
       openBadgeModal,
       isCmdKOpen,
       setIsCmdKOpen,
+      isMobileMenuOpen,
+      setIsMobileMenuOpen,
       globalSearchQuery,
       setGlobalSearchQuery,
       selectedDeptFilter,
