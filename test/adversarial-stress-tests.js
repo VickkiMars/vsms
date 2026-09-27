@@ -217,10 +217,10 @@ function createSimulator(initial = (INITIAL_VISITORS.length > 0 ? INITIAL_VISITO
   let isCheckInOpen = false;
   let isBadgeModalOpen = false;
   let selectedVisitorForBadge = null;
+  let simSeq = 10000;
   const storage = new MockStorage();
-
   const registerVisitor = (formData) => {
-    const newId = `VIS-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newId = `VIS-${++simSeq}`;
     const existingMaxBadge = visitors.reduce((max, v) => {
       const num = parseInt(v.badgeId?.replace(/^BDG-/, '') || '0', 10);
       return !isNaN(num) && num > max ? num : max;

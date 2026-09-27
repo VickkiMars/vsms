@@ -7,10 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "start": "node server.js",
     "test": "node test/run-e2e-tests.js && node test/adversarial-stress-tests.js"
   },
   "dependencies": {
-    "better-sqlite3": "^13.0.3",
     "canvas-confetti": "^1.9.4",
     "lucide-react": "^0.469.0",
     "qrcode.react": "^4.2.0",
