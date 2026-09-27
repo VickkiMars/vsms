@@ -9,7 +9,6 @@ import {
   Lock,
   Globe,
   UserCheck,
-  Star,
   ChevronRight,
 } from 'lucide-react';
 
@@ -19,8 +18,6 @@ const FEATURES = [
   { icon: Globe, label: 'Multi-tenant', desc: 'Isolated per organization' },
   { icon: UserCheck, label: 'Dynamic forms', desc: 'Custom fields per org' },
 ];
-
-const TRUST_AVATARS = ['AB', 'CS', 'NK', 'OE'];
 
 /* ─── Main component ─────────────────────────────────────── */
 export const LandingPage = () => {
@@ -93,7 +90,7 @@ export const LandingPage = () => {
           </p>
 
           {/* CTAs */}
-          <div className="flex flex-wrap items-center justify-center gap-3.5 mb-14">
+          <div className="flex flex-wrap items-center justify-center gap-3.5">
             <button
               id="hero-setup-org-btn"
               type="button"
@@ -113,40 +110,6 @@ export const LandingPage = () => {
               <LogIn className="w-4 h-4 shrink-0" />
               Sign In
             </button>
-          </div>
-
-          {/* Social proof */}
-          <div className="flex flex-wrap items-center justify-center gap-6 pt-8 border-t border-neutral-100 w-full max-w-[500px]">
-            <div className="flex items-center gap-3">
-              <div className="flex -space-x-2.5">
-                {TRUST_AVATARS.map((init, i) => (
-                  <div
-                    key={i}
-                    className="w-8 h-8 rounded-full bg-neutral-100 border-2 border-white flex items-center justify-center text-[10px] font-extrabold text-neutral-700 shadow-sm"
-                  >
-                    {init}
-                  </div>
-                ))}
-              </div>
-              <div className="text-left">
-                <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Trusted By</p>
-                <p className="text-xs font-bold text-neutral-800">Organizations Worldwide</p>
-              </div>
-            </div>
-
-            <div className="h-7 w-px bg-neutral-200 hidden sm:block" />
-
-            <div className="flex items-center gap-2 text-left">
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3.5 h-3.5 fill-[#f59e0b] text-[#f59e0b]" />
-                ))}
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Rated</p>
-                <p className="text-xs font-bold text-neutral-800">Excellent 5 / 5</p>
-              </div>
-            </div>
           </div>
         </div>
       </section>

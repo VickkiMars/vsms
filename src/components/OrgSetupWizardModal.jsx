@@ -444,15 +444,12 @@ export const OrgSetupWizardModal = () => {
         {/* Header Bar */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50/70 dark:bg-neutral-900/50">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center shadow-md font-bold">
+            <div className="w-10 h-10 rounded-full shrink-0 aspect-square bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center shadow-md font-bold">
               <Building2 className="w-5 h-5" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-neutral-900 dark:text-neutral-50 tracking-tight flex items-center gap-2">
                 Onboard New Organization
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 font-semibold border border-neutral-200 dark:border-neutral-700">
-                  Enterprise VMS
-                </span>
               </h2>
               <p className="text-xs text-neutral-500 dark:text-neutral-400">
                 Setup your facility workspace, customize check-in schema & provision receptionist roles
