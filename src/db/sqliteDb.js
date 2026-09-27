@@ -1,5 +1,6 @@
 import initSqlJs from 'sql.js';
 import { INITIAL_VISITORS, DEPARTMENTS, HOSTS } from '../data/initialData';
+import { supabase } from './supabaseClient';
 
 // Storage key for persisting SQLite DB binary in LocalStorage
 const SQLITE_STORAGE_KEY = 'vsms_sqlite_db_bin_v4';
@@ -244,6 +245,9 @@ class SQLiteService {
 
       this.createTables();
       this.seedInitialData();
+      if (supabase) {
+        await this.syncFromSupabase();
+      }
       this.saveToStorage();
       this.initialized = true;
       return true;
@@ -573,6 +577,18 @@ class SQLiteService {
       ]);
       stmt.free();
       this.saveToStorage();
+
+      if (supabase) {
+        supabase.from('organizations').upsert({
+          id: org.id,
+          name: org.name,
+          slug: org.slug,
+          industry: org.industry || 'General',
+          contact_email: org.contact_email,
+          logo_url: org.logo_url || '',
+          created_at: org.created_at || new Date().toISOString()
+        }).catch(err => console.warn('Supabase insertOrganization error:', err?.message || err));
+      }
     } catch (e) {
       console.error('insertOrganization error:', e);
     }
@@ -638,6 +654,26 @@ class SQLiteService {
       });
       stmt.free();
       this.saveToStorage();
+
+      if (supabase) {
+        const payload = createdFields.map(f => ({
+          id: f.id,
+          org_id: orgId,
+          field_key: f.field_key,
+          field_name: f.field_name,
+          field_type: f.field_type,
+          is_required: f.is_required ? 1 : 0,
+          show_in_table: f.show_in_table ? 1 : 0,
+          show_on_badge: f.show_on_badge ? 1 : 0,
+          options_json: Array.isArray(f.options) ? JSON.stringify(f.options) : (f.options_json || null),
+          placeholder: f.placeholder || '',
+          display_order: f.display_order,
+          is_baseline: f.is_baseline ? 1 : 0
+        }));
+        supabase.from('organization_fields').upsert(payload)
+          .catch(err => console.warn('Supabase initializeOrgFields error:', err?.message || err));
+      }
+
       return createdFields;
     } catch (e) {
       console.error('initializeOrgFields error:', e);
@@ -669,6 +705,27 @@ class SQLiteService {
       });
       insStmt.free();
       this.saveToStorage();
+
+      if (supabase) {
+        const payload = fields.map((f, idx) => ({
+          id: f.id || `FLD-${Math.random().toString(36).substring(2, 9)}`,
+          org_id: orgId,
+          field_key: f.field_key,
+          field_name: f.field_name,
+          field_type: f.field_type,
+          is_required: f.is_required ? 1 : 0,
+          show_in_table: f.show_in_table ? 1 : 0,
+          show_on_badge: f.show_on_badge ? 1 : 0,
+          options_json: Array.isArray(f.options) ? JSON.stringify(f.options) : (f.options_json || null),
+          placeholder: f.placeholder || '',
+          display_order: idx + 1,
+          is_baseline: f.is_baseline ? 1 : 0
+        }));
+        supabase.from('organization_fields').delete().eq('org_id', orgId).then(() => {
+          supabase.from('organization_fields').upsert(payload)
+            .catch(err => console.warn('Supabase saveOrganizationFields upsert error:', err?.message || err));
+        }).catch(err => console.warn('Supabase saveOrganizationFields delete error:', err?.message || err));
+      }
     } catch (e) {
       console.error('saveOrganizationFields error:', e);
     }
@@ -770,6 +827,37 @@ class SQLiteService {
       ]);
       stmt.free();
       this.saveToStorage();
+
+      if (supabase) {
+        let customDataObj = null;
+        try {
+          customDataObj = typeof customDataJson === 'string' ? JSON.parse(customDataJson) : customDataJson;
+        } catch {
+          customDataObj = {};
+        }
+        supabase.from('visitors').upsert({
+          id: visitor.id,
+          org_id: visitor.org_id || '',
+          fullName: visitor.fullName,
+          phone: visitor.phone,
+          email: visitor.email || '',
+          company: visitor.company || '',
+          idType: visitor.idType || '',
+          idNumber: visitor.idNumber || '',
+          hostName: visitor.hostName || visitor.host || '',
+          department: visitor.department || '',
+          purpose: visitor.purpose || '',
+          checkInTime: visitor.checkInTime,
+          checkOutTime: visitor.checkOutTime || null,
+          status: visitor.status || 'Checked-In',
+          badgeId: visitor.badgeId,
+          expectedDurationMinutes: visitor.expectedDurationMinutes || 60,
+          vehiclePlate: visitor.vehiclePlate || '',
+          notes: visitor.notes || '',
+          avatar: visitor.avatar || '',
+          custom_data_json: customDataObj
+        }).catch(err => console.warn('Supabase insertVisitor error:', err?.message || err));
+      }
     } catch (e) {
       console.error('SQLite insertVisitor error:', e);
     }
@@ -785,6 +873,11 @@ class SQLiteService {
       stmt.run([status, checkOutTime, id]);
       stmt.free();
       this.saveToStorage();
+
+      if (supabase) {
+        supabase.from('visitors').update({ status, checkOutTime }).eq('id', id)
+          .catch(err => console.warn('Supabase updateVisitorStatus error:', err?.message || err));
+      }
     } catch (e) {
       console.error('SQLite updateVisitorStatus error:', e);
     }
@@ -842,6 +935,21 @@ class SQLiteService {
       ]);
       stmt.free();
       this.saveToStorage();
+
+      if (supabase) {
+        supabase.from('users').upsert({
+          id: user.id,
+          org_id: user.org_id || '',
+          email: user.email,
+          password_hash: user.password_hash,
+          fullName: user.fullName,
+          role: user.role,
+          desk_location: user.desk_location || 'Main Desk',
+          avatar: user.avatar || '',
+          created_at: user.created_at || new Date().toISOString(),
+          last_login: user.last_login || null
+        }).catch(err => console.warn('Supabase insertUser error:', err?.message || err));
+      }
     } catch (e) {
       console.error('SQLite insertUser error:', e);
     }
@@ -855,6 +963,11 @@ class SQLiteService {
       stmt.run([newPasswordHash, userId]);
       stmt.free();
       this.saveToStorage();
+
+      if (supabase) {
+        supabase.from('users').update({ password_hash: newPasswordHash }).eq('id', userId)
+          .catch(err => console.warn('Supabase updateUserPassword error:', err?.message || err));
+      }
     } catch (e) {
       console.error('SQLite updateUserPassword error:', e);
     }
@@ -916,6 +1029,18 @@ class SQLiteService {
       stmt.run([logId, orgId, new Date().toISOString(), userId, userName, action, details]);
       stmt.free();
       this.saveToStorage();
+
+      if (supabase) {
+        supabase.from('audit_logs').insert([{
+          id: logId,
+          org_id: orgId || '',
+          timestamp: new Date().toISOString(),
+          userId,
+          userName,
+          action,
+          details
+        }]).catch(err => console.warn('Supabase logAction error:', err?.message || err));
+      }
     } catch (e) {
       console.error('SQLite logAction error:', e);
     }
@@ -982,6 +1107,91 @@ class SQLiteService {
       this.createTables();
       this.seedInitialData();
       this.saveToStorage();
+    }
+  }
+
+  async syncFromSupabase() {
+    if (!supabase || !this.db) return;
+    try {
+      const [orgs, fields, users, visitors, depts, hosts] = await Promise.all([
+        supabase.from('organizations').select('*'),
+        supabase.from('organization_fields').select('*'),
+        supabase.from('users').select('*'),
+        supabase.from('visitors').select('*'),
+        supabase.from('departments').select('*'),
+        supabase.from('hosts').select('*'),
+      ]);
+
+      if (orgs.data?.length) {
+        const stmt = this.db.prepare(`
+          INSERT OR REPLACE INTO organizations (id, name, slug, industry, contact_email, logo_url, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        `);
+        orgs.data.forEach(o => {
+          stmt.run([o.id, o.name, o.slug, o.industry || 'General', o.contact_email, o.logo_url || '', o.created_at]);
+        });
+        stmt.free();
+      }
+
+      if (fields.data?.length) {
+        const stmt = this.db.prepare(`
+          INSERT OR REPLACE INTO organization_fields (id, org_id, field_key, field_name, field_type, is_required, show_in_table, show_on_badge, options_json, placeholder, display_order, is_baseline)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+        fields.data.forEach(f => {
+          stmt.run([f.id, f.org_id, f.field_key, f.field_name, f.field_type, f.is_required ? 1 : 0, f.show_in_table ? 1 : 0, f.show_on_badge ? 1 : 0, f.options_json, f.placeholder, f.display_order, f.is_baseline ? 1 : 0]);
+        });
+        stmt.free();
+      }
+
+      if (users.data?.length) {
+        const stmt = this.db.prepare(`
+          INSERT OR REPLACE INTO users (id, org_id, email, password_hash, fullName, role, desk_location, avatar, created_at, last_login)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+        users.data.forEach(u => {
+          stmt.run([u.id, u.org_id, u.email, u.password_hash, u.fullName, u.role, u.desk_location || 'Main Desk', u.avatar || '', u.created_at, u.last_login]);
+        });
+        stmt.free();
+      }
+
+      if (visitors.data?.length) {
+        const stmt = this.db.prepare(`
+          INSERT OR REPLACE INTO visitors (id, org_id, fullName, phone, email, company, idType, idNumber, hostName, department, purpose, checkInTime, checkOutTime, status, badgeId, expectedDurationMinutes, vehiclePlate, notes, avatar, custom_data_json)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+        visitors.data.forEach(v => {
+          const customDataStr = typeof v.custom_data_json === 'object' ? JSON.stringify(v.custom_data_json) : (v.custom_data_json || '{}');
+          stmt.run([v.id, v.org_id || '', v.fullName, v.phone, v.email || '', v.company || '', v.idType || '', v.idNumber || '', v.hostName || '', v.department || '', v.purpose || '', v.checkInTime, v.checkOutTime || null, v.status || 'Checked-In', v.badgeId, v.expectedDurationMinutes || 60, v.vehiclePlate || '', v.notes || '', v.avatar || '', customDataStr]);
+        });
+        stmt.free();
+      }
+
+      if (depts.data?.length) {
+        const stmt = this.db.prepare(`
+          INSERT OR REPLACE INTO departments (id, org_id, name, code, head, floor)
+          VALUES (?, ?, ?, ?, ?, ?)
+        `);
+        depts.data.forEach(d => {
+          stmt.run([d.id, d.org_id || '', d.name, d.code, d.head, d.floor]);
+        });
+        stmt.free();
+      }
+
+      if (hosts.data?.length) {
+        const stmt = this.db.prepare(`
+          INSERT OR REPLACE INTO hosts (id, org_id, name, title, deptId, email)
+          VALUES (?, ?, ?, ?, ?, ?)
+        `);
+        hosts.data.forEach(h => {
+          stmt.run([h.id, h.org_id || '', h.name, h.title, h.deptId, h.email]);
+        });
+        stmt.free();
+      }
+
+      this.saveToStorage();
+    } catch (err) {
+      console.warn('Supabase sync warning:', err?.message || err);
     }
   }
 }
