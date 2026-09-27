@@ -13,7 +13,7 @@
 | T2 | Update `AuthContext.jsx` with organization session tracking, auto-detection, demo org switcher, and receptionist provisioning | T1 | Not started |
 | T3 | Update `VisitorContext.jsx` with dynamic `orgFields`, table column slot constraints, and resilient JSON custom data handling | T1, T2 | Not started |
 | T4 | Build Guided 3-Step Organization Setup Wizard modal / screen (Profile -> Dynamic Form Builder -> Receptionist Provisioning -> Launch) | T1, T2, T3 | Not started |
-| T5 | Refactor `QuickCheckInModal.jsx` to dynamically render fields from active organization's schema with type-specific inputs and host picker | T3 | Not started |
+| T5 | Refactor `QuickCheckInModal.jsx` to dynamically render fields from active organization's schema with type-specific inputs and host picker | T3 | DONE |
 | T6 | Update `VisitorLogView.jsx` and `LiveTrackerView.jsx` to render dynamic table display columns + full Visitor Details Drawer | T3, T5 | Not started |
 | T7 | Update `VisitorPassModal.jsx` to dynamically render configured badge fields | T3, T5 | Not started |
 | T8 | Partition Admin vs Receptionist consoles (role-separated navigation, receptionist console, admin form builder & staff management) | T2, T3 | Not started |

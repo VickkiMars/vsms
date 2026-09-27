@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuthContext } from '../context/AuthContext';
+import { useVisitorContext } from '../context/VisitorContext';
 import { 
   Building2, 
   ShieldCheck, 
@@ -50,6 +51,7 @@ export const OrgSetupWizardModal = () => {
     setIsOrgWizardOpen, 
     createOrganizationWithAdmin 
   } = useAuthContext();
+  const { setOrgFields } = useVisitorContext() || {};
 
   const [step, setStep] = useState(1);
   const [copiedIndex, setCopiedIndex] = useState(null);
@@ -406,6 +408,10 @@ export const OrgSetupWizardModal = () => {
         fields: fields,
         receptionists: receptionists
       });
+
+      if (setOrgFields) {
+        setOrgFields(fields);
+      }
 
       // Celebration Confetti (Monochrome)
       try {

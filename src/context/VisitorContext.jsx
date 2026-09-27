@@ -373,6 +373,7 @@ export const VisitorProvider = ({ children }) => {
     <VisitorContext.Provider value={{
       visitors,
       orgFields,
+      setOrgFields,
       updateOrgFields,
       tableDisplayFields,
       badgeDisplayFields,
