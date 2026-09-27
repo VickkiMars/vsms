@@ -15,7 +15,6 @@ import {
   AlertCircle,
   Eye,
   Sliders,
-  QrCode,
   Layers,
   ArrowRight
 } from 'lucide-react';
@@ -240,7 +239,6 @@ export const OrgSetupWizardModal = () => {
   const handleToggleRequired = (fieldId) => {
     setFields(prev => prev.map(f => {
       if (f.id === fieldId) {
-        if (f.is_baseline) return f; // baseline name & phone are always required
         return { ...f, is_required: f.is_required ? 0 : 1 };
       }
       return f;
@@ -267,7 +265,10 @@ export const OrgSetupWizardModal = () => {
       if (parsedOptions.length === 0) parsedOptions = ['Standard', 'Other'];
     }
 
-    const canShowInTable = newFieldDraft.show_in_table && currentTableSlotCount < 5;
+    if (newFieldDraft.show_in_table && currentTableSlotCount >= 5) {
+      setStepErrors('Table Display Limit Reached: Maximum of 5 fields can be shown in summary tables.');
+      return;
+    }
 
     const newFieldObj = {
       id: `FLD-${Date.now()}`,
@@ -275,7 +276,7 @@ export const OrgSetupWizardModal = () => {
       field_name: newFieldDraft.field_name.trim(),
       field_type: newFieldDraft.field_type,
       is_required: newFieldDraft.is_required ? 1 : 0,
-      show_in_table: canShowInTable ? 1 : 0,
+      show_in_table: newFieldDraft.show_in_table ? 1 : 0,
       show_on_badge: newFieldDraft.show_on_badge ? 1 : 0,
       options: parsedOptions,
       placeholder: newFieldDraft.placeholder || `Enter ${newFieldDraft.field_name.toLowerCase()}`,
@@ -721,46 +722,37 @@ export const OrgSetupWizardModal = () => {
                             </span>
                           </td>
                           <td className="py-3 px-3 text-center">
-                            <button
-                              type="button"
-                              disabled={field.is_baseline}
-                              onClick={() => handleToggleRequired(field.id)}
-                              className={`w-7 h-7 rounded-lg inline-flex items-center justify-center transition-colors ${
-                                field.is_required 
-                                  ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 shadow-xs' 
-                                  : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-400'
-                              } ${field.is_baseline ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
-                            >
-                              <Check className="w-3.5 h-3.5" />
-                            </button>
+                            <label className="inline-flex items-center justify-center p-1 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                aria-label={`${field.field_name} Required`}
+                                checked={Boolean(field.is_required)}
+                                onChange={() => handleToggleRequired(field.id)}
+                                className="w-4 h-4 rounded border-neutral-300 dark:border-neutral-700 text-neutral-900 accent-neutral-900 dark:accent-neutral-100 cursor-pointer focus:ring-2 focus:ring-neutral-900 transition"
+                              />
+                            </label>
                           </td>
                           <td className="py-3 px-3 text-center">
-                            <button
-                              type="button"
-                              onClick={() => handleToggleTableSlot(field.id)}
-                              className={`w-7 h-7 rounded-lg inline-flex items-center justify-center transition-colors cursor-pointer ${
-                                field.show_in_table 
-                                  ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 shadow-xs' 
-                                  : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200'
-                              }`}
-                              title={field.show_in_table ? "Visible in summary table" : "Hidden from table summary"}
-                            >
-                              <Eye className="w-3.5 h-3.5" />
-                            </button>
+                            <label className="inline-flex items-center justify-center p-1 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                aria-label={`${field.field_name} Show in Table`}
+                                checked={Boolean(field.show_in_table)}
+                                onChange={() => handleToggleTableSlot(field.id)}
+                                className="w-4 h-4 rounded border-neutral-300 dark:border-neutral-700 text-neutral-900 accent-neutral-900 dark:accent-neutral-100 cursor-pointer focus:ring-2 focus:ring-neutral-900 transition"
+                              />
+                            </label>
                           </td>
                           <td className="py-3 px-3 text-center">
-                            <button
-                              type="button"
-                              onClick={() => handleToggleBadge(field.id)}
-                              className={`w-7 h-7 rounded-lg inline-flex items-center justify-center transition-colors cursor-pointer ${
-                                field.show_on_badge 
-                                  ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 shadow-xs' 
-                                  : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200'
-                              }`}
-                              title={field.show_on_badge ? "Printed on visitor pass" : "Omitted from printed pass"}
-                            >
-                              <QrCode className="w-3.5 h-3.5" />
-                            </button>
+                            <label className="inline-flex items-center justify-center p-1 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                aria-label={`${field.field_name} Show on Badge`}
+                                checked={Boolean(field.show_on_badge)}
+                                onChange={() => handleToggleBadge(field.id)}
+                                className="w-4 h-4 rounded border-neutral-300 dark:border-neutral-700 text-neutral-900 accent-neutral-900 dark:accent-neutral-100 cursor-pointer focus:ring-2 focus:ring-neutral-900 transition"
+                              />
+                            </label>
                           </td>
                           <td className="py-3 px-3 text-right">
                             {!field.is_baseline ? (
@@ -866,36 +858,42 @@ export const OrgSetupWizardModal = () => {
                       />
                     </div>
 
-                    <div className="flex items-center gap-4 pt-4">
+                    <div className="flex flex-wrap items-center gap-4 pt-4 sm:col-span-2">
                       <label className="flex items-center gap-2 cursor-pointer font-medium text-neutral-700 dark:text-neutral-300">
                         <input 
                           type="checkbox"
-                          checked={!!newFieldDraft.is_required}
+                          checked={Boolean(newFieldDraft.is_required)}
                           onChange={(e) => setNewFieldDraft(prev => ({ ...prev, is_required: e.target.checked ? 1 : 0 }))}
-                          className="rounded text-neutral-900 focus:ring-neutral-900"
+                          className="w-4 h-4 rounded border-neutral-300 dark:border-neutral-700 text-neutral-900 accent-neutral-900 dark:accent-neutral-100 cursor-pointer focus:ring-2 focus:ring-neutral-900 transition"
                         />
-                        Required Field
+                        <span>Required Field</span>
                       </label>
 
                       <label className="flex items-center gap-2 cursor-pointer font-medium text-neutral-700 dark:text-neutral-300">
                         <input 
                           type="checkbox"
-                          checked={!!newFieldDraft.show_in_table}
-                          disabled={currentTableSlotCount >= 5 && !newFieldDraft.show_in_table}
-                          onChange={(e) => setNewFieldDraft(prev => ({ ...prev, show_in_table: e.target.checked ? 1 : 0 }))}
-                          className="rounded text-neutral-900 focus:ring-neutral-900"
+                          checked={Boolean(newFieldDraft.show_in_table)}
+                          onChange={(e) => {
+                            if (e.target.checked && currentTableSlotCount >= 5) {
+                              setStepErrors('Table Display Limit Reached: Maximum of 5 fields can be shown in summary tables.');
+                            } else {
+                              setStepErrors('');
+                            }
+                            setNewFieldDraft(prev => ({ ...prev, show_in_table: e.target.checked ? 1 : 0 }));
+                          }}
+                          className="w-4 h-4 rounded border-neutral-300 dark:border-neutral-700 text-neutral-900 accent-neutral-900 dark:accent-neutral-100 cursor-pointer focus:ring-2 focus:ring-neutral-900 transition"
                         />
-                        Show in Table
+                        <span>Show in Table</span>
                       </label>
 
                       <label className="flex items-center gap-2 cursor-pointer font-medium text-neutral-700 dark:text-neutral-300">
                         <input 
                           type="checkbox"
-                          checked={!!newFieldDraft.show_on_badge}
+                          checked={Boolean(newFieldDraft.show_on_badge)}
                           onChange={(e) => setNewFieldDraft(prev => ({ ...prev, show_on_badge: e.target.checked ? 1 : 0 }))}
-                          className="rounded text-neutral-900 focus:ring-neutral-900"
+                          className="w-4 h-4 rounded border-neutral-300 dark:border-neutral-700 text-neutral-900 accent-neutral-900 dark:accent-neutral-100 cursor-pointer focus:ring-2 focus:ring-neutral-900 transition"
                         />
-                        Print on Badge
+                        <span>Print on Badge</span>
                       </label>
                     </div>
                   </div>
