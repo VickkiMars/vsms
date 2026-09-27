@@ -251,6 +251,12 @@ export const OrgSetupWizardModal = () => {
     setFields(prev => prev.filter(f => f.id !== fieldId));
   };
 
+  const handleChangeFieldType = (fieldId, newType) => {
+    setFields(prev => prev.map(f =>
+      f.id === fieldId ? { ...f, field_type: newType } : f
+    ));
+  };
+
   const handleCreateField = () => {
     if (!newFieldDraft.field_name.trim()) {
       setStepErrors('Field Label is required');
@@ -463,12 +469,39 @@ export const OrgSetupWizardModal = () => {
         </div>
 
         {/* 3-Step Indicator Bar */}
-        <div className="px-6 py-3.5 bg-neutral-100/50 dark:bg-neutral-950/40 border-b border-neutral-100 dark:border-neutral-800 flex items-center justify-between text-xs font-semibold">
+        {/* Mobile: compact progress strip */}
+        <div className="md:hidden px-5 py-3 bg-neutral-100/50 dark:bg-neutral-950/40 border-b border-neutral-100 dark:border-neutral-800">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900'
+              }`}>
+                {step > 1 && step !== 1 ? <Check className="w-3.5 h-3.5" /> : step}
+              </span>
+              <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 truncate">
+                {step === 1 && 'Organization & Admin'}
+                {step === 2 && 'Visitor Form Builder'}
+                {step === 3 && 'Receptionist Provisioning'}
+              </span>
+            </div>
+            <span className="text-[11px] font-semibold text-neutral-400 shrink-0">Step {step} of 3</span>
+          </div>
+          {/* Progress bar */}
+          <div className="h-1 rounded-full bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-neutral-900 dark:bg-neutral-100 transition-all duration-300"
+              style={{ width: `${(step / 3) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Desktop: full horizontal stepper */}
+        <div className="hidden md:flex px-6 py-3.5 bg-neutral-100/50 dark:bg-neutral-950/40 border-b border-neutral-100 dark:border-neutral-800 items-center justify-between text-xs font-semibold">
           <div className={`flex items-center gap-2 ${step >= 1 ? 'text-neutral-900 dark:text-neutral-100 font-bold' : 'text-neutral-400'}`}>
             <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step === 1 ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 font-bold' : step > 1 ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 font-bold' : 'bg-neutral-200 dark:bg-neutral-800'}`}>
               {step > 1 ? <Check className="w-3.5 h-3.5" /> : '1'}
             </span>
-            <span>1. Organization & Admin Profile</span>
+            <span>1. Organization &amp; Admin Profile</span>
           </div>
 
           <ChevronRight className="w-4 h-4 text-neutral-300 dark:text-neutral-700" />
@@ -714,18 +747,20 @@ export const OrgSetupWizardModal = () => {
                     <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800 bg-white dark:bg-neutral-900">
                       {fields.map((field) => (
                         <tr key={field.id} className="hover:bg-neutral-50/50 dark:hover:bg-neutral-800/40 transition-colors">
-                          <td className="py-3 px-4 font-medium text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
+                          <td className="py-3 px-4 font-medium text-neutral-900 dark:text-neutral-100">
                             <span>{field.field_name}</span>
-                            {field.is_baseline ? (
-                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 font-semibold border border-neutral-200 dark:border-neutral-700">
-                                Core Baseline
-                              </span>
-                            ) : null}
                           </td>
                           <td className="py-3 px-3">
-                            <span className="px-2 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-mono text-[11px] border border-neutral-200 dark:border-neutral-700">
-                              {field.field_type}
-                            </span>
+                            <select
+                              value={field.field_type}
+                              onChange={(e) => handleChangeFieldType(field.id, e.target.value)}
+                              aria-label={`${field.field_name} data type`}
+                              className="text-[11px] font-mono px-2 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 focus:outline-none focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-100 cursor-pointer transition"
+                            >
+                              {AVAILABLE_FIELD_TYPES.map(t => (
+                                <option key={t.value} value={t.value}>{t.label}</option>
+                              ))}
+                            </select>
                           </td>
                           <td className="py-3 px-3 text-center">
                             <label className="inline-flex items-center justify-center p-1 cursor-pointer">
@@ -761,18 +796,14 @@ export const OrgSetupWizardModal = () => {
                             </label>
                           </td>
                           <td className="py-3 px-3 text-right">
-                            {!field.is_baseline ? (
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteField(field.id)}
-                                className="w-7 h-7 rounded-lg inline-flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                                title="Delete Custom Field"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            ) : (
-                              <span className="text-neutral-300 dark:text-neutral-700 text-xs px-2">—</span>
-                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteField(field.id)}
+                              className="w-7 h-7 rounded-lg inline-flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                              title="Delete Field"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
                           </td>
                         </tr>
                       ))}
