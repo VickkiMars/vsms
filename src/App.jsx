@@ -1,6 +1,6 @@
 import React from 'react';
 import { VisitorProvider, useVisitorContext } from './context/VisitorContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuthContext } from './context/AuthContext';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { QuickCheckInModal } from './components/QuickCheckInModal';
@@ -9,6 +9,7 @@ import { VisitorDetailsDrawer } from './components/VisitorDetailsDrawer';
 import { OrgSetupWizardModal } from './components/OrgSetupWizardModal';
 import { CommandPalette } from './components/CommandPalette';
 import { LoginModal } from './components/LoginModal';
+import { LandingPage } from './components/LandingPage';
 import { LiveTrackerView } from './views/LiveTrackerView';
 import { VisitorLogView } from './views/VisitorLogView';
 import { AnalyticsView } from './views/AnalyticsView';
@@ -17,6 +18,18 @@ import { SettingsView } from './views/SettingsView';
 
 const MainLayout = () => {
   const { activeView } = useVisitorContext();
+  const { currentOrg } = useAuthContext();
+
+  // Show landing page until an org is configured
+  if (!currentOrg) {
+    return (
+      <>
+        <LandingPage />
+        <OrgSetupWizardModal />
+        <LoginModal />
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[linear-gradient(135deg,#f4f8fa_0%,#eef5f7_40%,#e4eff2_100%)] dark:bg-none dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 selection:bg-neutral-950 selection:text-white font-sans antialiased p-2 sm:p-4 md:p-6 transition-colors">

@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
   });
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isOrgWizardOpen, setIsOrgWizardOpen] = useState(true);
+  const [isOrgWizardOpen, setIsOrgWizardOpen] = useState(false);
   const [authError, setAuthError] = useState('');
 
   // Synchronize organizations, users and current session with SQLite DB
