@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-const INDUSTRY_OPTIONS = [
+const DEFAULT_INDUSTRY_OPTIONS = [
   'Enterprise Software & Technology',
   'Healthcare & Medical Centers',
   'Banking & Financial Services',
@@ -29,7 +29,8 @@ const INDUSTRY_OPTIONS = [
   'Education & University Campuses',
   'Manufacturing & Logistics',
   'Corporate Real Estate & Co-Working',
-  'Law & Professional Services'
+  'Law & Professional Services',
+  'Other'
 ];
 
 const AVAILABLE_FIELD_TYPES = [
@@ -54,16 +55,21 @@ export const OrgSetupWizardModal = () => {
   const [step, setStep] = useState(1);
   const [copiedIndex, setCopiedIndex] = useState(null);
 
+  // Industry dropdown options & custom entry
+  const [industryOptions, setIndustryOptions] = useState(DEFAULT_INDUSTRY_OPTIONS);
+  const [customIndustry, setCustomIndustry] = useState('');
+
   // Step 1: Org Details & Admin Account
   const [orgData, setOrgData] = useState({
     orgName: '',
-    industry: INDUSTRY_OPTIONS[0],
+    industry: DEFAULT_INDUSTRY_OPTIONS[0],
     slug: '',
     contactEmail: '',
     adminFullName: '',
     adminEmail: '',
-    adminPassword: 'Password123!',
-    deskLocation: 'HQ Security Operations'
+    adminPassword: '',
+    confirmAdminPassword: '',
+    deskLocation: ''
   });
 
   // Step 2: Dynamic Visitor Schema Builder
@@ -150,20 +156,13 @@ export const OrgSetupWizardModal = () => {
   });
 
   // Step 3: Receptionist Accounts Provisioning
-  const [receptionists, setReceptionists] = useState([
-    {
-      fullName: 'Front Desk Operator 1',
-      email: 'reception@example.com',
-      password: 'reception123',
-      deskLocation: 'Main Lobby - Desk A'
-    }
-  ]);
+  const [receptionists, setReceptionists] = useState([]);
 
   const [newReceptionist, setNewReceptionist] = useState({
     fullName: '',
     email: '',
-    password: 'reception123',
-    deskLocation: 'Reception Desk B'
+    password: '',
+    deskLocation: ''
   });
 
   // Errors state
@@ -171,16 +170,44 @@ export const OrgSetupWizardModal = () => {
 
   if (!isOrgWizardOpen) return null;
 
-  // Handle Org Name change with auto slug
+  // Handle Org Name change with auto slug (emails remain placeholder only)
   const handleOrgNameChange = (val) => {
     const generatedSlug = val.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
     setOrgData(prev => ({
       ...prev,
       orgName: val,
-      slug: generatedSlug,
-      contactEmail: prev.contactEmail || (val ? `security@${generatedSlug}.com` : ''),
-      adminEmail: prev.adminEmail || (val ? `admin@${generatedSlug}.com` : '')
+      slug: generatedSlug
     }));
+  };
+
+  const handleIndustryChange = (e) => {
+    const val = e.target.value;
+    setOrgData(prev => ({ ...prev, industry: val }));
+    if (val === 'Other') {
+      setCustomIndustry('');
+    }
+  };
+
+  const handleAddCustomIndustry = () => {
+    const trimmed = customIndustry.trim();
+    if (!trimmed) {
+      setStepErrors('Please enter an industry/sector name.');
+      return;
+    }
+    if (trimmed.toLowerCase() === 'other') {
+      setStepErrors('Please specify a distinct industry/sector name.');
+      return;
+    }
+    if (!industryOptions.includes(trimmed)) {
+      const otherIdx = industryOptions.indexOf('Other');
+      const updatedList = otherIdx !== -1
+        ? [...industryOptions.slice(0, otherIdx), trimmed, 'Other']
+        : [...industryOptions, trimmed];
+      setIndustryOptions(updatedList);
+    }
+    setOrgData(prev => ({ ...prev, industry: trimmed }));
+    setCustomIndustry('');
+    setStepErrors('');
   };
 
   // Field Table Slot Counter (Max 5)
@@ -304,6 +331,27 @@ export const OrgSetupWizardModal = () => {
         setStepErrors('Organization Name is required.');
         return;
       }
+
+      // Handle custom industry when "Other" is selected
+      if (orgData.industry === 'Other') {
+        const trimmedCustom = customIndustry.trim();
+        if (trimmedCustom && trimmedCustom.toLowerCase() !== 'other') {
+          if (!industryOptions.includes(trimmedCustom)) {
+            const otherIdx = industryOptions.indexOf('Other');
+            const updatedList = otherIdx !== -1
+              ? [...industryOptions.slice(0, otherIdx), trimmedCustom, 'Other']
+              : [...industryOptions, trimmedCustom];
+            setIndustryOptions(updatedList);
+          }
+          orgData.industry = trimmedCustom;
+          setOrgData(prev => ({ ...prev, industry: trimmedCustom }));
+          setCustomIndustry('');
+        } else {
+          setStepErrors('Please enter your custom industry/sector or select an option from the list.');
+          return;
+        }
+      }
+
       if (!orgData.contactEmail.trim() || !orgData.contactEmail.includes('@')) {
         setStepErrors('Valid Official Security Contact Email is required.');
         return;
@@ -314,6 +362,22 @@ export const OrgSetupWizardModal = () => {
       }
       if (!orgData.adminEmail.trim() || !orgData.adminEmail.includes('@')) {
         setStepErrors('Valid Admin Email is required.');
+        return;
+      }
+      if (!orgData.adminPassword) {
+        setStepErrors('Admin Password is required.');
+        return;
+      }
+      if (orgData.adminPassword.length < 6) {
+        setStepErrors('Admin Password must be at least 6 characters long.');
+        return;
+      }
+      if (!orgData.confirmAdminPassword) {
+        setStepErrors('Please confirm your Admin Password.');
+        return;
+      }
+      if (orgData.adminPassword !== orgData.confirmAdminPassword) {
+        setStepErrors('Admin passwords do not match. Please verify and confirm.');
         return;
       }
       setStep(2);
@@ -336,19 +400,19 @@ export const OrgSetupWizardModal = () => {
         contactEmail: orgData.contactEmail,
         adminFullName: orgData.adminFullName,
         adminEmail: orgData.adminEmail,
-        adminPassword: orgData.adminPassword,
-        deskLocation: orgData.deskLocation,
+        adminPassword: orgData.adminPassword || 'admin123',
+        deskLocation: orgData.deskLocation || 'Executive Security Desk',
         fields: fields,
         receptionists: receptionists
       });
 
-      // Celebration Confetti
+      // Celebration Confetti (Monochrome)
       try {
         confetti({
           particleCount: 80,
           spread: 80,
           origin: { y: 0.6 },
-          colors: ['#059669', '#10b981', '#34d399', '#6ee7b7', '#000000']
+          colors: ['#000000', '#ffffff', '#737373', '#d4d4d4', '#262626']
         });
       } catch (err) {
         // Ignored
@@ -459,13 +523,39 @@ export const OrgSetupWizardModal = () => {
                     </label>
                     <select 
                       value={orgData.industry}
-                      onChange={(e) => setOrgData(prev => ({ ...prev, industry: e.target.value }))}
+                      onChange={handleIndustryChange}
                       className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100"
                     >
-                      {INDUSTRY_OPTIONS.map(opt => (
+                      {industryOptions.map(opt => (
                         <option key={opt} value={opt}>{opt}</option>
                       ))}
                     </select>
+
+                    {orgData.industry === 'Other' && (
+                      <div className="mt-2 flex items-center gap-2 animate-fade-in">
+                        <input 
+                          type="text"
+                          placeholder="Enter custom industry / sector..."
+                          value={customIndustry}
+                          onChange={(e) => setCustomIndustry(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAddCustomIndustry();
+                            }
+                          }}
+                          className="flex-1 px-3.5 py-2 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 text-xs"
+                          autoFocus
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddCustomIndustry}
+                          className="px-3.5 py-2 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 font-bold text-xs hover:opacity-90 shrink-0 cursor-pointer transition shadow-xs"
+                        >
+                          Add
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-1.5">
@@ -487,10 +577,10 @@ export const OrgSetupWizardModal = () => {
                     </label>
                     <input 
                       type="email"
-                      placeholder="security@organization.com"
+                      placeholder={orgData.slug ? `security@${orgData.slug}.com` : "security@organization.com"}
                       value={orgData.contactEmail}
                       onChange={(e) => setOrgData(prev => ({ ...prev, contactEmail: e.target.value }))}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 text-xs"
                     />
                   </div>
                 </div>
@@ -513,7 +603,7 @@ export const OrgSetupWizardModal = () => {
                       placeholder="e.g. Chief Security Officer Williams"
                       value={orgData.adminFullName}
                       onChange={(e) => setOrgData(prev => ({ ...prev, adminFullName: e.target.value }))}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 text-xs"
                     />
                   </div>
 
@@ -523,35 +613,49 @@ export const OrgSetupWizardModal = () => {
                     </label>
                     <input 
                       type="email"
-                      placeholder="admin@organization.com"
+                      placeholder={orgData.slug ? `admin@${orgData.slug}.com` : "admin@organization.com"}
                       value={orgData.adminEmail}
                       onChange={(e) => setOrgData(prev => ({ ...prev, adminEmail: e.target.value }))}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 text-xs"
                     />
                   </div>
 
                   <div className="space-y-1.5">
                     <label className="font-semibold text-neutral-700 dark:text-neutral-300">
-                      Initial Admin Password
+                      Admin Password *
                     </label>
                     <input 
                       type="password"
+                      placeholder="Enter admin password (min 6 characters)"
                       value={orgData.adminPassword}
                       onChange={(e) => setOrgData(prev => ({ ...prev, adminPassword: e.target.value }))}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 text-xs"
                     />
                   </div>
 
                   <div className="space-y-1.5">
+                    <label className="font-semibold text-neutral-700 dark:text-neutral-300">
+                      Confirm Admin Password *
+                    </label>
+                    <input 
+                      type="password"
+                      placeholder="Re-enter admin password"
+                      value={orgData.confirmAdminPassword}
+                      onChange={(e) => setOrgData(prev => ({ ...prev, confirmAdminPassword: e.target.value }))}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 text-xs"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5 md:col-span-2">
                     <label className="font-semibold text-neutral-700 dark:text-neutral-300">
                       Office / Desk Location
                     </label>
                     <input 
                       type="text"
-                      placeholder="Executive Security Directorate"
+                      placeholder="e.g. Executive Security Directorate / Main Desk"
                       value={orgData.deskLocation}
                       onChange={(e) => setOrgData(prev => ({ ...prev, deskLocation: e.target.value }))}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 text-xs"
                     />
                   </div>
                 </div>
@@ -835,57 +939,63 @@ export const OrgSetupWizardModal = () => {
 
                 {/* Existing Provisioned Receptionists List */}
                 <div className="space-y-3">
-                  {receptionists.map((rec, idx) => (
-                    <div 
-                      key={idx}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 gap-3 text-xs"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white font-bold flex items-center justify-center shrink-0 border border-neutral-200 dark:border-neutral-700">
-                          {rec.fullName.slice(0, 2).toUpperCase()}
-                        </div>
-                        <div>
-                          <div className="font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
-                            <span>{rec.fullName}</span>
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700 font-medium">
-                              {rec.deskLocation}
-                            </span>
-                          </div>
-                          <div className="text-neutral-500 dark:text-neutral-400 text-[11px] font-mono">
-                            {rec.email} • Password: ••••••••
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 self-end sm:self-auto">
-                        <button
-                          type="button"
-                          onClick={() => copyCredentials(rec, idx)}
-                          className="px-2.5 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 flex items-center gap-1.5 text-[11px] font-semibold"
-                        >
-                          {copiedIndex === idx ? (
-                            <>
-                              <Check className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />
-                              <span className="text-neutral-900 dark:text-white font-bold">Copied!</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-3.5 h-3.5" />
-                              <span>Copy Credentials</span>
-                            </>
-                          )}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveReceptionist(idx)}
-                          className="w-7 h-7 rounded-lg text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center justify-center transition-colors"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                  {receptionists.length === 0 ? (
+                    <div className="p-4 rounded-xl border border-dashed border-neutral-300 dark:border-neutral-700 text-center text-xs text-neutral-500 dark:text-neutral-400">
+                      No front desk receptionists added yet. You can provision staff below or proceed to launch.
                     </div>
-                  ))}
+                  ) : (
+                    receptionists.map((rec, idx) => (
+                      <div 
+                        key={idx}
+                        className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 gap-3 text-xs"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white font-bold flex items-center justify-center shrink-0 border border-neutral-200 dark:border-neutral-700">
+                            {rec.fullName.slice(0, 2).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
+                              <span>{rec.fullName}</span>
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700 font-medium">
+                                {rec.deskLocation || 'Front Desk'}
+                              </span>
+                            </div>
+                            <div className="text-neutral-500 dark:text-neutral-400 text-[11px] font-mono">
+                              {rec.email} • Password: ••••••••
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 self-end sm:self-auto">
+                          <button
+                            type="button"
+                            onClick={() => copyCredentials(rec, idx)}
+                            className="px-2.5 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 flex items-center gap-1.5 text-[11px] font-semibold"
+                          >
+                            {copiedIndex === idx ? (
+                              <>
+                                <Check className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />
+                                <span className="text-neutral-900 dark:text-white font-bold">Copied!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-3.5 h-3.5" />
+                                <span>Copy Credentials</span>
+                              </>
+                            )}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveReceptionist(idx)}
+                            className="w-7 h-7 rounded-lg text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center justify-center transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
 
                 {/* Add Another Receptionist Box */}
@@ -910,7 +1020,7 @@ export const OrgSetupWizardModal = () => {
                       className="px-3 py-2 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"
                     />
                     <input 
-                      type="text"
+                      type="password"
                       placeholder="Password"
                       value={newReceptionist.password}
                       onChange={(e) => setNewReceptionist(prev => ({ ...prev, password: e.target.value }))}
@@ -918,7 +1028,7 @@ export const OrgSetupWizardModal = () => {
                     />
                     <input 
                       type="text"
-                      placeholder="Terminal / Location"
+                      placeholder="e.g. Front Desk A / Terminal 1"
                       value={newReceptionist.deskLocation}
                       onChange={(e) => setNewReceptionist(prev => ({ ...prev, deskLocation: e.target.value }))}
                       className="px-3 py-2 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"
