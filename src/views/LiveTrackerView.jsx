@@ -31,7 +31,7 @@ export const LiveTrackerView = () => {
     exportToCSV
   } = useVisitorContext();
 
-  const { currentUser, currentOrg } = useAuthContext();
+  const { currentUser, currentOrg, setIsOrgWizardOpen } = useAuthContext();
 
   const [now, setNow] = useState(() => Date.now());
   const [toastMessage, setToastMessage] = useState(null);
@@ -107,7 +107,7 @@ export const LiveTrackerView = () => {
           aria-live="polite"
           className="fixed bottom-6 right-6 z-50 flex items-center space-x-3 p-4 rounded-2xl bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-2xl animate-fade-in max-w-md"
         >
-          <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400 dark:text-emerald-600" aria-hidden="true" />
+          <CheckCircle2 className="w-5 h-5 shrink-0 text-white dark:text-neutral-900" aria-hidden="true" />
           <div className="flex-1 text-xs">
             <p className="font-extrabold">{toastMessage.title}</p>
             <p className="font-medium text-neutral-300 dark:text-neutral-700">
@@ -121,6 +121,30 @@ export const LiveTrackerView = () => {
             aria-label="Close notification"
           >
             <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Organization Setup Banner if no active organization */}
+      {!currentOrg && (
+        <div className="p-5 rounded-3xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center font-bold shrink-0">
+              <Building className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-neutral-900 dark:text-white">Organization Setup Required</h3>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                Onboard your organization profile, configure visitor fields, and provision front-desk staff.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsOrgWizardOpen(true)}
+            className="px-4 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-900 text-xs font-bold shrink-0 shadow-sm transition cursor-pointer"
+          >
+            + Start Organization Setup
           </button>
         </div>
       )}
@@ -160,7 +184,7 @@ export const LiveTrackerView = () => {
                 </span>
                 <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 font-semibold shadow-xs">
                   <Building className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />
-                  {currentOrg?.name || "Apex Global Technologies"}
+                  {currentOrg?.name || "No Organization Active"}
                 </span>
               </div>
             </div>

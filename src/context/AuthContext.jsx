@@ -8,9 +8,14 @@ export const AuthProvider = ({ children }) => {
   const [currentOrg, setCurrentOrg] = useState(() => {
     const savedOrg = typeof window !== 'undefined' ? localStorage.getItem('vsms_active_org') : null;
     if (savedOrg) {
-      try { return JSON.parse(savedOrg); } catch (e) { console.error(e); }
+      try {
+        const parsed = JSON.parse(savedOrg);
+        if (parsed && parsed.id && parsed.id !== 'ORG-DEMO-01' && parsed.slug !== 'apex-global') {
+          return parsed;
+        }
+      } catch (e) { console.error(e); }
     }
-    return SEED_ORGS[0];
+    return null;
   });
 
   const [users, setUsers] = useState(SEED_USERS);
@@ -23,7 +28,7 @@ export const AuthProvider = ({ children }) => {
   });
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isOrgWizardOpen, setIsOrgWizardOpen] = useState(false);
+  const [isOrgWizardOpen, setIsOrgWizardOpen] = useState(true);
   const [authError, setAuthError] = useState('');
 
   // Synchronize organizations, users and current session with SQLite DB
@@ -34,7 +39,15 @@ export const AuthProvider = ({ children }) => {
         setOrganizations(dbOrgs);
         // Validate currentOrg is still valid
         const found = dbOrgs.find(o => o.id === currentOrg?.id);
-        if (found) setCurrentOrg(found);
+        if (found) {
+          setCurrentOrg(found);
+        } else if (!currentOrg) {
+          setCurrentOrg(dbOrgs[0]);
+        }
+      } else {
+        setOrganizations([]);
+        setCurrentOrg(null);
+        setIsOrgWizardOpen(true);
       }
 
       const dbUsers = sqliteService.getAllUsers();
@@ -147,7 +160,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const switchUserRole = (roleName) => {
-    const orgId = currentOrg?.id || 'ORG-DEMO-01';
+    const orgId = currentOrg?.id || '';
     const orgUsers = sqliteService.getAllUsers(orgId);
     const targetUser = orgUsers.find(u => u.role === roleName) || {
       id: `USR-TMP-${roleName}`,
@@ -263,7 +276,7 @@ export const AuthProvider = ({ children }) => {
 
   // Provision new Receptionist / Staff Account (Admin Console)
   const provisionReceptionist = ({ fullName, email, password, deskLocation }) => {
-    const orgId = currentOrg?.id || 'ORG-DEMO-01';
+    const orgId = currentOrg?.id || '';
     const newStaff = {
       id: `USR-REC-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
       org_id: orgId,
@@ -293,7 +306,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const createNewUser = (userData) => {
-    const orgId = currentOrg?.id || 'ORG-DEMO-01';
+    const orgId = currentOrg?.id || '';
     const newUser = {
       id: `USR-${Math.floor(1000 + Math.random() * 9000)}`,
       org_id: orgId,

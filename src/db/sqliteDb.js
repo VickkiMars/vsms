@@ -4,24 +4,14 @@ import { INITIAL_VISITORS, DEPARTMENTS, HOSTS } from '../data/initialData';
 // Storage key for persisting SQLite DB binary in LocalStorage
 const SQLITE_STORAGE_KEY = 'vsms_sqlite_db_bin_v4';
 
-// Seed Organizations
-export const SEED_ORGS = [
-  {
-    id: 'ORG-DEMO-01',
-    name: 'Apex Global Technologies',
-    slug: 'apex-global',
-    industry: 'Enterprise Software & Cloud',
-    contact_email: 'security@apexglobal.com',
-    logo_url: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=200&q=80',
-    created_at: new Date().toISOString()
-  }
-];
+// Seed Organizations (Empty by default: organizations onboard via Setup Wizard)
+export const SEED_ORGS = [];
 
 // Baseline & Dynamic Field Definitions for Seed Org
 export const DEFAULT_ORG_FIELDS = [
   {
     id: 'FLD-01',
-    org_id: 'ORG-DEMO-01',
+    org_id: '',
     field_key: 'fullName',
     field_name: 'Full Legal Name',
     field_type: 'text',
@@ -35,7 +25,7 @@ export const DEFAULT_ORG_FIELDS = [
   },
   {
     id: 'FLD-02',
-    org_id: 'ORG-DEMO-01',
+    org_id: '',
     field_key: 'phone',
     field_name: 'Phone / Mobile',
     field_type: 'text',
@@ -49,7 +39,7 @@ export const DEFAULT_ORG_FIELDS = [
   },
   {
     id: 'FLD-03',
-    org_id: 'ORG-DEMO-01',
+    org_id: '',
     field_key: 'company',
     field_name: 'Company / Organization',
     field_type: 'text',
@@ -63,7 +53,7 @@ export const DEFAULT_ORG_FIELDS = [
   },
   {
     id: 'FLD-04',
-    org_id: 'ORG-DEMO-01',
+    org_id: '',
     field_key: 'host',
     field_name: 'Visiting Host / Staff',
     field_type: 'host_picker',
@@ -77,7 +67,7 @@ export const DEFAULT_ORG_FIELDS = [
   },
   {
     id: 'FLD-05',
-    org_id: 'ORG-DEMO-01',
+    org_id: '',
     field_key: 'purpose',
     field_name: 'Purpose of Visit',
     field_type: 'select',
@@ -98,7 +88,7 @@ export const DEFAULT_ORG_FIELDS = [
   },
   {
     id: 'FLD-06',
-    org_id: 'ORG-DEMO-01',
+    org_id: '',
     field_key: 'expectedDurationMinutes',
     field_name: 'Expected Stay (Minutes)',
     field_type: 'number',
@@ -112,7 +102,7 @@ export const DEFAULT_ORG_FIELDS = [
   },
   {
     id: 'FLD-07',
-    org_id: 'ORG-DEMO-01',
+    org_id: '',
     field_key: 'idType',
     field_name: 'Government ID Type',
     field_type: 'select',
@@ -133,7 +123,7 @@ export const DEFAULT_ORG_FIELDS = [
   },
   {
     id: 'FLD-08',
-    org_id: 'ORG-DEMO-01',
+    org_id: '',
     field_key: 'idNumber',
     field_name: 'ID / Document Number',
     field_type: 'text',
@@ -147,7 +137,7 @@ export const DEFAULT_ORG_FIELDS = [
   },
   {
     id: 'FLD-09',
-    org_id: 'ORG-DEMO-01',
+    org_id: '',
     field_key: 'vehiclePlate',
     field_name: 'Vehicle Plate Number',
     field_type: 'text',
@@ -161,7 +151,7 @@ export const DEFAULT_ORG_FIELDS = [
   },
   {
     id: 'FLD-10',
-    org_id: 'ORG-DEMO-01',
+    org_id: '',
     field_key: 'notes',
     field_name: 'Security Notes / Remarks',
     field_type: 'textarea',
@@ -179,7 +169,7 @@ export const DEFAULT_ORG_FIELDS = [
 export const SEED_USERS = [
   {
     id: 'USR-001',
-    org_id: 'ORG-DEMO-01',
+    org_id: '',
     email: 'admin@vsms.com',
     password_hash: 'admin123',
     fullName: 'Chief Security Director',
@@ -191,7 +181,7 @@ export const SEED_USERS = [
   },
   {
     id: 'USR-002',
-    org_id: 'ORG-DEMO-01',
+    org_id: '',
     email: 'guard@vsms.com',
     password_hash: 'guard123',
     fullName: 'Officer James Sterling',
@@ -203,7 +193,7 @@ export const SEED_USERS = [
   },
   {
     id: 'USR-003',
-    org_id: 'ORG-DEMO-01',
+    org_id: '',
     email: 'reception@vsms.com',
     password_hash: 'reception123',
     fullName: 'Front Desk Reception',
@@ -402,9 +392,21 @@ class SQLiteService {
   seedInitialData() {
     if (!this.db) return;
 
-    // Seed organizations
+    // Proactively purge any legacy dummy demo organization from older storage
+    try {
+      this.db.run("DELETE FROM organizations WHERE id = 'ORG-DEMO-01' OR slug = 'apex-global';");
+      this.db.run("DELETE FROM organization_fields WHERE org_id = 'ORG-DEMO-01';");
+      this.db.run("UPDATE users SET org_id = '' WHERE org_id = 'ORG-DEMO-01';");
+      this.db.run("UPDATE visitors SET org_id = '' WHERE org_id = 'ORG-DEMO-01';");
+      this.db.run("UPDATE departments SET org_id = '' WHERE org_id = 'ORG-DEMO-01';");
+      this.db.run("UPDATE hosts SET org_id = '' WHERE org_id = 'ORG-DEMO-01';");
+    } catch (e) {
+      // Ignored
+    }
+
+    // Seed organizations (only if SEED_ORGS defined)
     const orgCount = this.db.exec("SELECT COUNT(*) FROM organizations;")[0]?.values[0][0] || 0;
-    if (orgCount === 0) {
+    if (orgCount === 0 && SEED_ORGS.length > 0) {
       const stmt = this.db.prepare(`
         INSERT INTO organizations (id, name, slug, industry, contact_email, logo_url, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -415,9 +417,9 @@ class SQLiteService {
       stmt.free();
     }
 
-    // Seed organization fields
+    // Seed organization fields (template defaults only if orgs exist)
     const fieldCount = this.db.exec("SELECT COUNT(*) FROM organization_fields;")[0]?.values[0][0] || 0;
-    if (fieldCount === 0) {
+    if (fieldCount === 0 && SEED_ORGS.length > 0) {
       const stmt = this.db.prepare(`
         INSERT INTO organization_fields (id, org_id, field_key, field_name, field_type, is_required, show_in_table, show_on_badge, options_json, placeholder, display_order, is_baseline)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -441,15 +443,12 @@ class SQLiteService {
       `);
       SEED_USERS.forEach(u => {
         stmt.run([
-          u.id, u.org_id || 'ORG-DEMO-01', u.email, u.password_hash,
+          u.id, u.org_id || '', u.email, u.password_hash,
           u.fullName, u.role, u.desk_location || 'Main Reception',
           u.avatar, u.created_at, u.last_login
         ]);
       });
       stmt.free();
-    } else {
-      // Ensure all existing users have org_id populated
-      this.db.run("UPDATE users SET org_id = 'ORG-DEMO-01' WHERE org_id IS NULL OR org_id = '';");
     }
 
     // Seed visitors if empty
@@ -472,7 +471,7 @@ class SQLiteService {
           notes: v.notes || ''
         };
         stmt.run([
-          v.id, 'ORG-DEMO-01', v.fullName, v.phone, v.email, v.company,
+          v.id, '', v.fullName, v.phone, v.email, v.company,
           v.idType, v.idNumber, v.hostName, v.department, v.purpose,
           v.checkInTime, v.checkOutTime, v.status, v.badgeId,
           v.expectedDurationMinutes, v.vehiclePlate, v.notes, v.avatar,
@@ -480,8 +479,6 @@ class SQLiteService {
         ]);
       });
       stmt.free();
-    } else {
-      this.db.run("UPDATE visitors SET org_id = 'ORG-DEMO-01' WHERE org_id IS NULL OR org_id = '';");
     }
 
     // Seed departments if empty
@@ -491,11 +488,9 @@ class SQLiteService {
         INSERT INTO departments (id, org_id, name, code, head, floor) VALUES (?, ?, ?, ?, ?, ?)
       `);
       DEPARTMENTS.forEach(d => {
-        stmt.run([d.id, 'ORG-DEMO-01', d.name, d.code, d.head, d.floor]);
+        stmt.run([d.id, '', d.name, d.code, d.head, d.floor]);
       });
       stmt.free();
-    } else {
-      this.db.run("UPDATE departments SET org_id = 'ORG-DEMO-01' WHERE org_id IS NULL OR org_id = '';");
     }
 
     // Seed hosts if empty
@@ -505,11 +500,9 @@ class SQLiteService {
         INSERT INTO hosts (id, org_id, name, title, deptId, email) VALUES (?, ?, ?, ?, ?, ?)
       `);
       HOSTS.forEach(h => {
-        stmt.run([h.id, 'ORG-DEMO-01', h.name, h.title, h.deptId, h.email]);
+        stmt.run([h.id, '', h.name, h.title, h.deptId, h.email]);
       });
       stmt.free();
-    } else {
-      this.db.run("UPDATE hosts SET org_id = 'ORG-DEMO-01' WHERE org_id IS NULL OR org_id = '';");
     }
   }
 
@@ -539,19 +532,18 @@ class SQLiteService {
 
   // --- Multi-Tenant Organization APIs ---
   getAllOrganizations() {
-    if (!this.db) return SEED_ORGS;
+    if (!this.db) return [];
     try {
       const res = this.db.exec("SELECT * FROM organizations ORDER BY created_at DESC;");
-      const orgs = this.parseRows(res);
-      return orgs.length ? orgs : SEED_ORGS;
+      return this.parseRows(res);
     } catch (e) {
       console.error('getAllOrganizations error:', e);
-      return SEED_ORGS;
+      return [];
     }
   }
 
   getOrganization(orgId) {
-    if (!this.db) return SEED_ORGS[0];
+    if (!this.db || !orgId) return null;
     try {
       const stmt = this.db.prepare("SELECT * FROM organizations WHERE id = ? OR slug = ? LIMIT 1;");
       stmt.bind([orgId, orgId]);
@@ -561,10 +553,10 @@ class SQLiteService {
         return row;
       }
       stmt.free();
-      return SEED_ORGS[0];
+      return null;
     } catch (e) {
       console.error('getOrganization error:', e);
-      return SEED_ORGS[0];
+      return null;
     }
   }
 
@@ -589,11 +581,10 @@ class SQLiteService {
 
   // --- Dynamic Form Schema APIs ---
   getOrganizationFields(orgId) {
-    if (!this.db) return DEFAULT_ORG_FIELDS;
+    if (!this.db || !orgId) return DEFAULT_ORG_FIELDS;
     try {
-      const targetId = orgId || 'ORG-DEMO-01';
       const stmt = this.db.prepare("SELECT * FROM organization_fields WHERE org_id = ? ORDER BY display_order ASC;");
-      stmt.bind([targetId]);
+      stmt.bind([orgId]);
       const fields = [];
       while (stmt.step()) {
         const row = stmt.getAsObject();
@@ -612,7 +603,7 @@ class SQLiteService {
 
       // If this org has no fields yet, copy defaults
       if (!fields.length) {
-        return this.initializeOrgFields(targetId, DEFAULT_ORG_FIELDS);
+        return this.initializeOrgFields(orgId, DEFAULT_ORG_FIELDS);
       }
       return fields;
     } catch (e) {
@@ -757,7 +748,7 @@ class SQLiteService {
       `);
       stmt.run([
         visitor.id,
-        visitor.org_id || 'ORG-DEMO-01',
+        visitor.org_id || '',
         visitor.fullName,
         visitor.phone,
         visitor.email || '',
@@ -839,7 +830,7 @@ class SQLiteService {
       `);
       stmt.run([
         user.id,
-        user.org_id || 'ORG-DEMO-01',
+        user.org_id || '',
         user.email,
         user.password_hash,
         user.fullName,
@@ -914,7 +905,7 @@ class SQLiteService {
     }
   }
 
-  logAction(userId, userName, action, details, orgId = 'ORG-DEMO-01') {
+  logAction(userId, userName, action, details, orgId = '') {
     if (!this.db) return;
     try {
       const logId = `LOG-${Date.now()}-${Math.floor(Math.random() * 1000)}`;

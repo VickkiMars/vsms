@@ -151,7 +151,7 @@ export const Header = () => {
               <Building2 className="w-3 h-3" />
             </div>
             <span className="text-xs font-bold text-neutral-900 dark:text-white truncate max-w-[120px] sm:max-w-[160px]">
-              {currentOrg?.name || 'Workspace'}
+              {currentOrg?.name || '+ Setup Organization'}
             </span>
             <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
           </button>
@@ -165,29 +165,35 @@ export const Header = () => {
               </div>
 
               <div className="max-h-48 overflow-y-auto p-1.5 space-y-1">
-                {(organizations || []).map(org => (
-                  <button
-                    key={org.id}
-                    type="button"
-                    onClick={() => {
-                      switchOrganization(org.id);
-                      setIsOrgDropdownOpen(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
-                      currentOrg?.id === org.id 
-                        ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white font-bold'
-                        : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800/60'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 truncate">
-                      <Building2 className="w-3.5 h-3.5 shrink-0 text-neutral-500" />
-                      <span className="truncate">{org.name}</span>
-                    </div>
-                    {currentOrg?.id === org.id && (
-                      <span className="w-2 h-2 rounded-full bg-neutral-900 dark:bg-white shrink-0"></span>
-                    )}
-                  </button>
-                ))}
+                {(organizations || []).length === 0 ? (
+                  <div className="px-3 py-3 text-center text-xs text-neutral-500 dark:text-neutral-400 font-medium">
+                    No organizations yet
+                  </div>
+                ) : (
+                  (organizations || []).map(org => (
+                    <button
+                      key={org.id}
+                      type="button"
+                      onClick={() => {
+                        switchOrganization(org.id);
+                        setIsOrgDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
+                        currentOrg?.id === org.id 
+                          ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white font-bold'
+                          : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800/60'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 truncate">
+                        <Building2 className="w-3.5 h-3.5 shrink-0 text-neutral-500" />
+                        <span className="truncate">{org.name}</span>
+                      </div>
+                      {currentOrg?.id === org.id && (
+                        <span className="w-2 h-2 rounded-full bg-neutral-900 dark:bg-white shrink-0"></span>
+                      )}
+                    </button>
+                  ))
+                )}
               </div>
 
               <div className="p-2 border-t border-neutral-100 dark:border-neutral-800">

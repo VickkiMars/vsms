@@ -19,7 +19,7 @@ const sanitizeVisitorList = (list) => {
 
 export const VisitorProvider = ({ children }) => {
   const { currentOrg, userRole: authRole } = useAuthContext();
-  const currentOrgId = currentOrg?.id || 'ORG-DEMO-01';
+  const currentOrgId = currentOrg?.id || '';
 
   // Dynamic Organization Fields (Form Builder Schema)
   const [orgFields, setOrgFields] = useState(DEFAULT_ORG_FIELDS);

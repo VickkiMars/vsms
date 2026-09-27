@@ -373,7 +373,7 @@ export const OrgSetupWizardModal = () => {
             <div>
               <h2 className="text-lg font-bold text-neutral-900 dark:text-neutral-50 tracking-tight flex items-center gap-2">
                 Onboard New Organization
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 font-semibold border border-emerald-200 dark:border-emerald-800">
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 font-semibold border border-neutral-200 dark:border-neutral-700">
                   Enterprise VMS
                 </span>
               </h2>
@@ -394,7 +394,7 @@ export const OrgSetupWizardModal = () => {
         {/* 3-Step Indicator Bar */}
         <div className="px-6 py-3.5 bg-neutral-100/50 dark:bg-neutral-950/40 border-b border-neutral-100 dark:border-neutral-800 flex items-center justify-between text-xs font-semibold">
           <div className={`flex items-center gap-2 ${step >= 1 ? 'text-neutral-900 dark:text-neutral-100 font-bold' : 'text-neutral-400'}`}>
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step === 1 ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 font-bold' : step > 1 ? 'bg-emerald-600 text-white' : 'bg-neutral-200 dark:bg-neutral-800'}`}>
+            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step === 1 ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 font-bold' : step > 1 ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 font-bold' : 'bg-neutral-200 dark:bg-neutral-800'}`}>
               {step > 1 ? <Check className="w-3.5 h-3.5" /> : '1'}
             </span>
             <span>1. Organization & Admin Profile</span>
@@ -403,7 +403,7 @@ export const OrgSetupWizardModal = () => {
           <ChevronRight className="w-4 h-4 text-neutral-300 dark:text-neutral-700" />
 
           <div className={`flex items-center gap-2 ${step >= 2 ? 'text-neutral-900 dark:text-neutral-100 font-bold' : 'text-neutral-400'}`}>
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step === 2 ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 font-bold' : step > 2 ? 'bg-emerald-600 text-white' : 'bg-neutral-200 dark:bg-neutral-800'}`}>
+            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step === 2 ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 font-bold' : step > 2 ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 font-bold' : 'bg-neutral-200 dark:bg-neutral-800'}`}>
               {step > 2 ? <Check className="w-3.5 h-3.5" /> : '2'}
             </span>
             <span>2. Dynamic Visitor Form Builder</span>
@@ -421,7 +421,7 @@ export const OrgSetupWizardModal = () => {
 
         {/* Error Banner */}
         {stepErrors && (
-          <div className="mx-6 mt-4 p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 flex items-center gap-3 text-rose-700 dark:text-rose-400 text-xs">
+          <div className="mx-6 mt-4 p-3 rounded-2xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 flex items-center gap-3 text-neutral-900 dark:text-neutral-100 text-xs">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{stepErrors}</span>
           </div>
@@ -499,7 +499,7 @@ export const OrgSetupWizardModal = () => {
               {/* Admin Account Credentials */}
               <div className="border border-neutral-200 dark:border-neutral-800 rounded-2xl p-5 bg-neutral-50/50 dark:bg-neutral-900/40">
                 <h3 className="text-sm font-bold text-neutral-900 dark:text-neutral-100 mb-4 flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <ShieldCheck className="w-4 h-4 text-neutral-900 dark:text-white" />
                   Primary Organization Administrator Account
                 </h3>
 
@@ -577,8 +577,8 @@ export const OrgSetupWizardModal = () => {
                 <div className="flex items-center gap-2">
                   <div className={`px-3 py-1.5 rounded-xl text-xs font-bold border flex items-center gap-1.5 ${
                     currentTableSlotCount >= 5 
-                      ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-300' 
-                      : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300'
+                      ? 'bg-neutral-200 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100' 
+                      : 'bg-neutral-100 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200'
                   }`}>
                     <Eye className="w-3.5 h-3.5" />
                     <span>Table Display Slots: {currentTableSlotCount} / 5</span>
@@ -623,7 +623,7 @@ export const OrgSetupWizardModal = () => {
                               onClick={() => handleToggleRequired(field.id)}
                               className={`w-7 h-7 rounded-lg inline-flex items-center justify-center transition-colors ${
                                 field.is_required 
-                                  ? 'bg-emerald-600 text-white shadow-xs' 
+                                  ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 shadow-xs' 
                                   : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-400'
                               } ${field.is_baseline ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
                             >
@@ -663,7 +663,7 @@ export const OrgSetupWizardModal = () => {
                               <button
                                 type="button"
                                 onClick={() => handleDeleteField(field.id)}
-                                className="w-7 h-7 rounded-lg inline-flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                                className="w-7 h-7 rounded-lg inline-flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
                                 title="Delete Custom Field"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -824,7 +824,7 @@ export const OrgSetupWizardModal = () => {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h4 className="text-sm font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
-                      <UserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <UserCheck className="w-4 h-4 text-neutral-900 dark:text-white" />
                       Provision Front Desk Receptionists
                     </h4>
                     <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
@@ -841,13 +841,13 @@ export const OrgSetupWizardModal = () => {
                       className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 gap-3 text-xs"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-bold flex items-center justify-center shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white font-bold flex items-center justify-center shrink-0 border border-neutral-200 dark:border-neutral-700">
                           {rec.fullName.slice(0, 2).toUpperCase()}
                         </div>
                         <div>
                           <div className="font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
                             <span>{rec.fullName}</span>
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700 font-medium">
                               {rec.deskLocation}
                             </span>
                           </div>
@@ -865,8 +865,8 @@ export const OrgSetupWizardModal = () => {
                         >
                           {copiedIndex === idx ? (
                             <>
-                              <Check className="w-3.5 h-3.5 text-emerald-600" />
-                              <span className="text-emerald-600">Copied!</span>
+                              <Check className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />
+                              <span className="text-neutral-900 dark:text-white font-bold">Copied!</span>
                             </>
                           ) : (
                             <>
@@ -879,7 +879,7 @@ export const OrgSetupWizardModal = () => {
                         <button
                           type="button"
                           onClick={() => handleRemoveReceptionist(idx)}
-                          className="w-7 h-7 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center justify-center"
+                          className="w-7 h-7 rounded-lg text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center justify-center transition-colors"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -939,9 +939,9 @@ export const OrgSetupWizardModal = () => {
               </div>
 
               {/* Ready to Launch Summary Box */}
-              <div className="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-800 dark:text-emerald-300 space-y-1">
+              <div className="p-4 rounded-2xl bg-neutral-100 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700 text-xs text-neutral-800 dark:text-neutral-200 space-y-1">
                 <div className="font-bold flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <Sparkles className="w-4 h-4 text-neutral-900 dark:text-white" />
                   Ready to Activate Organization Workspace
                 </div>
                 <p>
@@ -990,7 +990,7 @@ export const OrgSetupWizardModal = () => {
               <button
                 type="button"
                 onClick={handleFinishOnboarding}
-                className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg hover:shadow-emerald-600/20 flex items-center gap-2 transition-all cursor-pointer"
+                className="px-6 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-900 text-xs font-bold shadow-md flex items-center gap-2 transition-all cursor-pointer"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>Launch Organization Workspace</span>

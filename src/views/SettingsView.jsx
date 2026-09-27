@@ -177,7 +177,7 @@ export const SettingsView = () => {
 
     const newFieldObj = {
       id: `FLD-${Date.now()}`,
-      org_id: currentOrg?.id || 'ORG-DEMO-01',
+      org_id: currentOrg?.id || '',
       field_key: cleanKey,
       field_name: newFieldDraft.field_name.trim(),
       field_type: newFieldDraft.field_type,
@@ -268,7 +268,7 @@ export const SettingsView = () => {
           Administrator Console Restricted
         </h2>
         <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-md mx-auto">
-          You are currently signed in as a Front Desk Receptionist for <strong className="text-neutral-900 dark:text-white">{currentOrg?.name}</strong>. Dynamic Form Builder, Staff Provisioning, and Security Backups require Administrator authorization.
+          You are currently signed in as a Front Desk Receptionist for <strong className="text-neutral-900 dark:text-white">{currentOrg?.name || 'Workspace'}</strong>. Dynamic Form Builder, Staff Provisioning, and Security Backups require Administrator authorization.
         </p>
         <div className="pt-2">
           <button
@@ -296,7 +296,7 @@ export const SettingsView = () => {
             <span>Organization Management & Form Builder</span>
           </h2>
           <p className="text-xs text-neutral-500 dark:text-neutral-400 font-medium mt-1">
-            Workspace: <strong className="text-neutral-900 dark:text-white">{currentOrg?.name}</strong> • Configure dynamic visitor registration fields & provision front-desk staff.
+            Workspace: <strong className="text-neutral-900 dark:text-white">{currentOrg?.name || 'Not Configured'}</strong> • Configure dynamic visitor registration fields & provision front-desk staff.
           </p>
         </div>
 
@@ -779,7 +779,7 @@ export const SettingsView = () => {
               <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">
                 Legal Entity Name
               </span>
-              <p className="text-sm font-black text-neutral-900 dark:text-white">{currentOrg?.name}</p>
+              <p className="text-sm font-black text-neutral-900 dark:text-white">{currentOrg?.name || 'Not Configured'}</p>
             </div>
 
             <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-200 dark:border-neutral-700/60">
@@ -793,14 +793,14 @@ export const SettingsView = () => {
               <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">
                 Workspace Domain Slug
               </span>
-              <p className="text-sm font-mono font-bold text-neutral-900 dark:text-white">{currentOrg?.slug}</p>
+              <p className="text-sm font-mono font-bold text-neutral-900 dark:text-white">{currentOrg?.slug || 'n/a'}</p>
             </div>
 
             <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-200 dark:border-neutral-700/60">
               <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">
                 Official Security Contact
               </span>
-              <p className="text-sm font-bold text-neutral-900 dark:text-white">{currentOrg?.contact_email}</p>
+              <p className="text-sm font-bold text-neutral-900 dark:text-white">{currentOrg?.contact_email || 'n/a'}</p>
             </div>
           </div>
         </div>
