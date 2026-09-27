@@ -64,7 +64,7 @@ Success means: a receptionist can register a new visitor in under 10 seconds usi
 
 - **Name:** VSMS (acronym only; no long-form name confirmed).
 - **Palette constraint:** monochrome / near-monochrome palette for the application interior — no colored Tailwind utility classes (no `emerald`, `amber`, `rose`, etc.). Lime (`#d7f4b7`) is the one permitted accent, used only as a status indicator (live/active state).
-- **Landing page:** permanent dark groundplane (`#0a0c0f`). App interior remains light.
+- **Landing page:** light groundplane matching the application interior.
 - **Target market:** strictly corporate / enterprise environments.
 
 ## Evidence on Hand
