@@ -60,7 +60,7 @@ export const SettingsView = () => {
     currentOrg,
     provisionReceptionist,
     createNewUser, 
-    switchUserRole 
+    setIsLoginModalOpen 
   } = useAuthContext();
 
   const isReceptionist = currentUser?.role === 'reception';
@@ -273,10 +273,10 @@ export const SettingsView = () => {
         <div className="pt-2">
           <button
             type="button"
-            onClick={() => switchUserRole('admin')}
+            onClick={() => setIsLoginModalOpen(true)}
             className="px-5 py-2.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-bold text-xs shadow-md transition hover:opacity-90 cursor-pointer"
           >
-            Switch to Administrator Role
+            Sign In with Administrator Account
           </button>
         </div>
       </div>
@@ -739,14 +739,7 @@ export const SettingsView = () => {
                             className="px-2.5 py-1 rounded-lg border border-neutral-300 dark:border-neutral-700 text-[10px] font-bold hover:bg-neutral-100 dark:hover:bg-neutral-800 transition flex items-center gap-1 cursor-pointer"
                           >
                             <Copy className="w-3 h-3" />
-                            <span>{copiedStaffIdx === idx ? 'Copied!' : 'Copy'}</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => switchUserRole(u.role)}
-                            className="px-2.5 py-1 rounded-lg border border-neutral-300 dark:border-neutral-700 text-[10px] font-bold hover:bg-neutral-950 hover:text-white dark:hover:bg-white dark:hover:text-neutral-950 transition cursor-pointer"
-                          >
-                            Switch
+                            <span>{copiedStaffIdx === idx ? 'Copied!' : 'Copy Credentials'}</span>
                           </button>
                         </div>
                       </td>

@@ -11,7 +11,10 @@ import {
   UserCheck, 
   Database,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Crown,
+  Shield,
+  ClipboardList
 } from 'lucide-react';
 
 export const LoginModal = () => {
@@ -21,8 +24,7 @@ export const LoginModal = () => {
     login, 
     authError, 
     setAuthError,
-    currentUser,
-    switchUserRole
+    currentUser
   } = useAuthContext();
 
   const [email, setEmail] = useState('');
@@ -101,23 +103,26 @@ export const LoginModal = () => {
             <button
               type="button"
               onClick={() => handleQuickLogin('admin@vsms.com', 'admin123')}
-              className="px-2.5 py-1.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 text-[11px] font-bold hover:bg-neutral-900 hover:text-white dark:hover:bg-white dark:hover:text-neutral-900 transition flex items-center justify-center gap-1 shadow-xs"
+              className="px-2.5 py-1.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 text-[11px] font-bold hover:bg-neutral-900 hover:text-white dark:hover:bg-white dark:hover:text-neutral-900 transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
             >
-              👑 Admin
+              <Crown className="w-3.5 h-3.5 shrink-0" />
+              <span>Admin</span>
             </button>
             <button
               type="button"
               onClick={() => handleQuickLogin('guard@vsms.com', 'guard123')}
-              className="px-2.5 py-1.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 text-[11px] font-bold hover:bg-neutral-900 hover:text-white dark:hover:bg-white dark:hover:text-neutral-900 transition flex items-center justify-center gap-1 shadow-xs"
+              className="px-2.5 py-1.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 text-[11px] font-bold hover:bg-neutral-900 hover:text-white dark:hover:bg-white dark:hover:text-neutral-900 transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
             >
-              🛡️ Guard
+              <Shield className="w-3.5 h-3.5 shrink-0" />
+              <span>Guard</span>
             </button>
             <button
               type="button"
               onClick={() => handleQuickLogin('reception@vsms.com', 'reception123')}
-              className="px-2.5 py-1.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 text-[11px] font-bold hover:bg-neutral-900 hover:text-white dark:hover:bg-white dark:hover:text-neutral-900 transition flex items-center justify-center gap-1 shadow-xs"
+              className="px-2.5 py-1.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 text-[11px] font-bold hover:bg-neutral-900 hover:text-white dark:hover:bg-white dark:hover:text-neutral-900 transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
             >
-              📋 Desk
+              <ClipboardList className="w-3.5 h-3.5 shrink-0" />
+              <span>Desk</span>
             </button>
           </div>
         </div>
@@ -126,7 +131,7 @@ export const LoginModal = () => {
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           
           {authError && (
-            <div className="p-3 rounded-2xl bg-rose-100/80 dark:bg-rose-950/80 text-rose-900 dark:text-rose-200 text-xs flex items-center gap-2 font-semibold">
+            <div className="p-3 rounded-2xl bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border border-neutral-300 dark:border-neutral-700 text-xs flex items-center gap-2 font-semibold">
               <AlertCircle className="w-4 h-4 text-neutral-900 dark:text-white shrink-0" />
               <span>{authError}</span>
             </div>

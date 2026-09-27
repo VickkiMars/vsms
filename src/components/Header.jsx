@@ -8,7 +8,6 @@ import {
   LogOut, 
   LogIn, 
   ChevronDown, 
-  UserCheck, 
   Menu, 
   ShieldCheck,
   Building2,
@@ -38,8 +37,7 @@ export const Header = () => {
     switchOrganization,
     setIsOrgWizardOpen,
     logout, 
-    setIsLoginModalOpen, 
-    switchUserRole 
+    setIsLoginModalOpen 
   } = useAuthContext();
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -281,36 +279,6 @@ export const Header = () => {
                     {currentUser.desk_location || 'Desk'}
                   </span>
                 </div>
-              </div>
-
-              <div className="px-2 py-1.5 border-b border-neutral-100 dark:border-neutral-800">
-                <p className="px-2 py-1 text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
-                  Switch Active Role:
-                </p>
-                <button
-                  type="button"
-                  onClick={() => { switchUserRole('admin'); setIsProfileMenuOpen(false); }}
-                  className="w-full text-left px-2 py-1 rounded-lg text-xs font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-between cursor-pointer"
-                >
-                  <span>👑 Administrator</span>
-                  {currentUser.role === 'admin' && <UserCheck className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { switchUserRole('reception'); setIsProfileMenuOpen(false); }}
-                  className="w-full text-left px-2 py-1 rounded-lg text-xs font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-between cursor-pointer"
-                >
-                  <span>📋 Receptionist Desk</span>
-                  {currentUser.role === 'reception' && <UserCheck className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { switchUserRole('security'); setIsProfileMenuOpen(false); }}
-                  className="w-full text-left px-2 py-1 rounded-lg text-xs font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-between cursor-pointer"
-                >
-                  <span>🛡️ Security Guard</span>
-                  {currentUser.role === 'security' && <UserCheck className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />}
-                </button>
               </div>
 
               <div className="p-1">

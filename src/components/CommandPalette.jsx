@@ -17,7 +17,7 @@ import {
   RefreshCw,
   QrCode,
   LogOut,
-  Database
+  LogIn
 } from 'lucide-react';
 
 export const CommandPalette = () => {
@@ -35,7 +35,7 @@ export const CommandPalette = () => {
     resetToDemoData
   } = useVisitorContext();
 
-  const { switchUserRole } = useAuthContext();
+  const { setIsLoginModalOpen } = useAuthContext();
 
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -117,21 +117,12 @@ export const CommandPalette = () => {
     },
     { 
       type: 'action',
-      id: 'action-role-admin',
-      label: 'Switch Role: Administrator', 
-      category: 'Security Access',
-      icon: Database, 
-      keywords: 'switch role admin manager director full control',
-      run: () => { setIsCmdKOpen(false); switchUserRole('admin'); } 
-    },
-    { 
-      type: 'action',
-      id: 'action-role-guard',
-      label: 'Switch Role: Security Guard', 
-      category: 'Security Access',
-      icon: Database, 
-      keywords: 'switch role security guard desk officer',
-      run: () => { setIsCmdKOpen(false); switchUserRole('security'); } 
+      id: 'action-switch-account',
+      label: 'Switch Account / Sign In', 
+      category: 'Authentication',
+      icon: LogIn, 
+      keywords: 'switch account login sign in logout user auth credentials',
+      run: () => { setIsCmdKOpen(false); setIsLoginModalOpen(true); } 
     },
     { 
       type: 'action',
@@ -142,7 +133,7 @@ export const CommandPalette = () => {
       keywords: 'reset clear data restore default sample seed clean',
       run: () => { setIsCmdKOpen(false); resetToDemoData(); } 
     }
-  ], [theme, setIsCmdKOpen, setIsCheckInOpen, setActiveView, exportToCSV, toggleTheme, switchUserRole, resetToDemoData]);
+  ], [theme, setIsCmdKOpen, setIsCheckInOpen, setActiveView, exportToCSV, toggleTheme, setIsLoginModalOpen, resetToDemoData]);
 
   // Combine actions and dynamic visitor records
   const filteredItems = useMemo(() => {
