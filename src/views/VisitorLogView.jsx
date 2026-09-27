@@ -14,14 +14,17 @@ import {
   UserCheck,
   ChevronDown,
   FileSpreadsheet,
-  ShieldAlert
+  ShieldAlert,
+  Eye
 } from 'lucide-react';
 
 export const VisitorLogView = () => {
   const { 
     visitors, 
+    tableDisplayFields,
     exportToCSV, 
     openBadgeModal, 
+    openDetailsDrawer,
     checkOutVisitor,
     globalSearchQuery,
     setGlobalSearchQuery,
@@ -74,9 +77,11 @@ export const VisitorLogView = () => {
     return `${mins}m`;
   };
 
-  // Filter visitors
+  // Filter visitors (including deep search across dynamic custom fields)
   const filtered = visitors.filter(v => {
     const query = (globalSearchQuery || '').toLowerCase().trim();
+    const customDataStr = v.custom_data_json || JSON.stringify(v.custom_data || {});
+    
     const matchesQuery = !query || 
       (v.fullName && v.fullName.toLowerCase().includes(query)) ||
       (v.company && v.company.toLowerCase().includes(query)) ||
@@ -86,7 +91,8 @@ export const VisitorLogView = () => {
       (v.idNumber && v.idNumber.toLowerCase().includes(query)) ||
       (v.phone && v.phone.toLowerCase().includes(query)) ||
       (v.email && v.email.toLowerCase().includes(query)) ||
-      (v.purpose && v.purpose.toLowerCase().includes(query));
+      (v.purpose && v.purpose.toLowerCase().includes(query)) ||
+      (customDataStr.toLowerCase().includes(query));
 
     const matchesDept = selectedDeptFilter === 'All' || 
       v.department === selectedDeptFilter ||
@@ -184,6 +190,16 @@ export const VisitorLogView = () => {
 
   const hasActiveFilters = Boolean(globalSearchQuery) || selectedDeptFilter !== 'All' || selectedStatusFilter !== 'All';
 
+  // Fallback columns if tableDisplayFields not loaded yet
+  const activeColumns = tableDisplayFields && tableDisplayFields.length > 0
+    ? tableDisplayFields
+    : [
+        { field_key: 'fullName', field_name: 'Visitor & Company' },
+        { field_key: 'phone', field_name: 'Phone' },
+        { field_key: 'host', field_name: 'Host & Dept' },
+        { field_key: 'purpose', field_name: 'Visit Purpose' }
+      ];
+
   return (
     <div className="space-y-6 font-sans select-none relative">
       {/* Toast Feedback Notification */}
@@ -191,9 +207,9 @@ export const VisitorLogView = () => {
         <div 
           role="status"
           aria-live="polite"
-          className="fixed bottom-6 right-6 z-50 flex items-center space-x-3 p-4 rounded-2xl bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-2xl animate-fadeIn max-w-md"
+          className="fixed bottom-6 right-6 z-50 flex items-center space-x-3 p-4 rounded-2xl bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-2xl animate-fade-in max-w-md"
         >
-          <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-400 dark:text-emerald-600" aria-hidden="true" />
+          <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400 dark:text-emerald-600" aria-hidden="true" />
           <div className="flex-1 text-xs">
             <p className="font-extrabold">{toastMessage.title}</p>
             <p className="font-medium text-neutral-300 dark:text-neutral-700">
@@ -231,7 +247,7 @@ export const VisitorLogView = () => {
           <button
             type="button"
             onClick={exportToCSV}
-            className="px-5 py-2.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-extrabold shadow-md flex items-center space-x-2 transition active:scale-95 whitespace-nowrap"
+            className="px-5 py-2.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-200 text-xs font-extrabold shadow-md flex items-center space-x-2 transition active:scale-95 whitespace-nowrap cursor-pointer"
             aria-label="Export visitor logs to CSV"
           >
             <Download className="w-4 h-4" aria-hidden="true" />
@@ -356,7 +372,7 @@ export const VisitorLogView = () => {
               <Search className="w-4 h-4 absolute left-3.5 top-2.5 text-neutral-400 pointer-events-none" aria-hidden="true" />
               <input
                 type="text"
-                placeholder="Search name, NIN, host, badge..."
+                placeholder="Search name, phone, host, attributes..."
                 value={globalSearchQuery}
                 onChange={(e) => setGlobalSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-8 py-2 rounded-full text-xs bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-400 border border-neutral-200 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-950 dark:focus:ring-white transition font-semibold"
@@ -366,7 +382,7 @@ export const VisitorLogView = () => {
                 <button
                   type="button"
                   onClick={() => setGlobalSearchQuery('')}
-                  className="absolute right-2.5 top-2.5 p-0.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-full"
+                  className="absolute right-2.5 top-2.5 p-0.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-full cursor-pointer"
                   aria-label="Clear log search input"
                 >
                   <X className="w-3.5 h-3.5" aria-hidden="true" />
@@ -399,7 +415,7 @@ export const VisitorLogView = () => {
             <button
               type="button"
               onClick={handleClearFilters}
-              className="px-3 py-1 rounded-full text-xs font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-200 transition"
+              className="px-3 py-1 rounded-full text-xs font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-200 transition cursor-pointer"
             >
               Reset Filters
             </button>
@@ -407,7 +423,7 @@ export const VisitorLogView = () => {
         )}
       </div>
 
-      {/* Main Table Card Container */}
+      {/* Main Table Card Container (Dynamic Columns based on tableDisplayFields) */}
       <div className="bg-white dark:bg-neutral-900 rounded-3xl overflow-hidden shadow-sm border border-neutral-200 dark:border-neutral-800">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[800px] text-left text-xs font-sans border-collapse">
@@ -425,33 +441,23 @@ export const VisitorLogView = () => {
                     <ArrowUpDown className="w-3 h-3 text-neutral-400" aria-hidden="true" />
                   </div>
                 </th>
-                <th className="py-4 px-5 cursor-pointer select-none" onClick={() => toggleSort('fullName')}>
-                  <div className="flex items-center gap-1.5">
-                    <span>Visitor & Company</span>
-                    <ArrowUpDown className="w-3 h-3 text-neutral-400" aria-hidden="true" />
-                  </div>
-                </th>
-                <th className="py-4 px-5">Contact & ID</th>
-                <th className="py-4 px-5">Host Officer & Dept</th>
-                <th className="py-4 px-5">Visit Purpose</th>
+
+                {/* Dynamic Organization Columns (Capped at 5 Slots) */}
+                {activeColumns.map((col) => (
+                  <th key={col.id || col.field_key} className="py-4 px-5">
+                    <div className="flex items-center gap-1.5">
+                      <span>{col.field_name}</span>
+                    </div>
+                  </th>
+                ))}
+
                 <th className="py-4 px-5 cursor-pointer select-none" onClick={() => toggleSort('checkInTime')}>
                   <div className="flex items-center gap-1.5">
-                    <span>Check-In</span>
+                    <span>Check-In & Stay</span>
                     <ArrowUpDown className="w-3 h-3 text-neutral-400" aria-hidden="true" />
                   </div>
                 </th>
-                <th className="py-4 px-5 cursor-pointer select-none" onClick={() => toggleSort('checkOutTime')}>
-                  <div className="flex items-center gap-1.5">
-                    <span>Check-Out</span>
-                    <ArrowUpDown className="w-3 h-3 text-neutral-400" aria-hidden="true" />
-                  </div>
-                </th>
-                <th className="py-4 px-5 cursor-pointer select-none" onClick={() => toggleSort('duration')}>
-                  <div className="flex items-center gap-1.5">
-                    <span>Duration</span>
-                    <ArrowUpDown className="w-3 h-3 text-neutral-400" aria-hidden="true" />
-                  </div>
-                </th>
+
                 <th className="py-4 px-5 text-right">Actions</th>
               </tr>
             </thead>
@@ -459,7 +465,7 @@ export const VisitorLogView = () => {
             <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800 text-neutral-900 dark:text-white font-sans">
               {paginatedVisitors.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="py-16 text-center text-neutral-500 font-medium">
+                  <td colSpan={3 + activeColumns.length} className="py-16 text-center text-neutral-500 font-medium">
                     <div className="space-y-3">
                       <UserCheck className="w-10 h-10 mx-auto text-neutral-400" aria-hidden="true" />
                       <p className="font-bold text-neutral-900 dark:text-white text-sm">No visitor records match the current filter criteria.</p>
@@ -467,7 +473,7 @@ export const VisitorLogView = () => {
                         <button
                           type="button"
                           onClick={handleClearFilters}
-                          className="mt-2 px-5 py-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold shadow-md"
+                          className="mt-2 px-5 py-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold shadow-md cursor-pointer"
                         >
                           Reset Filters
                         </button>
@@ -476,15 +482,12 @@ export const VisitorLogView = () => {
                   </td>
                 </tr>
               ) : (
-                paginatedVisitors.map((v, index) => {
+                paginatedVisitors.map((v) => {
                   const checkInFormatted = new Date(v.checkInTime).toLocaleString([], {
                     month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                   });
-                  const checkOutFormatted = v.checkOutTime 
-                    ? new Date(v.checkOutTime).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-                    : '—';
-
                   const durationFormatted = calculateStayDuration(v.checkInTime, v.checkOutTime);
+                  const customData = v.custom_data || {};
 
                   return (
                     <tr 
@@ -510,90 +513,114 @@ export const VisitorLogView = () => {
 
                       {/* Badge ID */}
                       <td className="py-4 px-5 whitespace-nowrap">
-                        <span className="text-xs font-black text-neutral-900 dark:text-white px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800">
-                          {v.badgeId}
+                        <span className="text-xs font-black text-neutral-900 dark:text-white px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 font-mono">
+                          {v.badgeId || v.id}
                         </span>
                       </td>
 
-                      {/* Visitor Name & Company */}
-                      <td className="py-4 px-5">
-                        <div className="flex items-center gap-3">
-                          <img 
-                            src={v.avatar} 
-                            alt={v.fullName} 
-                            className="w-9 h-9 rounded-xl object-cover shrink-0 border border-neutral-200 dark:border-neutral-700 shadow-xs" 
-                            onError={(e) => {
-                              e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(v.fullName)}`;
-                            }}
-                          />
-                          <div>
-                            <div className="font-extrabold text-neutral-900 dark:text-white text-sm leading-snug">
-                              {v.fullName}
-                            </div>
-                            <div className="text-xs text-neutral-600 dark:text-neutral-300 font-semibold">
-                              {v.company || 'Private Guest'}
-                            </div>
-                          </div>
+                      {/* Dynamic Columns Rendered per Organization Slot Allocation */}
+                      {activeColumns.map((col) => {
+                        const key = col.field_key;
+                        let cellValue = v[key] !== undefined && v[key] !== '' ? v[key] : (customData[key] ?? '');
+
+                        // Full Name Column styling with Avatar
+                        if (key === 'fullName') {
+                          return (
+                            <td key={col.id || key} className="py-4 px-5">
+                              <div className="flex items-center gap-3">
+                                <img 
+                                  src={v.avatar} 
+                                  alt={v.fullName} 
+                                  className="w-9 h-9 rounded-xl object-cover shrink-0 border border-neutral-200 dark:border-neutral-700 shadow-xs" 
+                                  onError={(e) => {
+                                    e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(v.fullName)}`;
+                                  }}
+                                />
+                                <div>
+                                  <div className="font-extrabold text-neutral-900 dark:text-white text-sm leading-snug">
+                                    {v.fullName}
+                                  </div>
+                                  <div className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">
+                                    {v.company || customData.company || 'Private Guest'}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          );
+                        }
+
+                        // Host Column styling
+                        if (key === 'host' || key === 'hostName') {
+                          return (
+                            <td key={col.id || key} className="py-4 px-5">
+                              <div className="font-extrabold text-neutral-900 dark:text-white">{v.hostName || cellValue || '—'}</div>
+                              <div className="text-[10px] text-neutral-500 dark:text-neutral-400 font-semibold">{v.department || '—'}</div>
+                            </td>
+                          );
+                        }
+
+                        // Boolean / Checkbox Column
+                        if (col.field_type === 'checkbox') {
+                          return (
+                            <td key={col.id || key} className="py-4 px-5">
+                              {cellValue ? (
+                                <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-bold text-[10px]">
+                                  Yes
+                                </span>
+                              ) : (
+                                <span className="px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 text-[10px]">
+                                  No
+                                </span>
+                              )}
+                            </td>
+                          );
+                        }
+
+                        // Standard text/select/number/etc.
+                        return (
+                          <td key={col.id || key} className="py-4 px-5 font-semibold text-neutral-800 dark:text-neutral-200">
+                            {cellValue ? String(cellValue) : '—'}
+                          </td>
+                        );
+                      })}
+
+                      {/* Check-In & Stay Duration */}
+                      <td className="py-4 px-5 whitespace-nowrap">
+                        <div className="font-bold text-[11px] text-neutral-900 dark:text-white">{checkInFormatted}</div>
+                        <div className="text-[10px] text-neutral-500 dark:text-neutral-400 font-black mt-0.5">
+                          Stay: {durationFormatted}
                         </div>
-                      </td>
-
-                      {/* Contact & Document */}
-                      <td className="py-4 px-5">
-                        <div className="text-xs text-neutral-900 dark:text-white font-bold">
-                          {v.phone}
-                        </div>
-                        <div className="text-[10px] text-neutral-600 dark:text-neutral-400 font-semibold truncate max-w-[160px]">
-                          {v.idType ? `${v.idType}: ` : ''}{v.idNumber}
-                        </div>
-                      </td>
-
-                      {/* Host & Department */}
-                      <td className="py-4 px-5">
-                        <div className="font-extrabold text-neutral-900 dark:text-white">{v.hostName}</div>
-                        <div className="text-[10px] text-neutral-600 dark:text-neutral-400 font-semibold">{v.department}</div>
-                      </td>
-
-                      {/* Purpose Pill */}
-                      <td className="py-4 px-5">
-                        <span className="px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white text-[11px] font-bold inline-block max-w-[160px] truncate">
-                          {v.purpose}
-                        </span>
-                      </td>
-
-                      {/* Check In */}
-                      <td className="py-4 px-5 text-[11px] font-bold text-neutral-900 dark:text-white whitespace-nowrap">
-                        {checkInFormatted}
-                      </td>
-
-                      {/* Check Out */}
-                      <td className="py-4 px-5 text-[11px] font-bold text-neutral-900 dark:text-white whitespace-nowrap">
-                        {checkOutFormatted}
-                      </td>
-
-                      {/* Stay Duration */}
-                      <td className="py-4 px-5 text-[11px] font-black text-neutral-900 dark:text-white whitespace-nowrap">
-                        <span className="px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800">
-                          {durationFormatted}
-                        </span>
                       </td>
 
                       {/* Action buttons */}
                       <td className="py-4 px-5 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5">
+                          {/* View All Custom Details Drawer */}
+                          <button
+                            type="button"
+                            onClick={() => openDetailsDrawer(v)}
+                            className="p-2 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700 transition cursor-pointer"
+                            title="View Full Custom Profile & Attributes"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+
+                          {/* Print Pass */}
                           <button
                             type="button"
                             onClick={() => openBadgeModal(v)}
-                            className="p-2 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-200 transition"
-                            title="View Digital Badge Pass"
+                            className="p-2 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700 transition cursor-pointer"
+                            title="View / Print Digital Badge Pass"
                           >
                             <QrCode className="w-4 h-4" />
                           </button>
 
+                          {/* Fast Check-Out */}
                           {v.status !== 'Checked-Out' && (
                             <button
                               type="button"
                               onClick={() => handleCheckOut(v)}
-                              className="px-3.5 py-1.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-bold text-[10px] shadow-sm active:scale-95 flex items-center gap-1"
+                              className="px-3 py-1.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-bold text-[10px] shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer hover:opacity-90"
                               title="Process Visitor Check-Out"
                             >
                               <LogOut className="w-3 h-3" />
@@ -627,7 +654,7 @@ export const VisitorLogView = () => {
               type="button"
               disabled={clampedPage === 1}
               onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
-              className="p-2 rounded-full bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white shadow-xs disabled:opacity-30 disabled:cursor-not-allowed hover:bg-neutral-100 transition"
+              className="p-2 rounded-full bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white shadow-xs disabled:opacity-30 disabled:cursor-not-allowed hover:bg-neutral-100 transition cursor-pointer"
               aria-label="Previous Page"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -641,7 +668,7 @@ export const VisitorLogView = () => {
               type="button"
               disabled={clampedPage === totalPages || totalPages === 0}
               onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
-              className="p-2 rounded-full bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white shadow-xs disabled:opacity-30 disabled:cursor-not-allowed hover:bg-neutral-100 transition"
+              className="p-2 rounded-full bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white shadow-xs disabled:opacity-30 disabled:cursor-not-allowed hover:bg-neutral-100 transition cursor-pointer"
               aria-label="Next Page"
             >
               <ChevronRight className="w-4 h-4" />

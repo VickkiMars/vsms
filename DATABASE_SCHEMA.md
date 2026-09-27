@@ -1,7 +1,7 @@
-# Relational Database Schema & Entity-Relationship Specifications
+# Relational Database Schema & Multi-Tenant Entity Specifications
 
-**Source Document:** [`Computerised.docx`](file:///home/kami/Desktop/codebase/vsms/Computerised.docx) (Section 3.14, Section 3.15)  
 **Database Engine:** SQLite 3 (via `sql.js` WebAssembly + LocalStorage binary persistence)  
+**Tenancy Model:** Logical isolation via `org_id` foreign keys + resilient JSON-serialized custom fields.
 
 ---
 
@@ -9,18 +9,45 @@
 
 ```mermaid
 erDiagram
-    USERS ||--o{ AUDIT_LOGS : generates
-    DEPARTMENTS ||--o{ HOSTS : contains
-    DEPARTMENTS ||--o{ VISITORS : receives
-    HOSTS ||--o{ VISITORS : hosts
-    VISITORS ||--o{ AUDIT_LOGS : referenced_in
+    ORGANIZATIONS ||--o{ USERS : employs
+    ORGANIZATIONS ||--o{ ORG_FIELDS : defines
+    ORGANIZATIONS ||--o{ DEPARTMENTS : contains
+    ORGANIZATIONS ||--o{ HOSTS : maintains
+    ORGANIZATIONS ||--o{ VISITORS : receives
+    ORGANIZATIONS ||--o{ AUDIT_LOGS : records
+
+    ORGANIZATIONS {
+        string id PK
+        string name
+        string slug UK
+        string industry
+        string contact_email
+        string logo_url
+        string created_at
+    }
+
+    ORG_FIELDS {
+        string id PK
+        string org_id FK
+        string field_key
+        string field_name
+        string field_type
+        boolean is_required
+        boolean show_in_table
+        boolean show_on_badge
+        string options_json
+        string placeholder
+        int display_order
+    }
 
     USERS {
         string id PK
+        string org_id FK
         string email UK
         string password_hash
         string fullName
         string role
+        string desk_location
         string avatar
         string created_at
         string last_login
@@ -28,45 +55,41 @@ erDiagram
 
     VISITORS {
         string id PK
+        string org_id FK
         string fullName
         string phone
-        string email
-        string company
-        string idType
-        string idNumber
-        string hostName
-        string department FK
-        string purpose
+        string status
         string checkInTime
         string checkOutTime
-        string status
         string badgeId UK
-        integer expectedDurationMinutes
-        string vehiclePlate
+        string custom_data_json
         string notes
         string avatar
     }
 
     DEPARTMENTS {
         string id PK
+        string org_id FK
         string name
-        string code UK
+        string code
         string head
         string floor
     }
 
     HOSTS {
         string id PK
+        string org_id FK
         string name
         string title
-        string deptId FK
+        string deptId
         string email
     }
 
     AUDIT_LOGS {
         string id PK
+        string org_id FK
         string timestamp
-        string userId FK
+        string userId
         string userName
         string action
         string details
@@ -77,79 +100,53 @@ erDiagram
 
 ## 2. Table Specifications
 
-### 2.1 Table: `users` (Administrator & Officer Authentication - Section 3.15 Table 3.1)
-Stores authenticated user accounts, roles, and hashed credentials.
+### 2.1 Table: `organizations`
+Stores tenant profile and workspace settings.
+* `id` (`TEXT PRIMARY KEY`): e.g., `ORG-APEX-01`
+* `name` (`TEXT NOT NULL`): Legal organization name
+* `slug` (`TEXT UNIQUE NOT NULL`): URL-safe slug
+* `industry` (`TEXT`): Corporate, Healthcare, Tech, Government, etc.
+* `contact_email` (`TEXT NOT NULL`): Official security/admin contact
+* `logo_url` (`TEXT`): Branding logo or generated avatar
+* `created_at` (`TEXT NOT NULL`): ISO 8601 timestamp
 
-| Column Name | Data Type | Constraints | Description |
-|---|---|---|---|
-| `id` | `TEXT` | `PRIMARY KEY` | Unique User ID (e.g. `USR-001`) |
-| `email` | `TEXT` | `UNIQUE`, `NOT NULL` | Administrator email / login handle |
-| `password_hash` | `TEXT` | `NOT NULL` | Password hash (plain text prohibited) |
-| `fullName` | `TEXT` | `NOT NULL` | Full display name of administrator |
-| `role` | `TEXT` | `NOT NULL` | System access role (`admin`, `security`, `reception`) |
-| `avatar` | `TEXT` | `NULLABLE` | User avatar image URL |
-| `created_at` | `TEXT` | `ISO 8601` | Record creation timestamp |
-| `last_login` | `TEXT` | `ISO 8601` | Last successful authentication timestamp |
+### 2.2 Table: `organization_fields`
+Defines the dynamic schema for visitor registration per organization.
+* `id` (`TEXT PRIMARY KEY`): e.g., `FLD-101`
+* `org_id` (`TEXT NOT NULL`): Foreign key to `organizations.id`
+* `field_key` (`TEXT NOT NULL`): Attribute key (e.g., `company`, `govt_id_number`, `laptop_serial`)
+* `field_name` (`TEXT NOT NULL`): Human-readable label (e.g., `Company / Employer`)
+* `field_type` (`TEXT NOT NULL`): `text`, `number`, `email`, `select`, `checkbox`, `textarea`, `date`, `photo`, `host_picker`
+* `is_required` (`INTEGER NOT NULL`): `1` for required, `0` for optional
+* `show_in_table` (`INTEGER NOT NULL`): `1` to show in summary table (max fixed slot count), `0` otherwise
+* `show_on_badge` (`INTEGER NOT NULL`): `1` to display on printed visitor pass, `0` otherwise
+* `options_json` (`TEXT`): JSON array of strings for `select` dropdown options (or null)
+* `placeholder` (`TEXT`): Input placeholder text
+* `display_order` (`INTEGER NOT NULL`): Sequence order in registration form
 
----
+### 2.3 Table: `users`
+Accounts assigned to an organization.
+* `id` (`TEXT PRIMARY KEY`): e.g., `USR-001`
+* `org_id` (`TEXT NOT NULL`): Foreign key to `organizations.id`
+* `email` (`TEXT UNIQUE NOT NULL`): User login handle
+* `password_hash` (`TEXT NOT NULL`): Plain text / hash
+* `fullName` (`TEXT NOT NULL`): Full display name
+* `role` (`TEXT NOT NULL`): `admin` or `reception`
+* `desk_location` (`TEXT`): Assigned front-desk terminal (e.g. `Main Lobby - Desk A`)
+* `avatar` (`TEXT`): Avatar image URL
+* `created_at` (`TEXT NOT NULL`): ISO 8601
+* `last_login` (`TEXT`): ISO 8601
 
-### 2.2 Table: `visitors` (Guest & Visit Records - Section 3.15 Table 3.2 & 3.3)
-Combines Visitor profile and Visit activity data into a normalized, single-table view for ultra-fast query execution.
-
-| Column Name | Data Type | Constraints | Description |
-|---|---|---|---|
-| `id` | `TEXT` | `PRIMARY KEY` | Unique Visitor Record ID (e.g. `VIS-1082`) |
-| `fullName` | `TEXT` | `NOT NULL` | Full legal name of the visitor |
-| `phone` | `TEXT` | `NULLABLE` | Telephone / mobile contact number |
-| `email` | `TEXT` | `NULLABLE` | Email address of the visitor |
-| `company` | `TEXT` | `NULLABLE` | Visitor's company or organization |
-| `idType` | `TEXT` | `NULLABLE` | Document type (`National ID`, `Passport`, `Driver License`, `Work Permit`) |
-| `idNumber` | `TEXT` | `NULLABLE` | Identification document number |
-| `hostName` | `TEXT` | `NULLABLE` | Name of the hosting staff member |
-| `department` | `TEXT` | `NULLABLE` | Department code (`EXEC`, `ITCS`, `HR`, `FIN`, `LEGAL`, `PROC`) |
-| `purpose` | `TEXT` | `NULLABLE` | Stated reason for the visit |
-| `checkInTime` | `TEXT` | `NOT NULL` | Arrival ISO 8601 timestamp |
-| `checkOutTime` | `TEXT` | `NULLABLE` | Departure ISO 8601 timestamp (NULL if active) |
-| `status` | `TEXT` | `NOT NULL` | Visit status (`Checked-In`, `Checked-Out`, `Overdue`) |
-| `badgeId` | `TEXT` | `UNIQUE` | Security pass badge ID (e.g. `BDG-1082`) |
-| `expectedDurationMinutes` | `INTEGER` | `DEFAULT 60` | Expected stay duration in minutes |
-| `vehiclePlate` | `TEXT` | `NULLABLE` | Visitor vehicle license plate number |
-| `notes` | `TEXT` | `NULLABLE` | Security notes or special remarks |
-| `avatar` | `TEXT` | `NULLABLE` | Visitor photograph or generated avatar URL |
-
----
-
-### 2.3 Table: `departments` (Organizational Structure)
-
-| Column Name | Data Type | Constraints | Description |
-|---|---|---|---|
-| `id` | `TEXT` | `PRIMARY KEY` | Department entity ID (e.g. `DEPT-001`) |
-| `name` | `TEXT` | `NOT NULL` | Full department name (e.g. `Information Technology & Cyber Security`) |
-| `code` | `TEXT` | `UNIQUE`, `NOT NULL` | Department short code (e.g. `ITCS`) |
-| `head` | `TEXT` | `NULLABLE` | Head of department name |
-| `floor` | `TEXT` | `NULLABLE` | Physical building floor / location |
-
----
-
-### 2.4 Table: `hosts` (Host Roster)
-
-| Column Name | Data Type | Constraints | Description |
-|---|---|---|---|
-| `id` | `TEXT` | `PRIMARY KEY` | Host employee ID (e.g. `HST-001`) |
-| `name` | `TEXT` | `NOT NULL` | Full name of host officer |
-| `title` | `TEXT` | `NULLABLE` | Official job title |
-| `deptId` | `TEXT` | `FOREIGN KEY` | Refers to `departments.code` |
-| `email` | `TEXT` | `NULLABLE` | Corporate email address |
-
----
-
-### 2.5 Table: `audit_logs` (Security & Audit Trail)
-
-| Column Name | Data Type | Constraints | Description |
-|---|---|---|---|
-| `id` | `TEXT` | `PRIMARY KEY` | Unique log entry ID (e.g. `LOG-1726124-492`) |
-| `timestamp` | `TEXT` | `NOT NULL` | ISO 8601 event timestamp |
-| `userId` | `TEXT` | `NULLABLE` | User ID of the actor |
-| `userName` | `TEXT` | `NULLABLE` | Display name of the actor |
-| `action` | `TEXT` | `NOT NULL` | Action code (`CHECK_IN`, `CHECK_OUT`, `USER_LOGIN`, `DATA_RESET`) |
-| `details` | `TEXT` | `NULLABLE` | Detailed JSON or string payload describing the event |
+### 2.4 Table: `visitors`
+Visitor check-in logs. Standard fields are `fullName` and `phone`. All organization-configured custom fields are stored in `custom_data_json`.
+* `id` (`TEXT PRIMARY KEY`): e.g., `VIS-1082`
+* `org_id` (`TEXT NOT NULL`): Foreign key to `organizations.id`
+* `fullName` (`TEXT NOT NULL`): Full legal name of visitor (Baseline)
+* `phone` (`TEXT NOT NULL`): Mobile contact number (Baseline)
+* `status` (`TEXT NOT NULL`): `Checked-In`, `Checked-Out`, `Overdue`
+* `checkInTime` (`TEXT NOT NULL`): Arrival ISO 8601
+* `checkOutTime` (`TEXT`): Departure ISO 8601 (NULL if active)
+* `badgeId` (`TEXT UNIQUE`): Issued security badge code
+* `custom_data_json` (`TEXT`): Serialized JSON key-value map of all custom field answers
+* `notes` (`TEXT`): General remarks or flags
+* `avatar` (`TEXT`): Photo snapshot URL

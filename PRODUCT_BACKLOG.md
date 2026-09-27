@@ -1,41 +1,51 @@
-# Product Backlog: Computerized Guest Information Tracking System (VSMS)
+# Product Backlog — Multi-Tenant Organization VSMS
 
-**Source Spec:** [`Computerised.docx`](file:///home/kami/Desktop/codebase/vsms/Computerised.docx)  
-**Team Assumption:** Single full-stack engineer / pair programming squad.  
-**Sprint Cycle:** 1-week timeboxed iterations.  
+Assumption: Pair programming with user; client-side SQLite (Wasm sql.js) persistence with LocalStorage binary serialization; fast vertical slices prioritized by multi-tenant architectural foundations.
 
 ---
 
-## Epics Overview
-
-- **Epic 1: Authentication & Access Control (FR-AUTH)**
-- **Epic 2: Visitor Registration & Badge Issuance (FR-REG / FR-CHK)**
-- **Epic 3: Live Presence Tracking & Check-Out (FR-OUT / FR-DSH)**
-- **Epic 4: Master Visitor Log, Search & Filtering (FR-REC)**
-- **Epic 5: Administrative Analytics, Reporting & CSV Export (FR-REP)**
-- **Epic 6: Relational Data Persistence & Audit Logging (FR-SEC)**
+## Epic 1: Multi-Tenancy & Organization Setup
+| ID | Story | Priority | Est. | Depends on | Notes |
+|---|---|---|---|---|---|
+| MT-101 | As an Organization Admin, I want to complete a 3-step setup wizard (Profile, Form Builder, Receptionist Provisioning) so that my organization has a tailored visitor management workspace. | High | M | MT-102 | Core onboarding experience |
+| MT-102 | As a system, I want a relational multi-tenant schema (`organizations`, `organization_fields`, `users`, `visitors`) in SQLite so that tenant data is isolated and resilient. | High | M | — | Architectural foundation |
+| MT-103 | As any user, I want direct email login with auto-detection of my organization and assigned role (Admin vs Receptionist). | High | S | MT-102 | Frictionless authentication |
+| MT-104 | As a user/evaluator, I want a turnkey demo organization pre-loaded with sample data and a persistent "+ Setup New Organization" launcher. | Medium | S | MT-101 | Instant evaluation & testing |
 
 ---
 
-## Detailed User Stories & Backlog Table
+## Epic 2: Dynamic Visitor Form Builder Engine
+| ID | Story | Priority | Est. | Depends on | Notes |
+|---|---|---|---|---|---|
+| FB-201 | As an Org Admin, I want `fullName` and `phone` to be standard baseline fields, with all other fields configurable with custom names and data types (`text`, `number`, `email`, `select`, `checkbox`, `textarea`, `date`, `photo`, `host_picker`). | High | M | MT-102 | Flexible schema engine |
+| FB-202 | As an Org Admin, I want a toggle on each field to mark it as Required or Optional. | High | S | FB-201 | Validation rules |
+| FB-203 | As an Org Admin, I want to toggle "Show in Table / Summary Pane" for fields up to a fixed slot limit (e.g. 4-5 slots) so tables maintain visual integrity. | High | S | FB-201 | Table visual guardrail |
+| FB-204 | As an Org Admin, I want to toggle "Show on Badge" for fields with a live preview so printed security passes display chosen attributes. | Medium | S | FB-201 | Badge layout customizer |
 
-| Story ID | Epic | User Story Statement | Priority | Story Points | Dependencies | Acceptance Criteria |
-|---|---|---|---|---|---|---|
-| **VSMS-101** | Auth | As a system administrator/security officer, I want to log in using credentials so that unauthorized persons cannot access guest data. | P0 | 3 | None | Validates user against `users` table; sets session role (`admin`, `security`, `reception`). |
-| **VSMS-102** | Auth | As a user, I want to log out and switch roles safely so that session security is maintained. | P0 | 1 | VSMS-101 | Clears active session state; redirects to login modal. |
-| **VSMS-201** | Registration | As a receptionist, I want to register a visitor with full details (Name, Phone, Email, Company, ID Type/Number, Host, Department, Purpose, Expected Stay) so entry is digitized. | P0 | 5 | VSMS-101 | Inline form validation prevents empty submissions; saves record to SQLite DB. |
-| **VSMS-202** | Registration | As a receptionist, I want the system to auto-cascade hosts based on selected department so data entry is error-free. | P1 | 2 | VSMS-201 | Selecting a department dynamically filters host dropdown roster. |
-| **VSMS-203** | Check-In | As a receptionist, I want the system to issue a unique Visitor ID (`VIS-xxxx`) and Badge ID (`BDG-xxxx`) upon registration. | P0 | 2 | VSMS-201 | Automatic sequential string ID generation without duplicates. |
-| **VSMS-204** | Check-In | As a visitor/security officer, I want a printable security pass badge with a scannable QR code containing visitor details. | P1 | 3 | VSMS-203 | Modal renders high-contrast QR code (`qrcode.react`), visitor details, host info, print CSS. |
-| **VSMS-301** | Live Tracker | As a security officer, I want a live presence board showing all currently checked-in guests so I know who is inside the facility. | P0 | 3 | VSMS-201 | Displays active visitors sorted by check-in time with stay duration counter. |
-| **VSMS-302** | Check-Out | As a security officer, I want a 1-click Check-Out button that updates status to `Checked-Out` and stamps departure time. | P0 | 2 | VSMS-301 | Updates `checkOutTime` and `status` in SQLite DB; updates live counters. |
-| **VSMS-303** | Live Tracker | As a security officer, I want automatic flagging of overdue guests who exceed expected visit duration. | P1 | 2 | VSMS-301 | Compares stay duration against `expectedDurationMinutes`; displays high-contrast overdue pill badge. |
-| **VSMS-401** | Master Log | As an administrator, I want a master table displaying historical visitor records with pagination controls. | P0 | 3 | VSMS-201 | Paginated rendering (10/25/50 items per page) with page navigation controls. |
-| **VSMS-402** | Master Log | As an administrator, I want multi-field global search (Name, Phone, ID Number, Badge ID, Host, Company). | P0 | 3 | VSMS-401 | Sub-10ms search filtering across all visitor attributes. |
-| **VSMS-403** | Master Log | As an administrator, I want filter controls by Department and Visit Status. | P1 | 2 | VSMS-401 | Dropdown filters correctly restrict visible table rows. |
-| **VSMS-404** | Global UX | As any user, I want an accessible Command Palette (`Cmd+K` / `Ctrl+K`) for rapid keyboard navigation. | P2 | 3 | VSMS-402 | Global modal opens on shortcut; keyboard arrow keys navigate options. |
-| **VSMS-501** | Analytics | As an administrator, I want visual dashboard metrics (Total Guests, Today's Visits, Active Guests, Overdue Count). | P0 | 2 | VSMS-301 | Metric cards display real-time calculated aggregate counts. |
-| **VSMS-502** | Analytics | As an administrator, I want analytics charts for department distribution and peak visit hours. | P1 | 3 | VSMS-501 | Visual bar/pie charts displaying visitor distribution across departments. |
-| **VSMS-503** | Reporting | As an administrator, I want to export visitor records to CSV format adhering to RFC-4180 standards. | P0 | 3 | VSMS-401 | Exports properly escaped CSV file with exact headers and quoted special characters. |
-| **VSMS-601** | Persistence | As a developer, I want the system to persist relational SQLite database binaries in LocalStorage. | P0 | 5 | None | WebAssembly `sql.js` database serializes to `vsms_sqlite_db_bin` synchronously. |
-| **VSMS-602** | Audit Trail | As an administrator, I want system events logged to an `audit_logs` table for compliance tracking. | P1 | 3 | VSMS-601 | Records login, check-in, check-out, data export, and reset events. |
+---
+
+## Epic 3: Receptionist Operations & Dynamic Check-In
+| ID | Story | Priority | Est. | Depends on | Notes |
+|---|---|---|---|---|---|
+| RO-301 | As a Receptionist, I want the Visitor Registration Modal to render the organization's dynamic schema so I can collect required visitor info. | High | M | FB-201 | Dynamic form renderer |
+| RO-302 | As a Receptionist, I want a specialized Host Picker field that live-searches the internal employee roster and resolves department. | High | S | RO-301 | Staff arrival workflow |
+| RO-303 | As a Receptionist, I want to print high-contrast visitor passes containing the organization's selected badge attributes and QR code. | High | S | FB-204 | Pass generation |
+| RO-304 | As a Receptionist, I want a dedicated front-desk console (Live Tracker, Check-In, Visitor Log, Host Directory) free of administrative clutter. | High | S | MT-103 | Role-separated workspace |
+
+---
+
+## Epic 4: Data Presentation & Display Allocation
+| ID | Story | Priority | Est. | Depends on | Notes |
+|---|---|---|---|---|---|
+| DP-401 | As a Receptionist/Admin, I want the Visitor Log and Live Tracker tables to render the fixed display slots configured by the organization. | High | M | FB-203 | Configurable table columns |
+| DP-402 | As a user, I want a Visitor Profile Drawer that displays all custom field responses for a visitor record regardless of table column limits. | High | S | DP-401 | Full audit access |
+| DP-403 | As a user, I want multi-field search to query both standard fields and dynamic custom field values seamlessly. | Medium | S | DP-401 | Global search filter |
+
+---
+
+## Epic 5: Administrative Console & Staff Provisioning
+| ID | Story | Priority | Est. | Depends on | Notes |
+|---|---|---|---|---|---|
+| AD-501 | As an Org Admin, I want to provision new Receptionist accounts with name, email, password, and desk location. | High | S | MT-102 | Front-desk staff management |
+| AD-502 | As an Org Admin, I want an in-app Form Builder tab in Settings to edit, reorder, or add custom fields post-onboarding. | Medium | M | FB-201 | Continuous configuration |
+| AD-503 | As an Org Admin, I want executive analytics and audit logs scoped strictly to my organization's data. | Medium | S | MT-102 | Tenant-isolated analytics |

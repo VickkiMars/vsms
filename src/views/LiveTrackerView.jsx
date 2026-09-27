@@ -10,33 +10,31 @@ import {
   Building, 
   Phone,
   Mail,
-  MapPin,
   Upload,
-  RotateCw,
-  ChevronDown,
-  Maximize2,
-  CheckCircle2,
-  X,
-  ShieldCheck,
-  ShieldAlert
+  CheckCircle2, 
+  X, 
+  ShieldCheck, 
+  ShieldAlert,
+  Eye
 } from 'lucide-react';
 
 export const LiveTrackerView = () => {
   const { 
     visitors, 
+    tableDisplayFields,
     checkOutVisitor, 
     openBadgeModal, 
+    openDetailsDrawer,
     setIsCheckInOpen,
     globalSearchQuery,
     selectedDeptFilter,
     exportToCSV
   } = useVisitorContext();
 
-  const { currentUser } = useAuthContext();
+  const { currentUser, currentOrg } = useAuthContext();
 
   const [now, setNow] = useState(() => Date.now());
   const [toastMessage, setToastMessage] = useState(null);
-  const [summaryTimeframe, setSummaryTimeframe] = useState('This Month');
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -68,12 +66,15 @@ export const LiveTrackerView = () => {
     if (v.status === 'Checked-Out') return false;
 
     const query = (globalSearchQuery || '').toLowerCase().trim();
+    const customDataStr = v.custom_data_json || JSON.stringify(v.custom_data || {});
+
     const matchesSearch = !query || 
       (v.fullName && v.fullName.toLowerCase().includes(query)) ||
       (v.company && v.company.toLowerCase().includes(query)) ||
       (v.hostName && v.hostName.toLowerCase().includes(query)) ||
       (v.badgeId && v.badgeId.toLowerCase().includes(query)) ||
-      (v.id && v.id.toLowerCase().includes(query));
+      (v.id && v.id.toLowerCase().includes(query)) ||
+      (customDataStr.toLowerCase().includes(query));
 
     const matchesDept = selectedDeptFilter === 'All' || 
       v.department === selectedDeptFilter;
@@ -104,9 +105,9 @@ export const LiveTrackerView = () => {
         <div 
           role="status"
           aria-live="polite"
-          className="fixed bottom-6 right-6 z-50 flex items-center space-x-3 p-4 rounded-2xl bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-2xl animate-fadeIn max-w-md"
+          className="fixed bottom-6 right-6 z-50 flex items-center space-x-3 p-4 rounded-2xl bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-2xl animate-fade-in max-w-md"
         >
-          <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-400 dark:text-emerald-600" aria-hidden="true" />
+          <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400 dark:text-emerald-600" aria-hidden="true" />
           <div className="flex-1 text-xs">
             <p className="font-extrabold">{toastMessage.title}</p>
             <p className="font-medium text-neutral-300 dark:text-neutral-700">
@@ -124,33 +125,30 @@ export const LiveTrackerView = () => {
         </div>
       )}
 
-      {/* Main Security Desk Officer Hero Card */}
-      <div className="bg-white dark:bg-neutral-900 rounded-3xl p-6 shadow-sm border border-neutral-200 dark:border-neutral-800 space-y-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          
-          {/* Duty Officer Info Block */}
-          <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
-            <div className="relative">
-              <img 
-                src={currentUser?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"} 
-                alt={currentUser?.fullName || "Duty Officer"} 
-                className="w-20 h-20 rounded-2xl object-cover shadow-sm ring-2 ring-neutral-900 dark:ring-white"
-              />
-              <span className="absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-neutral-900"></span>
-            </div>
-            
-            <div className="space-y-2">
+      {/* Main Profile & Presence Header Card */}
+      <div className="p-6 rounded-3xl bg-white dark:bg-neutral-900 shadow-sm border border-neutral-200 dark:border-neutral-800 space-y-5">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+            <img 
+              src={currentUser?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200"} 
+              alt="Active Officer Profile" 
+              className="w-16 h-16 rounded-2xl object-cover border border-neutral-200 dark:border-neutral-700 shadow-sm"
+              onError={(e) => {
+                e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(currentUser?.fullName || 'User')}`;
+              }}
+            />
+            <div className="space-y-1.5">
               <div>
                 <div className="flex items-center justify-center sm:justify-start gap-2">
                   <h2 className="text-xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
-                    {currentUser?.fullName || "Chief Security Officer"}
+                    {currentUser?.fullName || "Facility Officer"}
                   </h2>
-                  <span className="px-2.5 py-0.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-[10px] font-extrabold uppercase tracking-wider">
-                    {currentUser?.role || "Admin"}
+                  <span className="text-[11px] px-2.5 py-0.5 rounded-full font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 uppercase tracking-wider">
+                    {currentUser?.role || "admin"}
                   </span>
                 </div>
                 <p className="text-xs text-neutral-600 dark:text-neutral-300 font-semibold mt-0.5">
-                  Authenticated User Account • <span className="font-bold text-neutral-900 dark:text-white">{currentUser?.email || "admin@vsms.com"}</span>
+                  {currentUser?.desk_location || "Central Security Desk"} • <span className="font-bold text-neutral-900 dark:text-white">{currentUser?.email || "admin@vsms.com"}</span>
                 </p>
               </div>
 
@@ -162,7 +160,7 @@ export const LiveTrackerView = () => {
                 </span>
                 <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 font-semibold shadow-xs">
                   <Building className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />
-                  Federal Security Directorate
+                  {currentOrg?.name || "Apex Global Technologies"}
                 </span>
               </div>
             </div>
@@ -173,7 +171,7 @@ export const LiveTrackerView = () => {
             <button 
               type="button"
               onClick={exportToCSV}
-              className="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white flex items-center justify-center text-xs transition shadow-xs"
+              className="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white flex items-center justify-center text-xs transition shadow-xs cursor-pointer"
               title="Export Master Log CSV"
             >
               <Upload className="w-4 h-4" />
@@ -181,7 +179,7 @@ export const LiveTrackerView = () => {
             <button 
               type="button"
               onClick={() => setIsCheckInOpen(true)}
-              className="w-10 h-10 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-200 flex items-center justify-center text-xs transition shadow-md active:scale-95"
+              className="w-10 h-10 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-200 flex items-center justify-center text-xs transition shadow-md active:scale-95 cursor-pointer"
               title="Register New Guest Check-In"
             >
               <UserPlus className="w-4 h-4" />
@@ -214,17 +212,11 @@ export const LiveTrackerView = () => {
           <h3 className="text-lg font-extrabold text-neutral-900 dark:text-white tracking-tight">Facility Security Summary</h3>
         </div>
 
-        {/* 3 Summary Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          
-          {/* Card 1: On-Premises Guests */}
           <div className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white rounded-3xl p-5 flex flex-col justify-between min-h-[140px] shadow-sm border border-neutral-200 dark:border-neutral-800">
-            <div className="flex items-start justify-between">
-              <span className="text-sm font-extrabold block leading-tight text-neutral-900 dark:text-white">
-                Inside Facility<br />On-Premises Guests
-              </span>
-            </div>
-
+            <span className="text-sm font-extrabold block leading-tight text-neutral-900 dark:text-white">
+              Inside Facility<br />On-Premises Guests
+            </span>
             <div className="flex items-end justify-between mt-4">
               <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
                 Status: <span className="font-extrabold text-neutral-900 dark:text-white">Live Count</span>
@@ -235,14 +227,10 @@ export const LiveTrackerView = () => {
             </div>
           </div>
 
-          {/* Card 2: On-Time Guests */}
           <div className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white rounded-3xl p-5 flex flex-col justify-between min-h-[140px] shadow-sm border border-neutral-200 dark:border-neutral-800">
-            <div className="flex items-start justify-between">
-              <span className="text-sm font-extrabold block leading-tight text-neutral-900 dark:text-white">
-                On-Time Guests<br />Within Duration
-              </span>
-            </div>
-
+            <span className="text-sm font-extrabold block leading-tight text-neutral-900 dark:text-white">
+              On-Time Guests<br />Within Limit
+            </span>
             <div className="flex items-end justify-between mt-4">
               <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
                 Status: <span className="font-extrabold text-neutral-900 dark:text-white">Within Limit</span>
@@ -253,14 +241,10 @@ export const LiveTrackerView = () => {
             </div>
           </div>
 
-          {/* Card 3: Overdue Alerts */}
           <div className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white rounded-3xl p-5 flex flex-col justify-between min-h-[140px] shadow-sm border border-neutral-200 dark:border-neutral-800">
-            <div className="flex items-start justify-between">
-              <span className="text-sm font-extrabold block leading-tight text-neutral-900 dark:text-white">
-                Overdue Alerts<br />Exceeded Stay
-              </span>
-            </div>
-
+            <span className="text-sm font-extrabold block leading-tight text-neutral-900 dark:text-white">
+              Overdue Alerts<br />Exceeded Stay
+            </span>
             <div className="flex items-end justify-between mt-4">
               <div className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
                 Status: <span className="font-extrabold text-rose-600 dark:text-rose-400">Exceeded Limit</span>
@@ -270,7 +254,6 @@ export const LiveTrackerView = () => {
               </div>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -289,7 +272,7 @@ export const LiveTrackerView = () => {
             <button
               type="button"
               onClick={() => setIsCheckInOpen(true)}
-              className="px-4 py-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold shadow-md"
+              className="px-4 py-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold shadow-md cursor-pointer"
             >
               + Register First Guest
             </button>
@@ -299,57 +282,74 @@ export const LiveTrackerView = () => {
             {activeVisitors.map(v => {
               const duration = calculateDuration(v.checkInTime);
               const isOverdue = v.status === 'Overdue';
+              const customData = v.custom_data || {};
 
               return (
                 <div 
                   key={v.id} 
-                  className="p-5 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-4 relative"
+                  className="p-5 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-4 relative flex flex-col justify-between"
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <img 
-                        src={v.avatar} 
-                        alt={v.fullName} 
-                        className="w-11 h-11 rounded-2xl object-cover border border-neutral-200 dark:border-neutral-700 shadow-xs" 
-                        onError={(e) => {
-                          e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(v.fullName)}`;
-                        }}
-                      />
-                      <div>
-                        <h4 className="font-extrabold text-sm text-neutral-900 dark:text-white leading-snug">
-                          {v.fullName}
-                        </h4>
-                        <p className="text-[11px] text-neutral-600 dark:text-neutral-400 font-semibold">
-                          {v.company || 'Private Guest'}
-                        </p>
+                  <div className="space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <img 
+                          src={v.avatar} 
+                          alt={v.fullName} 
+                          className="w-11 h-11 rounded-2xl object-cover border border-neutral-200 dark:border-neutral-700 shadow-xs" 
+                          onError={(e) => {
+                            e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(v.fullName)}`;
+                          }}
+                        />
+                        <div>
+                          <h4 className="font-extrabold text-sm text-neutral-900 dark:text-white leading-snug">
+                            {v.fullName}
+                          </h4>
+                          <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-semibold">
+                            {v.company || customData.company || 'Private Guest'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        {/* Details Drawer Button */}
+                        <button
+                          type="button"
+                          onClick={() => openDetailsDrawer(v)}
+                          className="p-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700 transition cursor-pointer"
+                          title="View Full Profile Details"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+
+                        {/* Print Badge Button */}
+                        <button
+                          type="button"
+                          onClick={() => openBadgeModal(v)}
+                          className="p-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700 transition cursor-pointer"
+                          title="View Digital Badge Pass"
+                        >
+                          <QrCode className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => openBadgeModal(v)}
-                      className="p-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-200 transition"
-                      title="View Digital Badge Pass"
-                    >
-                      <QrCode className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 space-y-1.5 text-xs border border-neutral-100 dark:border-neutral-700/60">
-                    <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-300">
-                      <span className="font-semibold">Host Officer:</span>
-                      <strong className="text-neutral-900 dark:text-white font-extrabold">{v.hostName}</strong>
-                    </div>
-                    <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-300">
-                      <span className="font-semibold">Department:</span>
-                      <strong className="text-neutral-900 dark:text-white font-extrabold">{v.department}</strong>
-                    </div>
-                    <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-300">
-                      <span className="font-semibold">Duration Inside:</span>
-                      <strong className="text-neutral-900 dark:text-white font-extrabold flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-neutral-700 dark:text-neutral-300" />
-                        {duration}
-                      </strong>
+                    {/* Card Attributes */}
+                    <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 space-y-1.5 text-xs border border-neutral-100 dark:border-neutral-700/60">
+                      <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-300">
+                        <span className="font-semibold">Visiting Host:</span>
+                        <strong className="text-neutral-900 dark:text-white font-extrabold">{v.hostName || customData.host || '—'}</strong>
+                      </div>
+                      <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-300">
+                        <span className="font-semibold">Department:</span>
+                        <strong className="text-neutral-900 dark:text-white font-extrabold">{v.department || '—'}</strong>
+                      </div>
+                      <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-300">
+                        <span className="font-semibold">Duration Inside:</span>
+                        <strong className="text-neutral-900 dark:text-white font-extrabold flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5 text-neutral-700 dark:text-neutral-300" />
+                          {duration}
+                        </strong>
+                      </div>
                     </div>
                   </div>
 
@@ -365,7 +365,7 @@ export const LiveTrackerView = () => {
                     <button
                       type="button"
                       onClick={() => handleCheckOut(v)}
-                      className="px-3.5 py-1.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold shadow-md flex items-center gap-1.5 transition active:scale-95"
+                      className="px-3.5 py-1.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold shadow-md flex items-center gap-1.5 transition active:scale-95 cursor-pointer hover:opacity-90"
                     >
                       <LogOut className="w-3.5 h-3.5" />
                       <span>Check Out</span>

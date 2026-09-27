@@ -3,50 +3,57 @@ import { useVisitorContext } from '../context/VisitorContext';
 import { useAuthContext } from '../context/AuthContext';
 import { 
   Search, 
-  Mic, 
   X,
-  UserPlus,
-  Shield,
-  LogOut,
-  LogIn,
-  ChevronDown,
-  UserCheck,
-  Database,
-  Menu,
-  ShieldCheck
+  UserPlus, 
+  LogOut, 
+  LogIn, 
+  ChevronDown, 
+  UserCheck, 
+  Menu, 
+  ShieldCheck,
+  Building2,
+  Plus,
+  Sparkles
 } from 'lucide-react';
 
 export const Header = () => {
   const { 
-    activeView,
+    activeView, 
     globalSearchQuery, 
     setGlobalSearchQuery, 
+    setSelectedDeptFilter,
+    exportToCSV,
+    resetToDemoData,
+    setUserRole,
+    toggleTheme,
     setIsCmdKOpen,
-    visitors,
-    setIsCheckInOpen,
-    setIsMobileMenuOpen
+    setIsCheckInOpen, 
+    setIsMobileMenuOpen 
   } = useVisitorContext();
 
   const { 
     currentUser, 
+    currentOrg,
+    organizations,
+    switchOrganization,
+    setIsOrgWizardOpen,
     logout, 
     setIsLoginModalOpen, 
     switchUserRole 
   } = useAuthContext();
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isOrgDropdownOpen, setIsOrgDropdownOpen] = useState(false);
 
   const getViewTitle = () => {
     switch (activeView) {
       case 'log': return 'Master Visitor Log';
       case 'analytics': return 'Analytics & Reports';
       case 'departments': return 'Departments & Hosts';
-      case 'settings': return 'Security System Settings';
+      case 'settings': return 'Organization & System Settings';
       default: return 'Live Presence Board';
     }
   };
-
-  const activeCount = visitors.filter(v => v.status !== 'Checked-Out').length;
 
   return (
     <header 
@@ -62,7 +69,7 @@ export const Header = () => {
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(true)}
-              className="md:hidden p-2 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition shadow-xs"
+              className="md:hidden p-2 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition shadow-xs cursor-pointer"
               aria-label="Open mobile navigation drawer"
             >
               <Menu className="w-5 h-5" />
@@ -70,7 +77,7 @@ export const Header = () => {
 
             <div className="flex items-center gap-2">
               <div className="md:hidden w-7 h-7 rounded-lg bg-neutral-950 dark:bg-white flex items-center justify-center text-white dark:text-neutral-950 font-bold">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 dark:text-emerald-600" />
+                <ShieldCheck className="w-4 h-4 text-white dark:text-neutral-900" />
               </div>
               <h1 className="text-xl sm:text-2xl font-extrabold text-neutral-900 dark:text-white tracking-tight truncate">
                 {getViewTitle()}
@@ -82,7 +89,7 @@ export const Header = () => {
           <button
             type="button"
             onClick={() => setIsCheckInOpen(true)}
-            className="sm:hidden px-3 py-1.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold flex items-center gap-1 shadow-sm active:scale-95 transition"
+            className="sm:hidden px-3 py-1.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold flex items-center gap-1 shadow-sm active:scale-95 transition cursor-pointer"
             title="Register New Guest"
           >
             <UserPlus className="w-3.5 h-3.5" />
@@ -97,7 +104,7 @@ export const Header = () => {
           </div>
           <input 
             type="text" 
-            placeholder="Search visitors, badges, hosts..." 
+            placeholder="Search visitors, badges, attributes..." 
             value={globalSearchQuery}
             onChange={(e) => setGlobalSearchQuery(e.target.value)}
             className="w-full pl-9 pr-20 py-2 rounded-full bg-white/90 dark:bg-neutral-800/90 border border-neutral-200 dark:border-neutral-700 focus:bg-white dark:focus:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-950 dark:focus:ring-white text-xs font-medium text-neutral-900 dark:text-white placeholder-neutral-400 shadow-xs transition"
@@ -108,7 +115,7 @@ export const Header = () => {
                 type="button"
                 onClick={() => setGlobalSearchQuery('')}
                 aria-label="Clear search input"
-                className="p-0.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-full"
+                className="p-0.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-full cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -116,7 +123,7 @@ export const Header = () => {
             <button
               type="button"
               onClick={() => setIsCmdKOpen(true)}
-              className="hidden sm:inline-block px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 text-[10px] font-bold text-neutral-500 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition shadow-xs"
+              className="hidden sm:inline-block px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 text-[10px] font-bold text-neutral-500 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white transition shadow-xs cursor-pointer"
               title="Open Command Engine (⌘K)"
             >
               ⌘ K
@@ -129,11 +136,82 @@ export const Header = () => {
       {/* Desktop / Tablet Right Header Controls */}
       <div className="flex items-center gap-2.5 justify-end">
         
+        {/* Active Organization Switcher / Onboarding Dropdown */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => {
+              setIsOrgDropdownOpen(!isOrgDropdownOpen);
+              setIsProfileMenuOpen(false);
+            }}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-750 transition shadow-xs cursor-pointer"
+            title="Switch Organization Workspace"
+          >
+            <div className="w-5 h-5 rounded-full bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center font-bold text-[10px]">
+              <Building2 className="w-3 h-3" />
+            </div>
+            <span className="text-xs font-bold text-neutral-900 dark:text-white truncate max-w-[120px] sm:max-w-[160px]">
+              {currentOrg?.name || 'Workspace'}
+            </span>
+            <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
+          </button>
+
+          {isOrgDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-xl py-2 z-50 animate-fade-in font-sans">
+              <div className="px-3.5 py-1.5 border-b border-neutral-100 dark:border-neutral-800">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-neutral-400">
+                  Select Organization:
+                </span>
+              </div>
+
+              <div className="max-h-48 overflow-y-auto p-1.5 space-y-1">
+                {(organizations || []).map(org => (
+                  <button
+                    key={org.id}
+                    type="button"
+                    onClick={() => {
+                      switchOrganization(org.id);
+                      setIsOrgDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
+                      currentOrg?.id === org.id 
+                        ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white font-bold'
+                        : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800/60'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <Building2 className="w-3.5 h-3.5 shrink-0 text-neutral-500" />
+                      <span className="truncate">{org.name}</span>
+                    </div>
+                    {currentOrg?.id === org.id && (
+                      <span className="w-2 h-2 rounded-full bg-neutral-900 dark:bg-white shrink-0"></span>
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              <div className="p-2 border-t border-neutral-100 dark:border-neutral-800">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsOrgDropdownOpen(false);
+                    setIsOrgWizardOpen(true);
+                  }}
+                  className="w-full py-2 px-3 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm hover:opacity-95 transition cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>+ Setup New Organization</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Quick Check-In CTA Button (sm and up) */}
         <button
           type="button"
           onClick={() => setIsCheckInOpen(true)}
-          className="hidden sm:flex px-4 py-2 rounded-full bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-950 text-xs font-bold items-center gap-1.5 transition-all active:scale-95 shadow-md shrink-0"
+          className="hidden sm:flex px-4 py-2 rounded-full bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-950 text-xs font-bold items-center gap-1.5 transition-all active:scale-95 shadow-md shrink-0 cursor-pointer"
         >
           <UserPlus className="w-3.5 h-3.5 text-neutral-300 dark:text-neutral-700" />
           <span>+ Check In Guest</span>
@@ -144,8 +222,11 @@ export const Header = () => {
           {currentUser ? (
             <button
               type="button"
-              onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-              className="flex items-center gap-2 pl-2 pr-3 py-1 rounded-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-750 transition shadow-xs"
+              onClick={() => {
+                setIsProfileMenuOpen(!isProfileMenuOpen);
+                setIsOrgDropdownOpen(false);
+              }}
+              className="flex items-center gap-2 pl-2 pr-3 py-1 rounded-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-750 transition shadow-xs cursor-pointer"
             >
               <div className="relative">
                 <img 
@@ -153,7 +234,7 @@ export const Header = () => {
                   alt={currentUser.fullName} 
                   className="w-7 h-7 rounded-full object-cover ring-2 ring-neutral-900 dark:ring-white"
                 />
-                <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-neutral-900 dark:bg-white"></span>
               </div>
               <div className="text-left hidden sm:block">
                 <p className="text-xs font-bold text-neutral-900 dark:text-white leading-none truncate max-w-[100px]">
@@ -169,7 +250,7 @@ export const Header = () => {
             <button
               type="button"
               onClick={() => setIsLoginModalOpen(true)}
-              className="px-3 py-1.5 rounded-full border border-neutral-300 dark:border-neutral-700 text-xs font-bold text-neutral-900 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-full border border-neutral-300 dark:border-neutral-700 text-xs font-bold text-neutral-900 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition flex items-center gap-1.5 cursor-pointer"
             >
               <LogIn className="w-3.5 h-3.5" />
               <span>Sign In</span>
@@ -178,7 +259,7 @@ export const Header = () => {
 
           {/* Profile Dropdown Menu */}
           {isProfileMenuOpen && currentUser && (
-            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-xl py-2 z-50 animate-fadeIn font-sans">
+            <div className="absolute right-0 mt-2 w-60 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-xl py-2 z-50 animate-fade-in font-sans">
               <div className="px-4 py-2 border-b border-neutral-100 dark:border-neutral-800">
                 <p className="text-xs font-bold text-neutral-900 dark:text-white truncate">
                   {currentUser.fullName}
@@ -186,38 +267,43 @@ export const Header = () => {
                 <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
                   {currentUser.email}
                 </p>
-                <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[10px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
-                  Role: {currentUser.role}
-                </span>
+                <div className="flex items-center gap-1.5 mt-1.5">
+                  <span className="px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[10px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
+                    {currentUser.role}
+                  </span>
+                  <span className="text-[10px] text-neutral-500 truncate">
+                    {currentUser.desk_location || 'Desk'}
+                  </span>
+                </div>
               </div>
 
               <div className="px-2 py-1.5 border-b border-neutral-100 dark:border-neutral-800">
                 <p className="px-2 py-1 text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
-                  Switch Role:
+                  Switch Active Role:
                 </p>
                 <button
                   type="button"
                   onClick={() => { switchUserRole('admin'); setIsProfileMenuOpen(false); }}
-                  className="w-full text-left px-2 py-1 rounded-lg text-xs font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-between"
+                  className="w-full text-left px-2 py-1 rounded-lg text-xs font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-between cursor-pointer"
                 >
-                  <span>👑 Admin</span>
+                  <span>👑 Administrator</span>
                   {currentUser.role === 'admin' && <UserCheck className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />}
                 </button>
                 <button
                   type="button"
-                  onClick={() => { switchUserRole('security'); setIsProfileMenuOpen(false); }}
-                  className="w-full text-left px-2 py-1 rounded-lg text-xs font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-between"
+                  onClick={() => { switchUserRole('reception'); setIsProfileMenuOpen(false); }}
+                  className="w-full text-left px-2 py-1 rounded-lg text-xs font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-between cursor-pointer"
                 >
-                  <span>🛡️ Security Guard</span>
-                  {currentUser.role === 'security' && <UserCheck className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />}
+                  <span>📋 Receptionist Desk</span>
+                  {currentUser.role === 'reception' && <UserCheck className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />}
                 </button>
                 <button
                   type="button"
-                  onClick={() => { switchUserRole('reception'); setIsProfileMenuOpen(false); }}
-                  className="w-full text-left px-2 py-1 rounded-lg text-xs font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-between"
+                  onClick={() => { switchUserRole('security'); setIsProfileMenuOpen(false); }}
+                  className="w-full text-left px-2 py-1 rounded-lg text-xs font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-between cursor-pointer"
                 >
-                  <span>📋 Reception Desk</span>
-                  {currentUser.role === 'reception' && <UserCheck className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />}
+                  <span>🛡️ Security Guard</span>
+                  {currentUser.role === 'security' && <UserCheck className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />}
                 </button>
               </div>
 
@@ -225,7 +311,7 @@ export const Header = () => {
                 <button
                   type="button"
                   onClick={() => { setIsProfileMenuOpen(false); setIsLoginModalOpen(true); }}
-                  className="w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2"
+                  className="w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 cursor-pointer"
                 >
                   <LogIn className="w-3.5 h-3.5 text-neutral-500" />
                   <span>Switch Account</span>
@@ -233,7 +319,7 @@ export const Header = () => {
                 <button
                   type="button"
                   onClick={() => { setIsProfileMenuOpen(false); logout(); }}
-                  className="w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold text-neutral-900 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2"
+                  className="w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold text-neutral-900 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center gap-2 cursor-pointer"
                 >
                   <LogOut className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />
                   <span>Sign Out</span>

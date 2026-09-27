@@ -5,6 +5,8 @@ import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { QuickCheckInModal } from './components/QuickCheckInModal';
 import { VisitorPassModal } from './components/VisitorPassModal';
+import { VisitorDetailsDrawer } from './components/VisitorDetailsDrawer';
+import { OrgSetupWizardModal } from './components/OrgSetupWizardModal';
 import { CommandPalette } from './components/CommandPalette';
 import { LoginModal } from './components/LoginModal';
 import { LiveTrackerView } from './views/LiveTrackerView';
@@ -42,6 +44,8 @@ const MainLayout = () => {
       {/* Modals & Overlays */}
       <QuickCheckInModal />
       <VisitorPassModal />
+      <VisitorDetailsDrawer />
+      <OrgSetupWizardModal />
       <CommandPalette />
       <LoginModal />
     </div>
@@ -57,4 +61,3 @@ export default function App() {
     </AuthProvider>
   );
 }
-

@@ -42,6 +42,16 @@ export const AnalyticsView = () => {
         }
       });
     }
+    if (timeRange === 'month') {
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      return visitors.filter(v => {
+        try {
+          return new Date(v.checkInTime) >= thirtyDaysAgo;
+        } catch {
+          return true;
+        }
+      });
+    }
     return visitors;
   }, [visitors, timeRange]);
 
@@ -166,6 +176,17 @@ export const AnalyticsView = () => {
             </button>
             <button
               type="button"
+              onClick={() => setTimeRange('month')}
+              className={`px-3 py-1.5 rounded-full font-extrabold transition whitespace-nowrap shrink-0 ${
+                timeRange === 'month'
+                  ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-md'
+                  : 'text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white'
+              }`}
+            >
+              This Month
+            </button>
+            <button
+              type="button"
               onClick={() => setTimeRange('week')}
               className={`px-3 py-1.5 rounded-full font-extrabold transition whitespace-nowrap shrink-0 ${
                 timeRange === 'week'
@@ -173,7 +194,7 @@ export const AnalyticsView = () => {
                   : 'text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white'
               }`}
             >
-              Past 7 Days
+              This Week
             </button>
             <button
               type="button"
@@ -204,7 +225,7 @@ export const AnalyticsView = () => {
         {/* KPI 1: Total Visitors */}
         <div className="p-5 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-3">
           <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400 font-bold">
-            <span className="text-xs uppercase tracking-wider">Total Visitors</span>
+            <span className="text-xs uppercase tracking-wider">Total Visitors Today</span>
             <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white flex items-center justify-center">
               <Users className="w-4 h-4" />
             </div>
@@ -217,7 +238,7 @@ export const AnalyticsView = () => {
         {/* KPI 2: Active Now */}
         <div className="p-5 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-3">
           <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400 font-bold">
-            <span className="text-xs uppercase tracking-wider">On-Premises Now</span>
+            <span className="text-xs uppercase tracking-wider">Currently Inside</span>
             <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white flex items-center justify-center">
               <Clock className="w-4 h-4" />
             </div>
@@ -229,23 +250,23 @@ export const AnalyticsView = () => {
 
         {/* KPI 3: Overdue Alerts */}
         <div className={`p-5 rounded-3xl border shadow-sm space-y-3 ${
-          overdueCount > 0 ? 'bg-rose-100/80 dark:bg-rose-950/60 text-rose-900 dark:text-rose-200 border-transparent' : 'bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800'
+          overdueCount > 0 ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-transparent' : 'bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800'
         }`}>
-          <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400 font-bold">
-            <span className="text-xs uppercase tracking-wider">Overdue</span>
-            <div className="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 flex items-center justify-center">
+          <div className={`flex items-center justify-between font-bold ${overdueCount > 0 ? 'text-neutral-300 dark:text-neutral-700' : 'text-neutral-600 dark:text-neutral-400'}`}>
+            <span className="text-xs uppercase tracking-wider">Overdue Guests</span>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${overdueCount > 0 ? 'bg-white/10 dark:bg-black/10 text-white dark:text-neutral-900' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white'}`}>
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
           <div>
-            <div className="text-3xl font-black text-rose-600 dark:text-rose-400 tracking-tight">{overdueCount}</div>
+            <div className={`text-3xl font-black tracking-tight ${overdueCount > 0 ? 'text-white dark:text-neutral-900' : 'text-neutral-900 dark:text-white'}`}>{overdueCount}</div>
           </div>
         </div>
 
         {/* KPI 4: Average Stay Duration */}
         <div className="p-5 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-3">
           <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400 font-bold">
-            <span className="text-xs uppercase tracking-wider">Average Stay</span>
+            <span className="text-xs uppercase tracking-wider">Avg Stay Duration</span>
             <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
@@ -263,7 +284,7 @@ export const AnalyticsView = () => {
           <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
             <h3 className="text-sm font-extrabold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
               <Building className="w-4 h-4" />
-              <span>Department Distribution</span>
+              <span>Department Traffic Distribution</span>
             </h3>
             <span className="text-[11px] font-bold text-neutral-400 uppercase">Share %</span>
           </div>
@@ -339,10 +360,10 @@ export const AnalyticsView = () => {
           <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
             <h3 className="text-sm font-extrabold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
               <Sun className="w-4 h-4" />
-              <span>Peak Hours Traffic Distribution</span>
+              <span>Hourly Check-In Volume</span>
             </h3>
             <span className="px-3 py-1 rounded-full text-[10px] font-extrabold bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white">
-              Peak: {peakTimeWindow.label.split(' ')[0]}
+              Peak Arrival Hour: {peakTimeWindow.label.split(' ')[0]}
             </span>
           </div>
 
@@ -354,7 +375,7 @@ export const AnalyticsView = () => {
                 <div key={windowLabel} className="space-y-1">
                   <div className="flex justify-between text-xs font-bold">
                     <span className="flex items-center gap-1.5 text-neutral-900 dark:text-white">
-                      {isPeak && <ArrowUpRight className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+                      {isPeak && <ArrowUpRight className="w-3.5 h-3.5 text-neutral-900 dark:text-white" />}
                       <span>{windowLabel}</span>
                     </span>
                     <span className="text-neutral-600 dark:text-neutral-400">{count} check-ins ({pct}%)</span>
@@ -378,7 +399,7 @@ export const AnalyticsView = () => {
           <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
             <h3 className="text-sm font-extrabold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
               <ShieldCheck className="w-4 h-4" />
-              <span>Identity Verification & Credential Types</span>
+              <span>Status Breakdown & Identity Verification</span>
             </h3>
             <span className="px-3 py-1 rounded-full text-[10px] font-extrabold bg-neutral-950 dark:bg-white text-white dark:text-neutral-950">
               {idComplianceRate}% VERIFIED

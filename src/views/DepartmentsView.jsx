@@ -64,7 +64,7 @@ export const DepartmentsView = () => {
 
         <div className="flex items-center gap-3 overflow-x-auto whitespace-nowrap">
           <div className="px-4 py-2 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white text-xs font-bold flex items-center gap-2 whitespace-nowrap shrink-0">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-neutral-900 dark:bg-white animate-pulse shrink-0" />
             <span className="whitespace-nowrap">{totalGuestsOnPremises} Guests On-Premises</span>
           </div>
 
@@ -142,13 +142,13 @@ export const DepartmentsView = () => {
                           {dept.code}
                         </span>
                         {onPremisesDeptGuests.length > 0 ? (
-                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 shrink-0">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            <span>{onPremisesDeptGuests.length} On-Premises</span>
+                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5 shrink-0">
+                            <span className="w-1.5 h-1.5 rounded-full bg-neutral-900 dark:bg-white animate-pulse" />
+                            <span>{onPremisesDeptGuests.length} Active Guests</span>
                           </span>
                         ) : (
                           <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 shrink-0">
-                            0 On-Premises
+                            0 Active Guests
                           </span>
                         )}
                       </div>
@@ -166,9 +166,9 @@ export const DepartmentsView = () => {
 
                   {/* Overdue Warning Pill if any */}
                   {overdueDeptGuests.length > 0 && (
-                    <div className="p-3 rounded-2xl bg-rose-100/70 dark:bg-rose-950/70 text-rose-900 dark:text-rose-200 text-xs font-bold flex items-center justify-between">
+                    <div className="p-3 rounded-2xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
-                        <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                        <ShieldAlert className="w-4 h-4 text-white dark:text-neutral-900 shrink-0" />
                         <span>{overdueDeptGuests.length} Overdue Escort Alert</span>
                       </span>
                       <button
@@ -191,6 +191,7 @@ export const DepartmentsView = () => {
                     </div>
                     <div className="text-xs font-extrabold text-neutral-900 dark:text-white flex items-center justify-between">
                       <span>{dept.head}</span>
+                      <span className="text-[10px] text-neutral-500 font-semibold">Ext. #{dept.code}01</span>
                     </div>
                   </div>
 
@@ -226,8 +227,8 @@ export const DepartmentsView = () => {
 
                             {/* Host Status Indicator */}
                             {isHostingNow ? (
-                              <span className="shrink-0 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                              <span className="shrink-0 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-white dark:bg-neutral-900 animate-pulse" />
                                 <span>{hostActiveVisitors.length} Checked-In</span>
                               </span>
                             ) : (
@@ -254,7 +255,7 @@ export const DepartmentsView = () => {
                   >
                     <span className="flex items-center gap-2">
                       <Users className="w-3.5 h-3.5 text-neutral-500" />
-                      <span>View {dept.code} Log Entries ({deptVisitors.length})</span>
+                      <span>View Department Visitors ({deptVisitors.length})</span>
                     </span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
