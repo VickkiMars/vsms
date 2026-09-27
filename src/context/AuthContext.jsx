@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         setOrganizations([]);
         setCurrentOrg(null);
-        setIsOrgWizardOpen(true);
+        // Landing page handles the no-org state; wizard opens via CTA
       }
 
       const dbUsers = sqliteService.getAllUsers();
