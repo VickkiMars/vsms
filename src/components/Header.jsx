@@ -12,7 +12,9 @@ import {
   ShieldCheck,
   Building2,
   Plus,
-  Sparkles
+  Sparkles,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 
 export const Header = () => {
@@ -27,7 +29,10 @@ export const Header = () => {
     toggleTheme,
     setIsCmdKOpen,
     setIsCheckInOpen, 
-    setIsMobileMenuOpen 
+    setIsMobileMenuOpen,
+    isAudioMuted,
+    toggleAudioMute,
+    testAlertSound
   } = useVisitorContext();
 
   const { 
@@ -210,6 +215,29 @@ export const Header = () => {
             </div>
           )}
         </div>
+
+        {/* Desk Audio Alert Mute/Unmute Button */}
+        <button
+          type="button"
+          onClick={toggleAudioMute}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            testAlertSound();
+          }}
+          className={`p-2 rounded-full border transition cursor-pointer shadow-xs flex items-center justify-center ${
+            isAudioMuted
+              ? 'bg-neutral-100 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200'
+              : 'bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-750'
+          }`}
+          title={isAudioMuted ? 'Desk audio alerts muted (Click to unmute)' : 'Desk audio alerts active (Click to mute, right-click to test)'}
+          aria-label={isAudioMuted ? 'Unmute desk alerts' : 'Mute desk alerts'}
+        >
+          {isAudioMuted ? (
+            <VolumeX className="w-4 h-4 text-neutral-400" />
+          ) : (
+            <Volume2 className="w-4 h-4 text-neutral-800 dark:text-neutral-200" />
+          )}
+        </button>
 
         {/* Quick Check-In CTA Button (sm and up) */}
         <button

@@ -15,7 +15,10 @@ import {
   X, 
   ShieldCheck, 
   ShieldAlert,
-  Eye
+  Eye,
+  AlertTriangle,
+  BellRing,
+  BellOff
 } from 'lucide-react';
 
 export const LiveTrackerView = () => {
@@ -28,7 +31,11 @@ export const LiveTrackerView = () => {
     setIsCheckInOpen,
     globalSearchQuery,
     selectedDeptFilter,
-    exportToCSV
+    exportToCSV,
+    acknowledgeOverstay,
+    acknowledgedOverstayIds,
+    isAudioMuted,
+    toggleAudioMute
   } = useVisitorContext();
 
   const { currentUser, currentOrg, setIsOrgWizardOpen } = useAuthContext();
@@ -60,6 +67,14 @@ export const LiveTrackerView = () => {
     const mins = diffMins % 60;
     if (hours > 0) return `${hours}h ${mins}m`;
     return `${mins}m`;
+  };
+
+  const getOverdueMinutes = (visitor) => {
+    const start = new Date(visitor.checkInTime).getTime();
+    if (isNaN(start)) return 0;
+    const maxMins = parseInt(visitor.expectedDurationMinutes, 10) || 60;
+    const elapsedMins = Math.floor(Math.max(0, now - start) / (1000 * 60));
+    return Math.max(0, elapsedMins - maxMins);
   };
 
   const activeVisitors = visitors.filter(v => {
@@ -230,6 +245,43 @@ export const LiveTrackerView = () => {
         </div>
       </div>
 
+      {/* Overdue Visitors Alert Banner */}
+      {overdueCount > 0 && (
+        <div 
+          role="alert"
+          className="p-4 rounded-3xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-900/60 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-fade-in"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 flex items-center justify-center shrink-0 shadow-xs">
+              <BellRing className="w-5 h-5 text-rose-500 animate-pulse" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-extrabold text-neutral-950 dark:text-white">
+                  {overdueCount} Visitor{overdueCount > 1 ? 's' : ''} Exceeded Authorized Stay
+                </h3>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-200 dark:bg-rose-900 text-rose-900 dark:text-rose-100">
+                  Overstay Alert
+                </span>
+              </div>
+              <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-0.5 font-medium">
+                Audible chime alert triggered. Escort required or acknowledge alarms below.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={toggleAudioMute}
+              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+            >
+              {isAudioMuted ? <BellRing className="w-3.5 h-3.5" /> : <BellOff className="w-3.5 h-3.5" />}
+              <span>{isAudioMuted ? 'Unmute Audio' : 'Mute Chime'}</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Security Summary Cards Section */}
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
@@ -311,7 +363,11 @@ export const LiveTrackerView = () => {
               return (
                 <div 
                   key={v.id} 
-                  className="p-5 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-4 relative flex flex-col justify-between"
+                  className={`p-5 rounded-3xl transition-all shadow-sm space-y-4 relative flex flex-col justify-between ${
+                    isOverdue
+                      ? 'bg-rose-50/20 dark:bg-rose-950/15 border-2 border-rose-500/70 dark:border-rose-500/50 ring-1 ring-rose-500/20'
+                      : 'bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800'
+                  }`}
                 >
                   <div className="space-y-4">
                     <div className="flex items-start justify-between">
@@ -371,25 +427,49 @@ export const LiveTrackerView = () => {
                         <span className="font-semibold">Duration Inside:</span>
                         <strong className="text-neutral-900 dark:text-white font-extrabold flex items-center gap-1">
                           <Clock className="w-3.5 h-3.5 text-neutral-700 dark:text-neutral-300" />
-                          {duration}
+                          <span>{duration}</span>
+                          {isOverdue && (
+                            <span className="ml-1 px-1.5 py-0.5 rounded text-[10px] bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300 font-extrabold flex items-center gap-0.5">
+                              <AlertTriangle className="w-3 h-3" />
+                              +{getOverdueMinutes(v)}m
+                            </span>
+                          )}
                         </strong>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-1">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
-                      isOverdue 
-                        ? 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300' 
-                        : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white'
-                    }`}>
-                      {v.badgeId} • {v.status}
-                    </span>
+                  <div className="flex items-center justify-between pt-1 gap-2 flex-wrap">
+                    <div className="flex items-center gap-1.5">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                        isOverdue 
+                          ? 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300' 
+                          : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white'
+                      }`}>
+                        {v.badgeId} • {v.status}
+                      </span>
+                      {isOverdue && !acknowledgedOverstayIds?.has(v.id) && (
+                        <button
+                          type="button"
+                          onClick={() => acknowledgeOverstay(v.id)}
+                          className="px-2 py-0.5 rounded-full bg-rose-200 dark:bg-rose-900/80 hover:bg-rose-300 dark:hover:bg-rose-800 text-rose-900 dark:text-rose-100 text-[10px] font-bold flex items-center gap-1 transition cursor-pointer"
+                          title="Acknowledge and silence alert for this guest"
+                        >
+                          <BellOff className="w-3 h-3" />
+                          <span>Mute</span>
+                        </button>
+                      )}
+                      {isOverdue && acknowledgedOverstayIds?.has(v.id) && (
+                        <span className="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 italic">
+                          Muted
+                        </span>
+                      )}
+                    </div>
 
                     <button
                       type="button"
                       onClick={() => handleCheckOut(v)}
-                      className="px-3.5 py-1.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold shadow-md flex items-center gap-1.5 transition active:scale-95 cursor-pointer hover:opacity-90"
+                      className="px-3.5 py-1.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold shadow-md flex items-center gap-1.5 transition active:scale-95 cursor-pointer hover:opacity-90 ml-auto"
                     >
                       <LogOut className="w-3.5 h-3.5" />
                       <span>Check Out</span>
