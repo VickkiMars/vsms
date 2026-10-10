@@ -95,12 +95,14 @@ export const QuickCheckInModal = () => {
       };
 
       (activeFields || []).forEach(f => {
-        if (f.field_key === 'purpose') {
-          initial[f.field_key] = '';
-        } else if (f.field_type === 'checkbox') {
+        const resolvedOptions = Array.isArray(f.options) && f.options.length > 0
+          ? f.options
+          : (f.options_json ? (() => { try { return JSON.parse(f.options_json); } catch { return []; } })() : []);
+
+        if (f.field_type === 'checkbox') {
           initial[f.field_key] = false;
-        } else if (f.field_type === 'select') {
-          initial[f.field_key] = (f.options && f.options.length > 0) ? f.options[0] : '';
+        } else if (f.field_type === 'select' || f.field_type === 'radio' || f.field_type === 'multiple_choice') {
+          initial[f.field_key] = (resolvedOptions && resolvedOptions.length > 0) ? resolvedOptions[0] : '';
         } else if (f.field_type === 'host_picker') {
           const defaultHost = hosts?.[0]?.name || '';
           initial[f.field_key] = defaultHost;
@@ -381,24 +383,54 @@ export const QuickCheckInModal = () => {
                   );
                 }
 
-                // 2. Purpose of Visit (Typed Text Field)
-                if (field.field_key === 'purpose') {
+                // 2. Multiple Choice Type (Radio Buttons / Choice Group)
+                if (field.field_type === 'radio' || field.field_type === 'multiple_choice') {
+                  const opts = Array.isArray(field.options) && field.options.length > 0
+                    ? field.options
+                    : (field.options_json ? (() => { try { return JSON.parse(field.options_json); } catch { return []; } })() : []);
+
                   return (
-                    <div key={field.id || field.field_key} className="space-y-1">
-                      <label className="block text-neutral-900 dark:text-white font-extrabold text-xs mb-1">
-                        {field.field_name || 'Purpose of Visit'} {isRequired && <span className="text-neutral-500 font-bold">*</span>}
+                    <div key={field.id || field.field_key} className="sm:col-span-2 space-y-2">
+                      <label className="block text-neutral-900 dark:text-white font-extrabold text-xs">
+                        {field.field_name} {isRequired && <span className="text-neutral-500 font-bold">*</span>}
                       </label>
-                      <input
-                        type="text"
-                        name="purpose"
-                        placeholder={field.placeholder || 'e.g. Official Meeting / Site Visit'}
-                        value={formData.purpose || ''}
-                        onChange={(e) => handleFieldChange('purpose', e.target.value)}
-                        onBlur={() => handleBlur('purpose')}
-                        className={`w-full px-3.5 py-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800 border text-xs font-bold text-neutral-900 dark:text-white focus:outline-none transition ${
-                          fieldError ? 'border-neutral-900 dark:border-white ring-1 ring-neutral-900 dark:ring-white' : 'border-neutral-200 dark:border-neutral-700'
-                        }`}
-                      />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" role="radiogroup" aria-label={field.field_name}>
+                        {opts.map((opt, i) => {
+                          const isSelected = formData[field.field_key] === opt;
+                          return (
+                            <label
+                              key={i}
+                              className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                                isSelected
+                                  ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 border-neutral-900 dark:border-white shadow-sm'
+                                  : 'bg-neutral-50/70 dark:bg-neutral-800/40 text-neutral-800 dark:text-neutral-200 border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                              }`}
+                            >
+                              <input
+                                type="radio"
+                                name={field.field_key}
+                                value={opt}
+                                checked={isSelected}
+                                onChange={() => handleFieldChange(field.field_key, opt)}
+                                onBlur={() => handleBlur(field.field_key)}
+                                className="sr-only"
+                              />
+                              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                                isSelected 
+                                  ? 'border-white dark:border-neutral-950' 
+                                  : 'border-neutral-400 dark:border-neutral-500'
+                              }`}>
+                                {isSelected && (
+                                  <div className="w-2 h-2 rounded-full bg-white dark:bg-neutral-950" />
+                                )}
+                              </div>
+                              <span className="text-xs font-bold leading-tight select-none">
+                                {opt}
+                              </span>
+                            </label>
+                          );
+                        })}
+                      </div>
                       {fieldError && (
                         <span className="text-[11px] text-neutral-900 dark:text-neutral-100 font-extrabold flex items-center gap-1 mt-1">
                           <AlertCircle className="w-3 h-3" />
@@ -410,7 +442,11 @@ export const QuickCheckInModal = () => {
                 }
 
                 // 3. Select Dropdown Type
-                if (field.field_type === 'select' && field.field_key !== 'purpose') {
+                if (field.field_type === 'select') {
+                  const opts = Array.isArray(field.options) && field.options.length > 0
+                    ? field.options
+                    : (field.options_json ? (() => { try { return JSON.parse(field.options_json); } catch { return []; } })() : []);
+
                   return (
                     <div key={field.id || field.field_key} className="space-y-1">
                       <label className="block text-neutral-900 dark:text-white font-extrabold text-xs mb-1">
@@ -425,7 +461,7 @@ export const QuickCheckInModal = () => {
                           fieldError ? 'border-neutral-900 dark:border-white ring-1 ring-neutral-900 dark:ring-white' : 'border-neutral-200 dark:border-neutral-700'
                         }`}
                       >
-                        {(field.options || []).map((opt, i) => (
+                        {opts.map((opt, i) => (
                           <option key={i} value={opt}>{opt}</option>
                         ))}
                       </select>

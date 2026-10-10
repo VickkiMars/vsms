@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useVisitorContext } from '../context/VisitorContext';
 import { useAuthContext } from '../context/AuthContext';
-import { sqliteService } from '../db/sqliteDb';
+import { supabaseService } from '../db/supabaseService';
 import { 
   Settings, 
   ShieldCheck, 
@@ -34,6 +34,7 @@ const AVAILABLE_FIELD_TYPES = [
   { value: 'number', label: 'Numeric Value' },
   { value: 'email', label: 'Email Address' },
   { value: 'select', label: 'Dropdown Selector' },
+  { value: 'radio', label: 'Multiple Choice (Radio)' },
   { value: 'checkbox', label: 'Boolean Checkbox' },
   { value: 'textarea', label: 'Multi-line Notes' },
   { value: 'date', label: 'Date / Time' },
@@ -103,11 +104,13 @@ export const SettingsView = () => {
     refreshSqliteStats();
   }, [visitors, users, currentOrg]);
 
-  const refreshSqliteStats = () => {
-    sqliteService.initPromise.then(() => {
-      setDbCounts(sqliteService.getTableRowCounts(currentOrg?.id));
-      setAuditLogs(sqliteService.getAuditLogs(currentOrg?.id));
-    });
+  const refreshSqliteStats = async () => {
+    const [counts, logs] = await Promise.all([
+      supabaseService.getTableRowCounts(currentOrg?.id),
+      supabaseService.getAuditLogs(currentOrg?.id),
+    ]);
+    setDbCounts(counts);
+    setAuditLogs(logs);
   };
 
   // Form Builder Handlers
@@ -168,9 +171,9 @@ export const SettingsView = () => {
     const cleanKey = newFieldDraft.field_name.toLowerCase().replace(/[^a-z0-9]/g, '_');
     
     let parsedOptions = [];
-    if (newFieldDraft.field_type === 'select') {
+    if (newFieldDraft.field_type === 'select' || newFieldDraft.field_type === 'radio') {
       parsedOptions = newFieldDraft.optionsInput.split(',').map(s => s.trim()).filter(Boolean);
-      if (!parsedOptions.length) parsedOptions = ['Standard', 'Other'];
+      if (!parsedOptions.length) parsedOptions = ['Option 1', 'Option 2'];
     }
 
     const canShowInTable = newFieldDraft.show_in_table && currentTableSlotCount < 5;
@@ -235,18 +238,8 @@ export const SettingsView = () => {
   };
 
   const handleExportSqliteDb = () => {
-    const bin = sqliteService.exportDatabaseBinary();
-    if (!bin) return;
-    const blob = new Blob([bin], { type: 'application/x-sqlite3' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${currentOrg?.slug || 'vsms'}_database_backup_${new Date().toISOString().slice(0, 10)}.sqlite`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setSaveMessage('System database backup exported successfully.');
-    setTimeout(() => setSaveMessage(''), 3500);
+    setSaveMessage('Database export is managed via Supabase — use the Supabase dashboard to export data.');
+    setTimeout(() => setSaveMessage(''), 4000);
   };
 
   const handleConfirmReset = () => {
@@ -547,9 +540,11 @@ export const SettingsView = () => {
                     </select>
                   </div>
 
-                  {newFieldDraft.field_type === 'select' && (
+                  {(newFieldDraft.field_type === 'select' || newFieldDraft.field_type === 'radio') && (
                     <div className="sm:col-span-2">
-                      <label className="block font-semibold mb-1">Dropdown Options (Comma separated)</label>
+                      <label className="block font-semibold mb-1">
+                        {newFieldDraft.field_type === 'radio' ? 'Multiple Choice Options (Comma separated)' : 'Dropdown Options (Comma separated)'}
+                      </label>
                       <input 
                         type="text"
                         placeholder="Option 1, Option 2, Option 3"

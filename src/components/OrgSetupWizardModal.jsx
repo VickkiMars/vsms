@@ -38,7 +38,8 @@ const AVAILABLE_FIELD_TYPES = [
   { value: 'text', label: 'Single-line Text', desc: 'Short text such as company, title, or vehicle model' },
   { value: 'number', label: 'Numeric Value', desc: 'Numbers such as duration, quantity, or pass counter' },
   { value: 'email', label: 'Email Address', desc: 'Valid email format with automatic validation' },
-  { value: 'select', label: 'Dropdown Selector', desc: 'Predefined options for category, visitor type, etc.' },
+  { value: 'select', label: 'Dropdown Selector', desc: 'Predefined dropdown menu options' },
+  { value: 'radio', label: 'Multiple Choice (Radio)', desc: 'Predefined radio options (select one)' },
   { value: 'checkbox', label: 'Boolean Toggle / Checkbox', desc: 'Yes/No consent, NDA agreement, or escort needed' },
   { value: 'textarea', label: 'Multi-line Notes', desc: 'Special security remarks or instructions' },
   { value: 'date', label: 'Date / Time', desc: 'Scheduled appointment or clearance expiry' },
@@ -52,10 +53,7 @@ export const OrgSetupWizardModal = () => {
     setIsOrgWizardOpen, 
     createOrganizationWithAdmin 
   } = useAuthContext();
-  // setOrgFields no longer called here; VisitorContext reloads from SQLite
-  // automatically when currentOrgId changes after createOrganizationWithAdmin
-  // calls setCurrentOrg(newOrg). This keeps SQLite as the single source of
-  // truth for the field schema (Fix 1 — Wound 1).
+  const { setOrgFields } = useVisitorContext();
 
   const [step, setStep] = useState(1);
   const [copiedIndex, setCopiedIndex] = useState(null);
@@ -201,9 +199,15 @@ export const OrgSetupWizardModal = () => {
   };
 
   const handleChangeFieldType = (fieldId, newType) => {
-    setFields(prev => prev.map(f =>
-      f.id === fieldId ? { ...f, field_type: newType } : f
-    ));
+    setFields(prev => prev.map(f => {
+      if (f.id !== fieldId) return f;
+      const updated = { ...f, field_type: newType };
+      if ((newType === 'select' || newType === 'radio') && (!updated.options || updated.options.length === 0)) {
+        updated.options = ['Option 1', 'Option 2'];
+        updated.options_json = JSON.stringify(updated.options);
+      }
+      return updated;
+    }));
   };
 
   const handleCreateField = () => {
@@ -214,12 +218,12 @@ export const OrgSetupWizardModal = () => {
     const cleanKey = newFieldDraft.field_name.toLowerCase().replace(/[^a-z0-9]/g, '_');
     
     let parsedOptions = [];
-    if (newFieldDraft.field_type === 'select') {
+    if (newFieldDraft.field_type === 'select' || newFieldDraft.field_type === 'radio') {
       parsedOptions = newFieldDraft.optionsInput
         .split(',')
         .map(o => o.trim())
         .filter(Boolean);
-      if (parsedOptions.length === 0) parsedOptions = ['Standard', 'Other'];
+      if (parsedOptions.length === 0) parsedOptions = ['Option 1', 'Option 2'];
     }
 
     if (newFieldDraft.show_in_table && currentTableSlotCount >= 5) {
@@ -364,9 +368,9 @@ export const OrgSetupWizardModal = () => {
         receptionists: receptionists
       });
 
-      // Fields are already persisted to SQLite inside createOrganizationWithAdmin.
-      // VisitorContext's useEffect([currentOrgId]) will reload them from SQLite
-      // automatically when currentOrg changes — no manual setOrgFields needed.
+      if (setOrgFields) {
+        setOrgFields(fields);
+      }
 
       // Celebration Confetti (Monochrome)
       try {
@@ -813,10 +817,10 @@ export const OrgSetupWizardModal = () => {
                       </select>
                     </div>
 
-                    {newFieldDraft.field_type === 'select' && (
+                    {(newFieldDraft.field_type === 'select' || newFieldDraft.field_type === 'radio') && (
                       <div className="sm:col-span-2 space-y-1.5">
                         <label className="font-semibold text-neutral-700 dark:text-neutral-300">
-                          Dropdown Options (Comma separated)
+                          {newFieldDraft.field_type === 'radio' ? 'Multiple Choice Options (Comma separated)' : 'Dropdown Options (Comma separated)'}
                         </label>
                         <input 
                           type="text"

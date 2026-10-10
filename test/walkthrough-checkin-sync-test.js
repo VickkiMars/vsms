@@ -38,7 +38,7 @@ assert.ok(
 );
 
 // Check C: All Walkthrough field types supported in QuickCheckInModal
-const expectedTypes = ['host_picker', 'select', 'checkbox', 'textarea', 'number', 'phone', 'photo'];
+const expectedTypes = ['host_picker', 'select', 'radio', 'checkbox', 'textarea', 'number', 'phone', 'photo'];
 expectedTypes.forEach(type => {
   assert.ok(
     quickCheckInContent.includes(type),

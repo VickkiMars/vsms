@@ -1,6 +1,6 @@
 import initSqlJs from 'sql.js';
-import { INITIAL_VISITORS, DEPARTMENTS, HOSTS } from '../data/initialData';
-import { supabase } from './supabaseClient';
+import { INITIAL_VISITORS, DEPARTMENTS, HOSTS } from '../data/initialData.js';
+import { supabase } from './supabaseClient.js';
 
 // Storage key for persisting SQLite DB binary in LocalStorage
 const SQLITE_STORAGE_KEY = 'vsms_sqlite_db_bin_v4';
@@ -111,6 +111,14 @@ export const DEFAULT_ORG_FIELDS = [
       'Corporate Staff ID',
       'Other'
     ]),
+    options: [
+      'National Identity Card (NIN)',
+      'Driver’s License',
+      'International Passport',
+      'Work Permit',
+      'Corporate Staff ID',
+      'Other'
+    ],
     placeholder: 'Select ID type',
     display_order: 7,
     is_baseline: 0
@@ -289,17 +297,6 @@ class SQLiteService {
         is_baseline INTEGER NOT NULL DEFAULT 0
       );
     `);
-
-    // Ensure purpose field is migrated to a typed text input field
-    try {
-      this.db.run(`
-        UPDATE organization_fields 
-        SET field_type = 'text', options_json = NULL, placeholder = 'e.g. Official Meeting / Site Visit' 
-        WHERE field_key = 'purpose' AND field_type = 'select';
-      `);
-    } catch {
-      // Table may not have been created yet
-    }
 
     // 3. Users (with multi-tenant org_id and desk_location)
     this.db.run(`
@@ -608,11 +605,6 @@ class SQLiteService {
       const fields = [];
       while (stmt.step()) {
         const row = stmt.getAsObject();
-        if (row.field_key === 'purpose' && row.field_type === 'select') {
-          row.field_type = 'text';
-          row.options_json = null;
-          row.placeholder = row.placeholder || 'e.g. Official Meeting / Site Visit';
-        }
         if (row.options_json) {
           try {
             row.options = JSON.parse(row.options_json);
