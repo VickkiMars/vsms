@@ -18,7 +18,9 @@ import {
   Eye,
   AlertTriangle,
   BellRing,
-  BellOff
+  BellOff,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 
 export const LiveTrackerView = () => {
@@ -33,6 +35,7 @@ export const LiveTrackerView = () => {
     selectedDeptFilter,
     exportToCSV,
     acknowledgeOverstay,
+    acknowledgeAllOverstays,
     acknowledgedOverstayIds,
     isAudioMuted,
     toggleAudioMute
@@ -98,7 +101,10 @@ export const LiveTrackerView = () => {
   });
 
   const allActiveCount = visitors.filter(v => v.status !== 'Checked-Out').length;
-  const overdueCount = visitors.filter(v => v.status === 'Overdue').length;
+  const overdueVisitors = visitors.filter(v => v.status === 'Overdue');
+  const overdueCount = overdueVisitors.length;
+  const unacknowledgedOverdueVisitors = overdueVisitors.filter(v => !acknowledgedOverstayIds?.has(v.id));
+  const unacknowledgedCount = unacknowledgedOverdueVisitors.length;
   const onTimeActiveCount = Math.max(0, allActiveCount - overdueCount);
   const checkedOutCountToday = visitors.filter(v => v.status === 'Checked-Out').length;
 
@@ -253,30 +259,56 @@ export const LiveTrackerView = () => {
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 flex items-center justify-center shrink-0 shadow-xs">
-              <BellRing className="w-5 h-5 text-rose-500 animate-pulse" />
+              {unacknowledgedCount > 0 && !isAudioMuted ? (
+                <BellRing className="w-5 h-5 text-rose-500 animate-pulse" />
+              ) : isAudioMuted ? (
+                <VolumeX className="w-5 h-5 text-neutral-400" />
+              ) : (
+                <BellOff className="w-5 h-5 text-neutral-400" />
+              )}
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-extrabold text-neutral-950 dark:text-white">
                   {overdueCount} Visitor{overdueCount > 1 ? 's' : ''} Exceeded Authorized Stay
                 </h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-200 dark:bg-rose-900 text-rose-900 dark:text-rose-100">
-                  Overstay Alert
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                  unacknowledgedCount > 0 && !isAudioMuted
+                    ? 'bg-rose-200 dark:bg-rose-900 text-rose-900 dark:text-rose-100'
+                    : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200'
+                }`}>
+                  {unacknowledgedCount > 0 && !isAudioMuted ? `Audible Alert (${unacknowledgedCount})` : unacknowledgedCount === 0 ? 'All Acknowledged' : 'Desk Muted'}
                 </span>
               </div>
               <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-0.5 font-medium">
-                Audible chime alert triggered. Escort required or acknowledge alarms below.
+                {unacknowledgedCount > 0 && !isAudioMuted
+                  ? `${unacknowledgedCount} unacknowledged overstay alert(s) ringing. Escort required or silence alarms below.`
+                  : unacknowledgedCount === 0
+                  ? 'All overstay alerts acknowledged by desk officer. Escort and check-out required.'
+                  : 'Desk alerts globally muted. Escort required or check out overdue guests.'}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+            {unacknowledgedCount > 0 && (
+              <button
+                type="button"
+                onClick={() => acknowledgeAllOverstays(unacknowledgedOverdueVisitors.map(v => v.id))}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-200 dark:bg-rose-900/80 hover:bg-rose-300 dark:hover:bg-rose-800 text-rose-900 dark:text-rose-100 transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+                title="Acknowledge and silence alerts for all overdue guests"
+              >
+                <BellOff className="w-3.5 h-3.5" />
+                <span>Mute All ({unacknowledgedCount})</span>
+              </button>
+            )}
             <button
               type="button"
               onClick={toggleAudioMute}
               className="px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+              title={isAudioMuted ? 'Desk audio alerts muted (Click to unmute)' : 'Desk audio alerts active (Click to mute)'}
             >
-              {isAudioMuted ? <BellRing className="w-3.5 h-3.5" /> : <BellOff className="w-3.5 h-3.5" />}
-              <span>{isAudioMuted ? 'Unmute Audio' : 'Mute Chime'}</span>
+              {isAudioMuted ? <VolumeX className="w-3.5 h-3.5 text-neutral-400" /> : <Volume2 className="w-3.5 h-3.5" />}
+              <span>{isAudioMuted ? 'Unmute Desk' : 'Mute Desk'}</span>
             </button>
           </div>
         </div>

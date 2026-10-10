@@ -188,7 +188,7 @@ export const VisitorProvider = ({ children }) => {
 
   // Desk Audio Alert State (persisted via audioAlertService)
   const [isAudioMuted, setIsAudioMuted] = useState(() => audioAlertService.isMuted());
-  const [acknowledgedOverstayIds, setAcknowledgedOverstayIds] = useState(new Set());
+  const [acknowledgedOverstayIds, setAcknowledgedOverstayIds] = useState(() => audioAlertService.getAcknowledgedAlerts());
 
   const toggleAudioMute = () => {
     const nextMuted = audioAlertService.toggleMute();
@@ -197,23 +197,29 @@ export const VisitorProvider = ({ children }) => {
   };
 
   const testAlertSound = () => {
-    audioAlertService.playOverstayChime();
+    audioAlertService.playOverstayChime(0.3, true); // force = true allows testing sound even when desk is muted
   };
 
   const acknowledgeOverstay = (visitorId) => {
     audioAlertService.acknowledgeAlert(visitorId);
-    setAcknowledgedOverstayIds(prev => new Set([...prev, visitorId]));
+    setAcknowledgedOverstayIds(new Set(audioAlertService.getAcknowledgedAlerts()));
+  };
+
+  const acknowledgeAllOverstays = (visitorIds) => {
+    audioAlertService.acknowledgeAll(visitorIds);
+    setAcknowledgedOverstayIds(new Set(audioAlertService.getAcknowledgedAlerts()));
   };
 
   // Overstay Surveillance Ticker (runs every 10 seconds)
   useEffect(() => {
     const checkOverstays = () => {
       const nowTime = Date.now();
-      let stateChanged = false;
-      const newlyOverdue = [];
 
       setVisitors(prevVisitors => {
         if (!Array.isArray(prevVisitors) || prevVisitors.length === 0) return prevVisitors;
+
+        const toMarkOverdue = [];
+        const toAlert = [];
 
         const next = prevVisitors.map(v => {
           if (!v || v.status === 'Checked-Out') return v;
@@ -226,24 +232,30 @@ export const VisitorProvider = ({ children }) => {
 
           if (isPastDue) {
             if (v.status !== 'Overdue') {
-              stateChanged = true;
-              supabaseService.updateVisitorStatus(v.id, 'Overdue');
-              newlyOverdue.push(v);
+              toMarkOverdue.push(v);
+              toAlert.push(v);
               return { ...v, status: 'Overdue' };
             } else if (audioAlertService.canAlertVisitor(v.id)) {
-              newlyOverdue.push(v);
+              toAlert.push(v);
             }
           }
           return v;
         });
 
-        return stateChanged ? next : prevVisitors;
-      });
+        // Execute side effects deterministically
+        if (toMarkOverdue.length > 0) {
+          toMarkOverdue.forEach(v => {
+            supabaseService.updateVisitorStatus(v.id, 'Overdue');
+          });
+        }
 
-      if (newlyOverdue.length > 0) {
-        audioAlertService.playOverstayChime();
-        newlyOverdue.forEach(v => audioAlertService.recordAlert(v.id));
-      }
+        if (toAlert.length > 0) {
+          audioAlertService.playOverstayChime();
+          toAlert.forEach(v => audioAlertService.recordAlert(v.id));
+        }
+
+        return toMarkOverdue.length > 0 ? next : prevVisitors;
+      });
     };
 
     // Run initial scan then periodic 10s checks
@@ -450,6 +462,7 @@ export const VisitorProvider = ({ children }) => {
       toggleAudioMute,
       testAlertSound,
       acknowledgeOverstay,
+      acknowledgeAllOverstays,
       acknowledgedOverstayIds,
     }}>
       {children}

@@ -11,7 +11,18 @@ class AudioAlertService {
     this.audioCtx = null;
     this.muted = typeof window !== 'undefined' ? localStorage.getItem('vsms_audio_muted') === 'true' : false;
     this.lastAlertTimestamps = new Map(); // visitorId -> timestamp
-    this.acknowledgedAlerts = new Set();  // visitorIds acknowledged by desk officer
+    this.acknowledgedAlerts = new Set(
+      typeof window !== 'undefined'
+        ? (() => {
+            try {
+              const saved = localStorage.getItem('vsms_acknowledged_alerts');
+              return saved ? JSON.parse(saved) : [];
+            } catch {
+              return [];
+            }
+          })()
+        : []
+    );
     this.isUnlocked = false;
 
     if (typeof window !== 'undefined') {
@@ -42,8 +53,14 @@ class AudioAlertService {
   _bindUnlockListeners() {
     const unlock = () => {
       const ctx = this._getAudioContext();
-      if (ctx && ctx.state !== 'suspended') {
-        this.isUnlocked = true;
+      if (ctx) {
+        if (ctx.state === 'suspended') {
+          ctx.resume().then(() => {
+            this.isUnlocked = true;
+          }).catch(() => {});
+        } else {
+          this.isUnlocked = true;
+        }
         window.removeEventListener('click', unlock);
         window.removeEventListener('keydown', unlock);
         window.removeEventListener('touchstart', unlock);
@@ -84,9 +101,11 @@ class AudioAlertService {
 
   /**
    * Synthesize a clean, high-contrast two-tone overstay chime (880Hz -> 587.33Hz).
+   * @param {number} volume - Volume gain (0.0 to 1.0)
+   * @param {boolean} force - If true, bypasses this.muted (used for explicit sound test diagnostics)
    */
-  playOverstayChime(volume = 0.3) {
-    if (this.muted) return;
+  playOverstayChime(volume = 0.3, force = false) {
+    if (this.muted && !force) return;
     try {
       const ctx = this._getAudioContext();
       if (!ctx) return;
@@ -178,10 +197,43 @@ class AudioAlertService {
   }
 
   /**
+   * Persist acknowledged visitor IDs to localStorage.
+   */
+  _persistAcknowledgments() {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('vsms_acknowledged_alerts', JSON.stringify([...this.acknowledgedAlerts]));
+      } catch (e) {
+        console.warn('Failed to persist acknowledged alerts:', e);
+      }
+    }
+  }
+
+  /**
    * Desk officer acknowledges the overstay, silencing further repetitive sounds for this visitor.
    */
   acknowledgeAlert(visitorId) {
     this.acknowledgedAlerts.add(visitorId);
+    this._persistAcknowledgments();
+  }
+
+  /**
+   * Desk officer acknowledges all overdue visitors in batch.
+   */
+  acknowledgeAll(visitorIds) {
+    if (Array.isArray(visitorIds)) {
+      visitorIds.forEach(id => {
+        if (id) this.acknowledgedAlerts.add(id);
+      });
+      this._persistAcknowledgments();
+    }
+  }
+
+  /**
+   * Retrieve a set copy of currently acknowledged visitor IDs.
+   */
+  getAcknowledgedAlerts() {
+    return new Set(this.acknowledgedAlerts);
   }
 
   /**
@@ -190,6 +242,7 @@ class AudioAlertService {
   clearAcknowledgment(visitorId) {
     this.acknowledgedAlerts.delete(visitorId);
     this.lastAlertTimestamps.delete(visitorId);
+    this._persistAcknowledgments();
   }
 }
 

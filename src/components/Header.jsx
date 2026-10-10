@@ -229,7 +229,7 @@ export const Header = () => {
               ? 'bg-neutral-100 dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200'
               : 'bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-750'
           }`}
-          title={isAudioMuted ? 'Desk audio alerts muted (Click to unmute)' : 'Desk audio alerts active (Click to mute, right-click to test)'}
+          title={isAudioMuted ? 'Desk audio alerts muted (Click to unmute, right-click to test chime)' : 'Desk audio alerts active (Click to mute, right-click to test chime)'}
           aria-label={isAudioMuted ? 'Unmute desk alerts' : 'Mute desk alerts'}
         >
           {isAudioMuted ? (
