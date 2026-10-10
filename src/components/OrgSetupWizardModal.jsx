@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuthContext } from '../context/AuthContext';
 import { useVisitorContext } from '../context/VisitorContext';
+import { DEFAULT_ORG_FIELDS } from '../db/sqliteDb';
 import { 
   Building2, 
   ShieldCheck, 
@@ -37,7 +38,7 @@ const AVAILABLE_FIELD_TYPES = [
   { value: 'text', label: 'Single-line Text', desc: 'Short text such as company, title, or vehicle model' },
   { value: 'number', label: 'Numeric Value', desc: 'Numbers such as duration, quantity, or pass counter' },
   { value: 'email', label: 'Email Address', desc: 'Valid email format with automatic validation' },
-  { value: 'select', label: 'Dropdown Selector', desc: 'Predefined options for visit purpose, category, etc.' },
+  { value: 'select', label: 'Dropdown Selector', desc: 'Predefined options for category, visitor type, etc.' },
   { value: 'checkbox', label: 'Boolean Toggle / Checkbox', desc: 'Yes/No consent, NDA agreement, or escort needed' },
   { value: 'textarea', label: 'Multi-line Notes', desc: 'Special security remarks or instructions' },
   { value: 'date', label: 'Date / Time', desc: 'Scheduled appointment or clearance expiry' },
@@ -51,7 +52,10 @@ export const OrgSetupWizardModal = () => {
     setIsOrgWizardOpen, 
     createOrganizationWithAdmin 
   } = useAuthContext();
-  const { setOrgFields } = useVisitorContext() || {};
+  // setOrgFields no longer called here; VisitorContext reloads from SQLite
+  // automatically when currentOrgId changes after createOrganizationWithAdmin
+  // calls setCurrentOrg(newOrg). This keeps SQLite as the single source of
+  // truth for the field schema (Fix 1 — Wound 1).
 
   const [step, setStep] = useState(1);
   const [copiedIndex, setCopiedIndex] = useState(null);
@@ -74,75 +78,20 @@ export const OrgSetupWizardModal = () => {
   });
 
   // Step 2: Dynamic Visitor Schema Builder
-  const [fields, setFields] = useState([
-    {
-      id: 'FLD-BASE-1',
-      field_key: 'fullName',
-      field_name: 'Full Legal Name',
-      field_type: 'text',
-      is_required: 1,
-      show_in_table: 1,
-      show_on_badge: 1,
-      is_baseline: 1,
-      placeholder: 'e.g. Dr. Samuel Adeleke'
-    },
-    {
-      id: 'FLD-BASE-2',
-      field_key: 'phone',
-      field_name: 'Phone / Mobile',
-      field_type: 'text',
-      is_required: 1,
-      show_in_table: 1,
-      show_on_badge: 1,
-      is_baseline: 1,
-      placeholder: '+234 803 000 0000'
-    },
-    {
-      id: 'FLD-CUSTOM-1',
-      field_key: 'company',
-      field_name: 'Company / Organization',
-      field_type: 'text',
-      is_required: 0,
-      show_in_table: 1,
-      show_on_badge: 1,
-      is_baseline: 0,
-      placeholder: 'e.g. Acme Corp'
-    },
-    {
-      id: 'FLD-CUSTOM-2',
-      field_key: 'host',
-      field_name: 'Visiting Host / Staff',
-      field_type: 'host_picker',
-      is_required: 1,
-      show_in_table: 1,
-      show_on_badge: 1,
-      is_baseline: 0,
-      placeholder: 'Select staff member'
-    },
-    {
-      id: 'FLD-CUSTOM-3',
-      field_key: 'purpose',
-      field_name: 'Purpose of Visit',
-      field_type: 'select',
-      options: ['Official Meeting', 'Contractor Maintenance', 'Job Interview', 'Delivery', 'Executive Briefing'],
-      is_required: 1,
-      show_in_table: 1,
-      show_on_badge: 0,
-      is_baseline: 0,
-      placeholder: 'Select purpose'
-    },
-    {
-      id: 'FLD-CUSTOM-4',
-      field_key: 'expectedDurationMinutes',
-      field_name: 'Expected Stay (Minutes)',
-      field_type: 'number',
-      is_required: 0,
-      show_in_table: 0,
-      show_on_badge: 0,
-      is_baseline: 0,
-      placeholder: '60'
-    }
-  ]);
+  // Initialised from the single canonical DEFAULT_ORG_FIELDS so wizard and
+  // database always start from the same definition (Fix 3 — Wound 3).
+  const [fields, setFields] = useState(() =>
+    DEFAULT_ORG_FIELDS.map((f, idx) => ({
+      ...f,
+      // Give each field a stable wizard-scoped id; saveOrganizationFields will
+      // regenerate ids when persisting to SQLite, so these are display-only.
+      id: f.id || `FLD-WIZARD-${idx + 1}`,
+      // Ensure options array is present for select fields
+      options: Array.isArray(f.options)
+        ? f.options
+        : (f.options_json ? JSON.parse(f.options_json) : []),
+    }))
+  );
 
   // New field draft state
   const [isAddingField, setIsAddingField] = useState(false);
@@ -415,9 +364,9 @@ export const OrgSetupWizardModal = () => {
         receptionists: receptionists
       });
 
-      if (setOrgFields) {
-        setOrgFields(fields);
-      }
+      // Fields are already persisted to SQLite inside createOrganizationWithAdmin.
+      // VisitorContext's useEffect([currentOrgId]) will reload them from SQLite
+      // automatically when currentOrg changes — no manual setOrgFields needed.
 
       // Celebration Confetti (Monochrome)
       try {

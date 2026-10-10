@@ -30,6 +30,7 @@ export const QuickCheckInModal = () => {
     setIsCheckInOpen, 
     registerVisitor, 
     orgFields,
+    isFieldsReady,
     departments, 
     hosts 
   } = useVisitorContext();
@@ -94,7 +95,9 @@ export const QuickCheckInModal = () => {
       };
 
       (activeFields || []).forEach(f => {
-        if (f.field_type === 'checkbox') {
+        if (f.field_key === 'purpose') {
+          initial[f.field_key] = '';
+        } else if (f.field_type === 'checkbox') {
           initial[f.field_key] = false;
         } else if (f.field_type === 'select') {
           initial[f.field_key] = (f.options && f.options.length > 0) ? f.options[0] : '';
@@ -248,6 +251,28 @@ export const QuickCheckInModal = () => {
 
   if (!isCheckInOpen) return null;
 
+  // Prevent the form from rendering with stale DEFAULT_ORG_FIELDS while
+  // the SQLite WASM init is still in progress (Fix 2 — Wound 2).
+  if (!isFieldsReady) return (
+    <div
+      aria-modal="true"
+      role="dialog"
+      className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-md font-sans"
+    >
+      <div className="w-full max-w-sm bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-3xl shadow-2xl p-8 flex flex-col items-center gap-4">
+        <div className="w-10 h-10 rounded-full border-4 border-neutral-200 dark:border-neutral-700 border-t-neutral-900 dark:border-t-white animate-spin" />
+        <p className="text-sm font-bold text-neutral-700 dark:text-neutral-300">Loading form configuration…</p>
+        <button
+          type="button"
+          onClick={() => setIsCheckInOpen(false)}
+          className="text-xs text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div 
       aria-modal="true" 
@@ -356,8 +381,36 @@ export const QuickCheckInModal = () => {
                   );
                 }
 
-                // 2. Select Dropdown Type
-                if (field.field_type === 'select') {
+                // 2. Purpose of Visit (Typed Text Field)
+                if (field.field_key === 'purpose') {
+                  return (
+                    <div key={field.id || field.field_key} className="space-y-1">
+                      <label className="block text-neutral-900 dark:text-white font-extrabold text-xs mb-1">
+                        {field.field_name || 'Purpose of Visit'} {isRequired && <span className="text-neutral-500 font-bold">*</span>}
+                      </label>
+                      <input
+                        type="text"
+                        name="purpose"
+                        placeholder={field.placeholder || 'e.g. Official Meeting / Site Visit'}
+                        value={formData.purpose || ''}
+                        onChange={(e) => handleFieldChange('purpose', e.target.value)}
+                        onBlur={() => handleBlur('purpose')}
+                        className={`w-full px-3.5 py-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800 border text-xs font-bold text-neutral-900 dark:text-white focus:outline-none transition ${
+                          fieldError ? 'border-neutral-900 dark:border-white ring-1 ring-neutral-900 dark:ring-white' : 'border-neutral-200 dark:border-neutral-700'
+                        }`}
+                      />
+                      {fieldError && (
+                        <span className="text-[11px] text-neutral-900 dark:text-neutral-100 font-extrabold flex items-center gap-1 mt-1">
+                          <AlertCircle className="w-3 h-3" />
+                          {fieldError}
+                        </span>
+                      )}
+                    </div>
+                  );
+                }
+
+                // 3. Select Dropdown Type
+                if (field.field_type === 'select' && field.field_key !== 'purpose') {
                   return (
                     <div key={field.id || field.field_key} className="space-y-1">
                       <label className="block text-neutral-900 dark:text-white font-extrabold text-xs mb-1">

@@ -71,19 +71,12 @@ export const DEFAULT_ORG_FIELDS = [
     org_id: '',
     field_key: 'purpose',
     field_name: 'Purpose of Visit',
-    field_type: 'select',
+    field_type: 'text',
     is_required: 1,
     show_in_table: 1,
     show_on_badge: 0,
-    options_json: JSON.stringify([
-      'Official Meeting',
-      'Job Interview',
-      'Contractor / Technical Maintenance',
-      'Document Delivery / Courier',
-      'Regulatory Inspection / NDPR Audit',
-      'Vendor Presentation'
-    ]),
-    placeholder: 'Select purpose',
+    options_json: null,
+    placeholder: 'e.g. Official Meeting / Site Visit',
     display_order: 5,
     is_baseline: 0
   },
@@ -296,6 +289,17 @@ class SQLiteService {
         is_baseline INTEGER NOT NULL DEFAULT 0
       );
     `);
+
+    // Ensure purpose field is migrated to a typed text input field
+    try {
+      this.db.run(`
+        UPDATE organization_fields 
+        SET field_type = 'text', options_json = NULL, placeholder = 'e.g. Official Meeting / Site Visit' 
+        WHERE field_key = 'purpose' AND field_type = 'select';
+      `);
+    } catch {
+      // Table may not have been created yet
+    }
 
     // 3. Users (with multi-tenant org_id and desk_location)
     this.db.run(`
@@ -604,6 +608,11 @@ class SQLiteService {
       const fields = [];
       while (stmt.step()) {
         const row = stmt.getAsObject();
+        if (row.field_key === 'purpose' && row.field_type === 'select') {
+          row.field_type = 'text';
+          row.options_json = null;
+          row.placeholder = row.placeholder || 'e.g. Official Meeting / Site Visit';
+        }
         if (row.options_json) {
           try {
             row.options = JSON.parse(row.options_json);
