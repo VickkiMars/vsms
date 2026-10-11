@@ -258,7 +258,7 @@ export const QuickCheckInModal = () => {
 
     registerVisitor({
       ...formData,
-      watchlistStatus: watchlistScreening.isWanted ? 'FLAGGED_EFCC' : 'CLEAN'
+      watchlistStatus: (watchlistScreening.isWanted && watchlistScreening.confidenceScore >= 80) ? 'FLAGGED_EFCC' : 'CLEAN'
     });
   };
 
@@ -657,7 +657,7 @@ export const QuickCheckInModal = () => {
                       )}
 
                       {/* EFCC Wanted List Identity Verification Screening */}
-                      {watchlistScreening.isWanted && (
+                      {watchlistScreening.isWanted && watchlistScreening.confidenceScore >= 80 && (
                         <div className="mt-2 p-3 rounded-2xl bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 border border-neutral-900 dark:border-white shadow-md space-y-2 animate-fade-in">
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-1.5 font-black text-xs uppercase tracking-wider">
@@ -688,7 +688,7 @@ export const QuickCheckInModal = () => {
                         </div>
                       )}
 
-                      {!watchlistScreening.isWanted && (formData.fullName || '').trim().length >= 4 && (
+                      {(!watchlistScreening.isWanted || watchlistScreening.confidenceScore < 80) && (formData.fullName || '').trim().length >= 4 && (
                         <div className="mt-1.5 flex items-center gap-1.5 text-[10px] font-bold text-neutral-500 dark:text-neutral-400">
                           <ShieldCheck className="w-3.5 h-3.5" />
                           <span>EFCC Wanted Registry: Clearance Clean</span>

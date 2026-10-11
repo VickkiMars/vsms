@@ -62,6 +62,89 @@ export function parseEFCCDescription(html = '') {
   };
 }
 
+/**
+ * Computes Levenshtein distance between two strings.
+ */
+function levenshteinDistance(s1, s2) {
+  const m = s1.length;
+  const n = s2.length;
+  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = s1[i - 1] === s2[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + cost
+      );
+    }
+  }
+  return dp[m][n];
+}
+
+/**
+ * Computes comprehensive match percentage (0 - 100) between two names,
+ * accounting for word order permutations, partial word omission, and character typos.
+ *
+ * @param {string} query - Entered visitor name
+ * @param {string} target - Watchlist candidate name
+ * @returns {number} Integer percentage score from 0 to 100
+ */
+export function computeNameMatchScore(query = '', target = '') {
+  const cleanQ = query.toUpperCase().trim();
+  const cleanT = target.toUpperCase().trim();
+  if (!cleanQ || !cleanT) return 0;
+  if (cleanQ === cleanT) return 100;
+
+  // 1. Raw character-level Levenshtein similarity
+  const maxLen = Math.max(cleanQ.length, cleanT.length);
+  const rawLevSim = Math.round(((maxLen - levenshteinDistance(cleanQ, cleanT)) / maxLen) * 100);
+
+  // 2. Token extraction
+  const qTokens = cleanQ.split(/[\s,.-]+/).filter(t => t.length > 0);
+  const tTokens = cleanT.split(/[\s,.-]+/).filter(t => t.length > 0);
+
+  if (qTokens.length === 0 || tTokens.length === 0) return 0;
+
+  // 3. Word-sorted Levenshtein similarity (neutralizes word order permutations)
+  const sortedQ = [...qTokens].sort().join(' ');
+  const sortedT = [...tTokens].sort().join(' ');
+  const sortedMaxLen = Math.max(sortedQ.length, sortedT.length);
+  const sortedLevSim = Math.round(((sortedMaxLen - levenshteinDistance(sortedQ, sortedT)) / sortedMaxLen) * 100);
+
+  // 4. Token-level Dice matching with typo tolerance
+  let matchedWeight = 0;
+  const usedTargetIndices = new Set();
+
+  for (const qt of qTokens) {
+    let bestSim = 0;
+    let bestIdx = -1;
+    for (let i = 0; i < tTokens.length; i++) {
+      if (usedTargetIndices.has(i)) continue;
+      const tt = tTokens[i];
+      const tokMax = Math.max(qt.length, tt.length);
+      const sim = (tokMax - levenshteinDistance(qt, tt)) / tokMax;
+      if (sim > bestSim) {
+        bestSim = sim;
+        bestIdx = i;
+      }
+    }
+    // Only count as token match if similarity is at least 80% (permits slight typos)
+    if (bestSim >= 0.8 && bestIdx !== -1) {
+      matchedWeight += bestSim;
+      usedTargetIndices.add(bestIdx);
+    }
+  }
+
+  const tokenDice = Math.round(((2 * matchedWeight) / (qTokens.length + tTokens.length)) * 100);
+
+  return Math.max(rawLevSim, sortedLevSim, tokenDice);
+}
+
 class EFCCWatchlistService {
   constructor() {
     this.records = Array.isArray(efccWantedSeed) ? efccWantedSeed : [];
@@ -105,6 +188,7 @@ class EFCCWatchlistService {
 
   /**
    * Verifies an incoming visitor's name against the EFCC wanted persons database.
+   * Only raises wanted alert if match confidence is at least 80%.
    *
    * @param {string} visitorFullName - Full name of the visitor
    * @returns {Object} Verification assessment result
@@ -120,12 +204,10 @@ class EFCCWatchlistService {
       };
     }
 
-    const cleanInput = visitorFullName.toUpperCase().trim();
-    const queryTokens = cleanInput.split(/[\s,.-]+/).filter(t => t.length > 2);
-
-    if (queryTokens.length === 0) {
+    const cleanInput = visitorFullName.trim();
+    if (cleanInput.length < 3) {
       return {
-        isScreened: true,
+        isScreened: false,
         isWanted: false,
         severity: 'CLEAN',
         confidenceScore: 0,
@@ -137,44 +219,18 @@ class EFCCWatchlistService {
     let highestScore = 0;
 
     for (const person of this.records) {
-      const personName = (person.name || '').toUpperCase().trim();
+      const personName = (person.name || '').trim();
       if (!personName) continue;
 
-      const personTokens = personName.split(/[\s,.-]+/).filter(t => t.length > 2);
-
-      // 1. Exact string match
-      if (personName === cleanInput) {
-        highestScore = 100;
+      const score = computeNameMatchScore(cleanInput, personName);
+      if (score > highestScore) {
+        highestScore = score;
         topMatch = person;
-        break;
-      }
-
-      // 2. Token intersection match
-      const matchingTokens = queryTokens.filter(t => personTokens.includes(t));
-      const matchCount = matchingTokens.length;
-
-      if (matchCount >= 2) {
-        // High confidence multi-name match (e.g. "Maina Abdulrasheed" vs "ABDULRASHEED ABDULLAHI MAINA")
-        const ratio = Math.round((matchCount * 2 / (queryTokens.length + personTokens.length)) * 100);
-        const score = Math.max(80, ratio);
-        if (score > highestScore) {
-          highestScore = score;
-          topMatch = person;
-        }
-      } else if (matchCount === 1) {
-        // Single unique token match (e.g. rare surname "Mbalaso" or "Adekunle")
-        const singleToken = matchingTokens[0];
-        if (singleToken.length >= 6) {
-          const score = 65; // Moderate amber advisory
-          if (score > highestScore) {
-            highestScore = score;
-            topMatch = person;
-          }
-        }
       }
     }
 
-    if (!topMatch || highestScore < 50) {
+    // Strict 80% threshold requirement: Do NOT raise alert if match is below 80%
+    if (!topMatch || highestScore < 80) {
       return {
         isScreened: true,
         isWanted: false,
@@ -189,7 +245,7 @@ class EFCCWatchlistService {
     return {
       isScreened: true,
       isWanted: true,
-      severity: highestScore >= 75 ? 'RED' : 'AMBER',
+      severity: highestScore >= 95 ? 'CRITICAL' : 'HIGH',
       confidenceScore: highestScore,
       matchedPerson: {
         id: topMatch.id,
