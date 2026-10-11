@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useVisitorContext } from '../context/VisitorContext';
 import { useAuthContext } from '../context/AuthContext';
+import { filterAndCategorizeVisitors } from '../utils/searchHelper';
 import { 
   Search, 
   X,
@@ -14,15 +15,21 @@ import {
   Plus,
   Sparkles,
   Volume2,
-  VolumeX
+  VolumeX,
+  ArrowRight
 } from 'lucide-react';
 
 export const Header = () => {
   const { 
+    visitors,
     activeView, 
+    setActiveView,
     globalSearchQuery, 
     setGlobalSearchQuery, 
     setSelectedDeptFilter,
+    setSelectedStatusFilter,
+    openBadgeModal,
+    openDetailsDrawer,
     exportToCSV,
     resetToDemoData,
     setUserRole,
@@ -47,6 +54,31 @@ export const Header = () => {
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isOrgDropdownOpen, setIsOrgDropdownOpen] = useState(false);
+  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
+  const [searchCategory, setSearchCategory] = useState('all');
+  const searchContainerRef = useRef(null);
+
+  // Close search dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
+        setIsSearchDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Compute live search matches across all records (past and present)
+  const { allMatches, presentMatches, pastMatches } = useMemo(() => {
+    return filterAndCategorizeVisitors(visitors, globalSearchQuery);
+  }, [visitors, globalSearchQuery]);
+
+  const displayedMatches = useMemo(() => {
+    if (searchCategory === 'present') return presentMatches;
+    if (searchCategory === 'past') return pastMatches;
+    return allMatches;
+  }, [searchCategory, allMatches, presentMatches, pastMatches]);
 
   const effectiveOrgs = (organizations && organizations.length > 0)
     ? organizations
@@ -104,8 +136,8 @@ export const Header = () => {
           </button>
         </div>
 
-        {/* Global Search Input Bar */}
-        <div className="relative flex-1 max-w-full sm:max-w-xs md:max-w-sm">
+        {/* Global Search Input Bar with Instant Results Popover */}
+        <div ref={searchContainerRef} className="relative flex-1 max-w-full sm:max-w-xs md:max-w-sm">
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400 text-xs">
             <Search className="w-4 h-4" />
           </div>
@@ -113,14 +145,33 @@ export const Header = () => {
             type="text" 
             placeholder="Search visitors, badges, attributes..." 
             value={globalSearchQuery}
-            onChange={(e) => setGlobalSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setGlobalSearchQuery(e.target.value);
+              setIsSearchDropdownOpen(true);
+            }}
+            onFocus={() => {
+              if (globalSearchQuery.trim()) setIsSearchDropdownOpen(true);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                setActiveView('log');
+                setSelectedStatusFilter('All');
+                setIsSearchDropdownOpen(false);
+              } else if (e.key === 'Escape') {
+                setIsSearchDropdownOpen(false);
+              }
+            }}
             className="w-full pl-9 pr-20 py-2 rounded-full bg-white/90 dark:bg-neutral-800/90 border border-neutral-200 dark:border-neutral-700 focus:bg-white dark:focus:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-950 dark:focus:ring-white text-xs font-medium text-neutral-900 dark:text-white placeholder-neutral-400 shadow-xs transition"
           />
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center gap-1.5">
             {globalSearchQuery && (
               <button
                 type="button"
-                onClick={() => setGlobalSearchQuery('')}
+                onClick={() => {
+                  setGlobalSearchQuery('');
+                  setIsSearchDropdownOpen(false);
+                }}
                 aria-label="Clear search input"
                 className="p-0.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-full cursor-pointer"
               >
@@ -136,6 +187,160 @@ export const Header = () => {
               ⌘ K
             </button>
           </div>
+
+          {/* Instant Search Results Dropdown Popover */}
+          {isSearchDropdownOpen && globalSearchQuery.trim().length > 0 && (
+            <div 
+              role="region"
+              aria-label="Visitor search results"
+              className="absolute left-0 right-0 sm:left-auto sm:right-auto sm:w-[440px] mt-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-3xl shadow-2xl overflow-hidden z-50 animate-fade-in font-sans"
+            >
+              {/* Category Filter Pills in Popover Header */}
+              <div className="p-3 border-b border-neutral-100 dark:border-neutral-800 flex items-center justify-between gap-2 bg-neutral-50/70 dark:bg-neutral-800/40">
+                <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-bold">
+                  <button
+                    type="button"
+                    onClick={() => setSearchCategory('all')}
+                    className={`px-2.5 py-1 rounded-full text-xs font-extrabold transition cursor-pointer ${
+                      searchCategory === 'all'
+                        ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-xs'
+                        : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700'
+                    }`}
+                  >
+                    All ({allMatches.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSearchCategory('present')}
+                    className={`px-2.5 py-1 rounded-full text-xs font-extrabold transition cursor-pointer ${
+                      searchCategory === 'present'
+                        ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-xs'
+                        : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700'
+                    }`}
+                  >
+                    Present ({presentMatches.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSearchCategory('past')}
+                    className={`px-2.5 py-1 rounded-full text-xs font-extrabold transition cursor-pointer ${
+                      searchCategory === 'past'
+                        ? 'bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 shadow-xs'
+                        : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700'
+                    }`}
+                  >
+                    Past Records ({pastMatches.length})
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsSearchDropdownOpen(false)}
+                  aria-label="Close search results dropdown"
+                  className="p-1 text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-full cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Matched Records List */}
+              <div className="max-h-72 overflow-y-auto p-2 space-y-1.5 divide-y divide-neutral-100 dark:divide-neutral-800/60">
+                {displayedMatches.length === 0 ? (
+                  <div className="p-6 text-center space-y-1">
+                    <p className="text-xs font-bold text-neutral-900 dark:text-white">
+                      No {searchCategory !== 'all' ? searchCategory : ''} records matching "{globalSearchQuery}"
+                    </p>
+                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-medium">
+                      Searches past and present visitors across names, badges, hosts, companies, and phones.
+                    </p>
+                  </div>
+                ) : (
+                  displayedMatches.slice(0, 8).map(v => (
+                    <div 
+                      key={v.id}
+                      className="pt-1.5 first:pt-0 p-2 rounded-2xl hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <img
+                          src={v.avatar}
+                          alt={v.fullName}
+                          className="w-8 h-8 rounded-xl object-cover border border-neutral-200 dark:border-neutral-700 shrink-0"
+                          onError={(e) => {
+                            e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(v.fullName || 'User')}`;
+                          }}
+                        />
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-extrabold text-xs text-neutral-900 dark:text-white truncate">
+                              {v.fullName}
+                            </span>
+                            <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
+                              {v.badgeId || v.id}
+                            </span>
+                            <span className={`text-[9px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${
+                              v.status === 'Checked-Out'
+                                ? 'bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300'
+                                : v.status === 'Overdue'
+                                ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-950 font-black'
+                                : 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950'
+                            }`}>
+                              {v.status === 'Checked-Out' ? 'Past' : v.status === 'Overdue' ? 'Overdue' : 'Present'}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5 font-medium">
+                            {v.company || 'Private'} • Host: {v.hostName || '—'} {v.department ? `(${v.department})` : ''}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            openDetailsDrawer(v);
+                            setIsSearchDropdownOpen(false);
+                          }}
+                          className="px-2 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 text-[10px] font-bold transition cursor-pointer"
+                          title="View Visitor Details"
+                        >
+                          Details
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            openBadgeModal(v);
+                            setIsSearchDropdownOpen(false);
+                          }}
+                          className="px-2 py-1 rounded-lg bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:opacity-90 text-[10px] font-bold transition cursor-pointer"
+                          title="View Digital Pass Badge"
+                        >
+                          Pass
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Popover Footer with Quick Navigation to Master Log */}
+              <div className="p-2 border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/70 dark:bg-neutral-800/40 flex items-center justify-between text-xs">
+                <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-semibold px-1">
+                  Press <kbd className="font-mono bg-neutral-200 dark:bg-neutral-700 px-1 py-0.5 rounded text-[9px]">Enter</kbd> for Master Log
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveView('log');
+                    setSelectedStatusFilter('All');
+                    setIsSearchDropdownOpen(false);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs font-bold hover:opacity-95 transition flex items-center gap-1 cursor-pointer"
+                >
+                  <span>View in Master Log</span>
+                  <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
       </div>

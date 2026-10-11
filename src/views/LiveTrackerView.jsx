@@ -23,6 +23,8 @@ import {
   VolumeX
 } from 'lucide-react';
 
+import { matchVisitor } from '../utils/searchHelper';
+
 export const LiveTrackerView = () => {
   const { 
     visitors, 
@@ -31,6 +33,8 @@ export const LiveTrackerView = () => {
     openBadgeModal, 
     openDetailsDrawer,
     setIsCheckInOpen,
+    setActiveView,
+    setSelectedStatusFilter,
     globalSearchQuery,
     selectedDeptFilter,
     exportToCSV,
@@ -45,6 +49,7 @@ export const LiveTrackerView = () => {
 
   const [now, setNow] = useState(() => Date.now());
   const [toastMessage, setToastMessage] = useState(null);
+  const [showPastRecords, setShowPastRecords] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -82,21 +87,15 @@ export const LiveTrackerView = () => {
 
   const activeVisitors = visitors.filter(v => {
     if (v.status === 'Checked-Out') return false;
+    const matchesSearch = matchVisitor(v, globalSearchQuery);
+    const matchesDept = selectedDeptFilter === 'All' || v.department === selectedDeptFilter;
+    return matchesSearch && matchesDept;
+  });
 
-    const query = (globalSearchQuery || '').toLowerCase().trim();
-    const customDataStr = v.custom_data_json || JSON.stringify(v.custom_data || {});
-
-    const matchesSearch = !query || 
-      (v.fullName && v.fullName.toLowerCase().includes(query)) ||
-      (v.company && v.company.toLowerCase().includes(query)) ||
-      (v.hostName && v.hostName.toLowerCase().includes(query)) ||
-      (v.badgeId && v.badgeId.toLowerCase().includes(query)) ||
-      (v.id && v.id.toLowerCase().includes(query)) ||
-      (customDataStr.toLowerCase().includes(query));
-
-    const matchesDept = selectedDeptFilter === 'All' || 
-      v.department === selectedDeptFilter;
-
+  const matchingPastVisitors = visitors.filter(v => {
+    if (v.status !== 'Checked-Out') return false;
+    const matchesSearch = matchVisitor(v, globalSearchQuery);
+    const matchesDept = selectedDeptFilter === 'All' || v.department === selectedDeptFilter;
     return matchesSearch && matchesDept;
   });
 
@@ -365,6 +364,44 @@ export const LiveTrackerView = () => {
         </div>
       </div>
 
+      {/* Search notification banner for matching past records */}
+      {globalSearchQuery && globalSearchQuery.trim().length > 0 && matchingPastVisitors.length > 0 && (
+        <div className="p-4 rounded-3xl bg-neutral-100 dark:bg-neutral-800/80 border border-neutral-200 dark:border-neutral-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs animate-fade-in shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center font-bold shrink-0">
+              <Clock className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-neutral-900 dark:text-white font-extrabold block text-xs">
+                Found {matchingPastVisitors.length} Past (Checked-Out) Visitor Record{matchingPastVisitors.length > 1 ? 's' : ''}
+              </span>
+              <span className="text-neutral-500 dark:text-neutral-400 text-[11px] font-medium">
+                Matching search query "{globalSearchQuery}" across historical logs.
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+            <button
+              type="button"
+              onClick={() => setShowPastRecords(prev => !prev)}
+              className="px-3.5 py-1.5 rounded-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-white text-xs font-bold hover:bg-neutral-50 dark:hover:bg-neutral-800 transition cursor-pointer shadow-xs"
+            >
+              {showPastRecords ? 'Hide Past Cards' : `Show Past Cards Here (${matchingPastVisitors.length})`}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveView('log');
+                setSelectedStatusFilter('Checked-Out');
+              }}
+              className="px-3.5 py-1.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold hover:opacity-90 transition cursor-pointer shadow-xs"
+            >
+              Open in Master Log →
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Active Visitors Live Grid */}
       <div className="pt-2 space-y-3">
         <div className="flex items-center justify-between px-1">
@@ -376,14 +413,52 @@ export const LiveTrackerView = () => {
         {activeVisitors.length === 0 ? (
           <div className="p-8 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm text-center space-y-3">
             <UserCheck className="w-8 h-8 mx-auto text-neutral-400" />
-            <p className="font-extrabold text-neutral-900 dark:text-white text-xs">No guests currently inside the facility.</p>
-            <button
-              type="button"
-              onClick={() => setIsCheckInOpen(true)}
-              className="px-4 py-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold shadow-md cursor-pointer"
-            >
-              + Register First Guest
-            </button>
+            {globalSearchQuery && globalSearchQuery.trim().length > 0 && matchingPastVisitors.length > 0 ? (
+              <>
+                <p className="font-extrabold text-neutral-900 dark:text-white text-xs">
+                  No active visitors inside match "{globalSearchQuery}", but found {matchingPastVisitors.length} past record{matchingPastVisitors.length > 1 ? 's' : ''}.
+                </p>
+                <div className="flex items-center justify-center gap-2 pt-1 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => setShowPastRecords(prev => !prev)}
+                    className="px-4 py-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold shadow-md cursor-pointer hover:opacity-90 transition"
+                  >
+                    {showPastRecords ? 'Hide Past Records' : `Show Past Records Here (${matchingPastVisitors.length})`}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveView('log');
+                      setSelectedStatusFilter('Checked-Out');
+                    }}
+                    className="px-4 py-2 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-bold shadow-xs hover:bg-neutral-200 dark:hover:bg-neutral-700 cursor-pointer transition"
+                  >
+                    View in Master Visitor Log →
+                  </button>
+                </div>
+              </>
+            ) : globalSearchQuery && globalSearchQuery.trim().length > 0 ? (
+              <>
+                <p className="font-extrabold text-neutral-900 dark:text-white text-xs">
+                  No active or past visitor records match "{globalSearchQuery}".
+                </p>
+                <p className="text-[11px] text-neutral-500 font-medium">
+                  Try searching a different name, host, phone, or badge ID.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="font-extrabold text-neutral-900 dark:text-white text-xs">No guests currently inside the facility.</p>
+                <button
+                  type="button"
+                  onClick={() => setIsCheckInOpen(true)}
+                  className="px-4 py-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold shadow-md cursor-pointer"
+                >
+                  + Register First Guest
+                </button>
+              </>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -510,6 +585,119 @@ export const LiveTrackerView = () => {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Matching Past Visitor Cards (Rendered when toggled on) */}
+        {showPastRecords && matchingPastVisitors.length > 0 && (
+          <div className="pt-6 space-y-3 border-t border-neutral-200 dark:border-neutral-800">
+            <div className="flex items-center justify-between px-1">
+              <h4 className="text-sm font-extrabold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                <span>Matching Past Visitor Records ({matchingPastVisitors.length})</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-bold">
+                  Checked-Out
+                </span>
+              </h4>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView('log');
+                  setSelectedStatusFilter('Checked-Out');
+                }}
+                className="text-xs font-bold text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white underline cursor-pointer"
+              >
+                Open in Master Log →
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {matchingPastVisitors.map(v => {
+                const customData = v.custom_data || {};
+                const checkInFormatted = new Date(v.checkInTime).toLocaleString([], {
+                  month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+                const checkOutFormatted = v.checkOutTime ? new Date(v.checkOutTime).toLocaleString([], {
+                  month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                }) : '—';
+
+                return (
+                  <div 
+                    key={v.id} 
+                    className="p-5 rounded-3xl bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200 dark:border-neutral-800 shadow-sm space-y-4 relative flex flex-col justify-between"
+                  >
+                    <div className="space-y-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <img 
+                            src={v.avatar} 
+                            alt={v.fullName} 
+                            className="w-11 h-11 rounded-2xl object-cover border border-neutral-200 dark:border-neutral-700 shadow-xs grayscale" 
+                            onError={(e) => {
+                              e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(v.fullName)}`;
+                            }}
+                          />
+                          <div>
+                            <h4 className="font-extrabold text-sm text-neutral-900 dark:text-white leading-snug">
+                              {v.fullName}
+                            </h4>
+                            <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-semibold">
+                              {v.company || customData.company || 'Private Guest'}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => openDetailsDrawer(v)}
+                            className="p-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-300 dark:hover:bg-neutral-700 transition cursor-pointer"
+                            title="View Full Profile Details"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openBadgeModal(v)}
+                            className="p-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-300 dark:hover:bg-neutral-700 transition cursor-pointer"
+                            title="View Digital Badge Pass"
+                          >
+                            <QrCode className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="p-3 rounded-2xl bg-white dark:bg-neutral-800/60 space-y-1.5 text-xs border border-neutral-200 dark:border-neutral-700/60">
+                        <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-300">
+                          <span className="font-semibold">Visiting Host:</span>
+                          <strong className="text-neutral-900 dark:text-white font-extrabold">{v.hostName || customData.host || '—'}</strong>
+                        </div>
+                        <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-300">
+                          <span className="font-semibold">Department:</span>
+                          <strong className="text-neutral-900 dark:text-white font-extrabold">{v.department || '—'}</strong>
+                        </div>
+                        <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-300">
+                          <span className="font-semibold">Check-In:</span>
+                          <strong className="text-neutral-900 dark:text-white font-mono text-[11px]">{checkInFormatted}</strong>
+                        </div>
+                        <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-300">
+                          <span className="font-semibold">Check-Out:</span>
+                          <strong className="text-neutral-900 dark:text-white font-mono text-[11px]">{checkOutFormatted}</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1 gap-2">
+                      <span className="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
+                        {v.badgeId} • Checked-Out
+                      </span>
+                      <span className="text-[10px] text-neutral-500 font-semibold italic">
+                        Past Guest Record
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

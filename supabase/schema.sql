@@ -1,5 +1,7 @@
 -- VSMS Supabase Schema Migration
 -- Run this in the Supabase SQL Editor (https://supabase.com/dashboard/project/_/sql)
+-- Note: PostgreSQL folds unquoted column names to lowercase. The application (supabaseService.js)
+-- seamlessly handles bidirectional mapping between frontend camelCase properties and PostgreSQL lowercase columns.
 
 -- 1. Organizations
 CREATE TABLE IF NOT EXISTS public.organizations (

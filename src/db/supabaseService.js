@@ -34,6 +34,132 @@ function hydrateField(row) {
 const uid = (prefix = 'ID') =>
   `${prefix}-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
 
+// ─── Postgres Case-Mapping Helpers ─────────────────────────────────────────────
+// PostgreSQL lowercases unquoted column names. These helpers seamlessly convert
+// between client-side camelCase and Supabase/PostgreSQL lowercase column names.
+
+function visitorToSupabase(v) {
+  if (!v) return v;
+  let customDataObj = v.custom_data_json;
+  if (typeof customDataObj === 'string') {
+    try { customDataObj = JSON.parse(customDataObj); } catch { customDataObj = {}; }
+  } else if (v.custom_data && typeof v.custom_data === 'object') {
+    customDataObj = v.custom_data;
+  }
+
+  return {
+    id: v.id,
+    org_id: v.org_id || '',
+    fullname: v.fullName ?? v.fullname ?? '',
+    phone: v.phone || '',
+    email: v.email || '',
+    company: v.company || '',
+    idtype: v.idType ?? v.idtype ?? '',
+    idnumber: v.idNumber ?? v.idnumber ?? '',
+    hostname: v.hostName ?? v.host ?? v.hostname ?? '',
+    department: v.department || '',
+    purpose: v.purpose || '',
+    checkintime: v.checkInTime ?? v.checkintime ?? new Date().toISOString(),
+    checkouttime: v.checkOutTime ?? v.checkouttime ?? null,
+    status: v.status || 'Checked-In',
+    badgeid: v.badgeId ?? v.badgeid ?? '',
+    expecteddurationminutes: v.expectedDurationMinutes ?? v.expecteddurationminutes ?? 60,
+    vehicleplate: v.vehiclePlate ?? v.vehicleplate ?? '',
+    notes: v.notes || '',
+    avatar: v.avatar || '',
+    custom_data_json: customDataObj || {},
+  };
+}
+
+function supabaseToVisitor(v) {
+  if (!v) return v;
+  const customData = typeof v.custom_data_json === 'object' && v.custom_data_json !== null
+    ? v.custom_data_json
+    : (() => { try { return JSON.parse(v.custom_data_json || '{}'); } catch { return {}; } })();
+
+  return {
+    id: v.id,
+    org_id: v.org_id || '',
+    fullName: v.fullName ?? v.fullname ?? '',
+    phone: v.phone || '',
+    email: v.email || '',
+    company: v.company || '',
+    idType: v.idType ?? v.idtype ?? '',
+    idNumber: v.idNumber ?? v.idnumber ?? '',
+    hostName: v.hostName ?? v.hostname ?? '',
+    department: v.department || '',
+    purpose: v.purpose || '',
+    checkInTime: v.checkInTime ?? v.checkintime ?? '',
+    checkOutTime: v.checkOutTime ?? v.checkouttime ?? null,
+    status: v.status || 'Checked-In',
+    badgeId: v.badgeId ?? v.badgeid ?? '',
+    expectedDurationMinutes: v.expectedDurationMinutes ?? v.expecteddurationminutes ?? 60,
+    vehiclePlate: v.vehiclePlate ?? v.vehicleplate ?? '',
+    notes: v.notes || '',
+    avatar: v.avatar || '',
+    custom_data: customData,
+    custom_data_json: customData,
+  };
+}
+
+function userToSupabase(u) {
+  if (!u) return u;
+  return {
+    id: u.id,
+    org_id: u.org_id || '',
+    email: u.email,
+    password_hash: u.password_hash,
+    fullname: u.fullName ?? u.fullname ?? '',
+    role: u.role,
+    desk_location: u.desk_location || 'Main Desk',
+    avatar: u.avatar || '',
+    created_at: u.created_at || new Date().toISOString(),
+    last_login: u.last_login || null,
+  };
+}
+
+function supabaseToUser(u) {
+  if (!u) return u;
+  return {
+    ...u,
+    fullName: u.fullName ?? u.fullname ?? '',
+  };
+}
+
+function supabaseToHost(h) {
+  if (!h) return h;
+  return {
+    ...h,
+    deptId: h.deptId ?? h.deptid ?? '',
+  };
+}
+
+function logToSupabase(l) {
+  if (!l) return l;
+  return {
+    id: l.id,
+    org_id: l.org_id || '',
+    timestamp: l.timestamp || new Date().toISOString(),
+    userid: l.userId ?? l.userid ?? '',
+    username: l.userName ?? l.username ?? '',
+    action: l.action || '',
+    resourcetype: l.resourceType ?? l.resourcetype ?? '',
+    resourceid: l.resourceId ?? l.resourceid ?? '',
+    details: l.details || '',
+  };
+}
+
+function supabaseToLog(l) {
+  if (!l) return l;
+  return {
+    ...l,
+    userId: l.userId ?? l.userid ?? '',
+    userName: l.userName ?? l.username ?? '',
+    resourceType: l.resourceType ?? l.resourcetype ?? '',
+    resourceId: l.resourceId ?? l.resourceid ?? '',
+  };
+}
+
 // ─── Service class ────────────────────────────────────────────────────────────
 
 class SupabaseService {
@@ -83,16 +209,16 @@ class SupabaseService {
               error = res.error;
             }
           } else if (op.type === 'insertVisitor') {
-            const res = await supabase.from('visitors').upsert(op.payload);
+            const res = await supabase.from('visitors').upsert(visitorToSupabase(op.payload));
             error = res.error;
           } else if (op.type === 'updateVisitorStatus') {
             const res = await supabase.from('visitors').update({
               status: op.status,
-              checkOutTime: op.checkOutTime
+              checkouttime: op.checkOutTime
             }).eq('id', op.id);
             error = res.error;
           } else if (op.type === 'insertUser') {
-            const res = await supabase.from('users').upsert(op.payload);
+            const res = await supabase.from('users').upsert(userToSupabase(op.payload));
             error = res.error;
           } else if (op.type === 'updateUserPassword') {
             const res = await supabase.from('users').update({
@@ -100,7 +226,7 @@ class SupabaseService {
             }).eq('id', op.userId);
             error = res.error;
           } else if (op.type === 'logAction') {
-            const res = await supabase.from('audit_logs').insert([op.payload]);
+            const res = await supabase.from('audit_logs').insert([logToSupabase(op.payload)]);
             error = res.error;
           }
 
@@ -295,16 +421,20 @@ class SupabaseService {
     let remoteVisitors = [];
     if (supabase) {
       try {
-        let query = supabase.from('visitors').select('*').order('checkInTime', { ascending: false });
+        let query = supabase.from('visitors').select('*').order('checkintime', { ascending: false });
         if (orgId) query = query.eq('org_id', orgId);
-        const { data, error } = await query;
+        let { data, error } = await query;
+        if (error && error.message?.includes('checkintime')) {
+          // Fallback if schema was created with quoted camelCase checkInTime
+          query = supabase.from('visitors').select('*').order('checkInTime', { ascending: false });
+          if (orgId) query = query.eq('org_id', orgId);
+          const retry = await query;
+          data = retry.data;
+          error = retry.error;
+        }
+
         if (!error && Array.isArray(data)) {
-          remoteVisitors = data.map(v => ({
-            ...v,
-            custom_data: typeof v.custom_data_json === 'object' && v.custom_data_json !== null
-              ? v.custom_data_json
-              : (() => { try { return JSON.parse(v.custom_data_json || '{}'); } catch { return {}; } })(),
-          }));
+          remoteVisitors = data.map(supabaseToVisitor);
         } else if (error) {
           console.warn('getAllVisitors: Supabase read failed, relying on browser storage:', error.message);
         }
@@ -344,28 +474,7 @@ class SupabaseService {
       customDataObj = visitor.custom_data;
     }
 
-    const payload = {
-      id: visitor.id,
-      org_id: visitor.org_id || '',
-      fullName: visitor.fullName,
-      phone: visitor.phone,
-      email: visitor.email || '',
-      company: visitor.company || '',
-      idType: visitor.idType || '',
-      idNumber: visitor.idNumber || '',
-      hostName: visitor.hostName || visitor.host || '',
-      department: visitor.department || '',
-      purpose: visitor.purpose || '',
-      checkInTime: visitor.checkInTime,
-      checkOutTime: visitor.checkOutTime || null,
-      status: visitor.status || 'Checked-In',
-      badgeId: visitor.badgeId,
-      expectedDurationMinutes: visitor.expectedDurationMinutes || 60,
-      vehiclePlate: visitor.vehiclePlate || '',
-      notes: visitor.notes || '',
-      avatar: visitor.avatar || '',
-      custom_data_json: customDataObj || {},
-    };
+    const payload = visitorToSupabase(visitor);
 
     if (supabase) {
       try {
@@ -404,7 +513,7 @@ class SupabaseService {
       try {
         const { error } = await supabase
           .from('visitors')
-          .update({ status, checkOutTime })
+          .update({ status, checkouttime: checkOutTime })
           .eq('id', id);
         if (!error) {
           writeSucceeded = true;
@@ -438,7 +547,7 @@ class SupabaseService {
         if (orgId) query = query.eq('org_id', orgId);
         const { data, error } = await query;
         if (!error && Array.isArray(data)) {
-          remoteUsers = data;
+          remoteUsers = data.map(supabaseToUser);
         } else if (error) {
           console.warn('getAllUsers: Supabase read failed, relying on browser storage:', error.message);
         }
@@ -463,18 +572,7 @@ class SupabaseService {
   async insertUser(user) {
     if (!user) return user;
     let writeSucceeded = false;
-    const payload = {
-      id: user.id,
-      org_id: user.org_id || '',
-      email: user.email,
-      password_hash: user.password_hash,
-      fullName: user.fullName,
-      role: user.role,
-      desk_location: user.desk_location || 'Main Desk',
-      avatar: user.avatar || '',
-      created_at: user.created_at || new Date().toISOString(),
-      last_login: user.last_login || null,
-    };
+    const payload = userToSupabase(user);
 
     if (supabase) {
       try {
@@ -554,7 +652,7 @@ class SupabaseService {
         let query = supabase.from('hosts').select('*');
         if (orgId) query = query.eq('org_id', orgId);
         const { data, error } = await query;
-        if (!error && data?.length) return data;
+        if (!error && data?.length) return data.map(supabaseToHost);
       } catch (err) {
         console.warn('getHosts: Supabase read failed:', err.message);
       }
@@ -578,7 +676,7 @@ class SupabaseService {
     let writeSucceeded = false;
     if (supabase) {
       try {
-        const { error } = await supabase.from('audit_logs').insert([logEntry]);
+        const { error } = await supabase.from('audit_logs').insert([logToSupabase(logEntry)]);
         if (!error) {
           writeSucceeded = true;
         } else {
@@ -610,7 +708,7 @@ class SupabaseService {
         if (orgId) query = query.eq('org_id', orgId);
         const { data, error } = await query;
         if (!error && Array.isArray(data)) {
-          remoteLogs = data;
+          remoteLogs = data.map(supabaseToLog);
         }
       } catch (err) {
         console.warn('getAuditLogs: Supabase read failed:', err.message);

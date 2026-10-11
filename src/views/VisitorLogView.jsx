@@ -18,6 +18,8 @@ import {
   Eye
 } from 'lucide-react';
 
+import { matchVisitor } from '../utils/searchHelper';
+
 export const VisitorLogView = () => {
   const { 
     visitors, 
@@ -77,30 +79,21 @@ export const VisitorLogView = () => {
     return `${mins}m`;
   };
 
-  // Filter visitors (including deep search across dynamic custom fields)
-  const filtered = visitors.filter(v => {
-    const query = (globalSearchQuery || '').toLowerCase().trim();
-    const customDataStr = v.custom_data_json || JSON.stringify(v.custom_data || {});
-    
-    const matchesQuery = !query || 
-      (v.fullName && v.fullName.toLowerCase().includes(query)) ||
-      (v.company && v.company.toLowerCase().includes(query)) ||
-      (v.hostName && v.hostName.toLowerCase().includes(query)) ||
-      (v.id && v.id.toLowerCase().includes(query)) ||
-      (v.badgeId && v.badgeId.toLowerCase().includes(query)) ||
-      (v.idNumber && v.idNumber.toLowerCase().includes(query)) ||
-      (v.phone && v.phone.toLowerCase().includes(query)) ||
-      (v.email && v.email.toLowerCase().includes(query)) ||
-      (v.purpose && v.purpose.toLowerCase().includes(query)) ||
-      (customDataStr.toLowerCase().includes(query));
-
-    const matchesDept = selectedDeptFilter === 'All' || 
+  // Helper to test department match
+  const matchesDept = (v) => {
+    return selectedDeptFilter === 'All' || 
       v.department === selectedDeptFilter ||
       (departments && departments.some(d => (d.code === selectedDeptFilter || d.name === selectedDeptFilter) && (v.department === d.name || v.department === d.code)));
+  };
 
-    const matchesStatus = selectedStatusFilter === 'All' || v.status === selectedStatusFilter;
+  // Deep search across all visitor records (past and present) matching query and department
+  const matchesAcrossStatuses = visitors.filter(v => {
+    return matchVisitor(v, globalSearchQuery) && matchesDept(v);
+  });
 
-    return matchesQuery && matchesDept && matchesStatus;
+  // Filter visitors constrained by selected status tab
+  const filtered = matchesAcrossStatuses.filter(v => {
+    return selectedStatusFilter === 'All' || v.status === selectedStatusFilter;
   });
 
   // Sort visitors
@@ -372,7 +365,7 @@ export const VisitorLogView = () => {
               <Search className="w-4 h-4 absolute left-3.5 top-2.5 text-neutral-400 pointer-events-none" aria-hidden="true" />
               <input
                 type="text"
-                placeholder="Search name, phone, host, attributes..."
+                placeholder="Search all past & present visitors, attributes..."
                 value={globalSearchQuery}
                 onChange={(e) => setGlobalSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-8 py-2 rounded-full text-xs bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white placeholder-neutral-400 border border-neutral-200 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-950 dark:focus:ring-white transition font-semibold"
@@ -408,14 +401,25 @@ export const VisitorLogView = () => {
         </div>
 
         {hasActiveFilters && (
-          <div className="flex items-center justify-between px-2 pt-1">
-            <span className="text-xs text-neutral-600 dark:text-neutral-300 font-bold">
-              Found <span className="text-neutral-900 dark:text-white font-extrabold">{filtered.length}</span> matching visitor records
-            </span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-2 pt-1">
+            <div className="flex items-center gap-2 flex-wrap text-xs text-neutral-600 dark:text-neutral-300 font-bold">
+              <span>
+                Found <span className="text-neutral-900 dark:text-white font-extrabold">{filtered.length}</span> matching record{filtered.length !== 1 ? 's' : ''} in {selectedStatusFilter === 'All' ? 'all statuses' : selectedStatusFilter}
+              </span>
+              {selectedStatusFilter !== 'All' && globalSearchQuery && matchesAcrossStatuses.length > filtered.length && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedStatusFilter('All')}
+                  className="px-2.5 py-0.5 rounded-full text-[11px] bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-white font-extrabold hover:opacity-80 transition cursor-pointer"
+                >
+                  +{matchesAcrossStatuses.length - filtered.length} found in other statuses (Show All {matchesAcrossStatuses.length})
+                </button>
+              )}
+            </div>
             <button
               type="button"
               onClick={handleClearFilters}
-              className="px-3 py-1 rounded-full text-xs font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-200 transition cursor-pointer"
+              className="px-3 py-1 rounded-full text-xs font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-200 transition cursor-pointer self-start sm:self-auto"
             >
               Reset Filters
             </button>
@@ -468,15 +472,41 @@ export const VisitorLogView = () => {
                   <td colSpan={3 + activeColumns.length} className="py-16 text-center text-neutral-500 font-medium">
                     <div className="space-y-3">
                       <UserCheck className="w-10 h-10 mx-auto text-neutral-400" aria-hidden="true" />
-                      <p className="font-bold text-neutral-900 dark:text-white text-sm">No visitor records match the current filter criteria.</p>
-                      {hasActiveFilters && (
-                        <button
-                          type="button"
-                          onClick={handleClearFilters}
-                          className="mt-2 px-5 py-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold shadow-md cursor-pointer"
-                        >
-                          Reset Filters
-                        </button>
+                      {globalSearchQuery && matchesAcrossStatuses.length > 0 && selectedStatusFilter !== 'All' ? (
+                        <>
+                          <p className="font-bold text-neutral-900 dark:text-white text-sm">
+                            No records with status "{selectedStatusFilter}" match "{globalSearchQuery}", but found {matchesAcrossStatuses.length} matching record{matchesAcrossStatuses.length !== 1 ? 's' : ''} under other statuses.
+                          </p>
+                          <div className="flex items-center justify-center gap-2 pt-1">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedStatusFilter('All')}
+                              className="px-5 py-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold shadow-md cursor-pointer hover:opacity-90"
+                            >
+                              Show All Statuses ({matchesAcrossStatuses.length})
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleClearFilters}
+                              className="px-4 py-2 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white text-xs font-bold hover:bg-neutral-200 transition cursor-pointer"
+                            >
+                              Reset Filters
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <p className="font-bold text-neutral-900 dark:text-white text-sm">No visitor records match the current filter criteria.</p>
+                          {hasActiveFilters && (
+                            <button
+                              type="button"
+                              onClick={handleClearFilters}
+                              className="mt-2 px-5 py-2 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold shadow-md cursor-pointer"
+                            >
+                              Reset Filters
+                            </button>
+                          )}
+                        </>
                       )}
                     </div>
                   </td>

@@ -20,6 +20,8 @@ import {
   LogIn
 } from 'lucide-react';
 
+import { matchVisitor } from '../utils/searchHelper';
+
 export const CommandPalette = () => {
   const { 
     isCmdKOpen, 
@@ -67,7 +69,7 @@ export const CommandPalette = () => {
       label: 'Go to Master Visitor Log', 
       category: 'Navigation',
       icon: Table, 
-      keywords: 'master log table records history audit all visitors',
+      keywords: 'master log table records history audit all visitors past present',
       run: () => { setIsCmdKOpen(false); setActiveView('log'); } 
     },
     { 
@@ -135,7 +137,7 @@ export const CommandPalette = () => {
     }
   ], [theme, setIsCmdKOpen, setIsCheckInOpen, setActiveView, exportToCSV, toggleTheme, setIsLoginModalOpen, resetToDemoData]);
 
-  // Combine actions and dynamic visitor records
+  // Combine actions and dynamic visitor records (searching both past and present)
   const filteredItems = useMemo(() => {
     const q = query.toLowerCase().trim();
 
@@ -146,26 +148,27 @@ export const CommandPalette = () => {
       act.keywords.includes(q)
     );
 
-    const matchingVisitors = visitors.filter(v => 
-      q && (
-        v.fullName.toLowerCase().includes(q) ||
-        (v.company && v.company.toLowerCase().includes(q)) ||
-        (v.hostName && v.hostName.toLowerCase().includes(q)) ||
-        (v.badgeId && v.badgeId.toLowerCase().includes(q)) ||
-        (v.id && v.id.toLowerCase().includes(q))
-      )
-    ).map(v => ({
-      type: 'visitor',
-      id: `visitor-${v.id}`,
-      label: `${v.fullName} (${v.badgeId})`,
-      subtitle: `${v.company || 'Guest'} • Host: ${v.hostName}`,
-      visitor: v,
-      category: 'Visitor Search',
-      run: () => {
-        setIsCmdKOpen(false);
-        openBadgeModal(v);
-      }
-    }));
+    const matchingVisitors = visitors
+      .filter(v => q && matchVisitor(v, q))
+      .slice(0, 8)
+      .map(v => {
+        const isPast = v.status === 'Checked-Out';
+        const isOverdue = v.status === 'Overdue';
+        const statusLabel = isPast ? 'Past (Checked-Out)' : isOverdue ? 'Overdue' : 'Present (Inside)';
+
+        return {
+          type: 'visitor',
+          id: `visitor-${v.id}`,
+          label: `${v.fullName} (${v.badgeId || v.id})`,
+          subtitle: `${statusLabel} • ${v.company || 'Guest'} • Host: ${v.hostName || '—'}${v.department ? ` • ${v.department}` : ''}`,
+          visitor: v,
+          category: isPast ? 'Past Record' : 'Visitor Search',
+          run: () => {
+            setIsCmdKOpen(false);
+            openBadgeModal(v);
+          }
+        };
+      });
 
     return [...matchingActions, ...matchingVisitors];
   }, [allActions, visitors, query, setIsCmdKOpen, openBadgeModal]);
