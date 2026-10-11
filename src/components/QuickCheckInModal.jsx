@@ -13,8 +13,11 @@ import {
   Calendar,
   Camera,
   Hash,
-  FileText
+  FileText,
+  ShieldAlert,
+  ShieldCheck
 } from 'lucide-react';
+import { efccWatchlistService } from '../services/efccWatchlistService.js';
 
 const DURATION_CHIPS = [
   { value: '30', label: '30m' },
@@ -85,6 +88,11 @@ export const QuickCheckInModal = () => {
       host: nextHost
     }));
   };
+
+  // Real-time screening against EFCC Wanted Persons Registry
+  const watchlistScreening = useMemo(() => {
+    return efccWatchlistService.verifyVisitor(formData.fullName || '');
+  }, [formData.fullName]);
 
   // Reset form whenever modal opens or activeFields change
   useEffect(() => {
@@ -248,7 +256,10 @@ export const QuickCheckInModal = () => {
       return;
     }
 
-    registerVisitor(formData);
+    registerVisitor({
+      ...formData,
+      watchlistStatus: watchlistScreening.isWanted ? 'FLAGGED_EFCC' : 'CLEAN'
+    });
   };
 
   if (!isCheckInOpen) return null;
@@ -643,6 +654,45 @@ export const QuickCheckInModal = () => {
                           <AlertCircle className="w-3 h-3" />
                           {errors.fullName}
                         </span>
+                      )}
+
+                      {/* EFCC Wanted List Identity Verification Screening */}
+                      {watchlistScreening.isWanted && (
+                        <div className="mt-2 p-3 rounded-2xl bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 border border-neutral-900 dark:border-white shadow-md space-y-2 animate-fade-in">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5 font-black text-xs uppercase tracking-wider">
+                              <ShieldAlert className="w-4 h-4 shrink-0" />
+                              <span>EFCC Wanted Registry Match</span>
+                            </div>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-white text-neutral-950 dark:bg-neutral-950 dark:text-white uppercase tracking-wider shrink-0">
+                              {watchlistScreening.severity} Alert ({watchlistScreening.confidenceScore}%)
+                            </span>
+                          </div>
+                          <div className="flex items-start gap-2.5 pt-0.5">
+                            {watchlistScreening.matchedPerson?.imageUrl && (
+                              <img
+                                src={watchlistScreening.matchedPerson.imageUrl}
+                                alt={watchlistScreening.matchedPerson.name}
+                                className="w-12 h-12 rounded-xl object-cover border border-white/20 dark:border-neutral-950/20 shrink-0"
+                                onError={(e) => { e.target.style.display = 'none'; }}
+                              />
+                            )}
+                            <div className="text-[11px] leading-snug space-y-0.5 min-w-0 flex-1">
+                              <p className="font-extrabold truncate">{watchlistScreening.matchedPerson?.name}</p>
+                              <p className="opacity-90 line-clamp-2">{watchlistScreening.matchedPerson?.allegedOffense}</p>
+                              {watchlistScreening.matchedPerson?.stateOfOrigin && (
+                                <p className="opacity-75 text-[10px] font-semibold">Origin: {watchlistScreening.matchedPerson.stateOfOrigin}</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {!watchlistScreening.isWanted && (formData.fullName || '').trim().length >= 4 && (
+                        <div className="mt-1.5 flex items-center gap-1.5 text-[10px] font-bold text-neutral-500 dark:text-neutral-400">
+                          <ShieldCheck className="w-3.5 h-3.5" />
+                          <span>EFCC Wanted Registry: Clearance Clean</span>
+                        </div>
                       )}
                     </div>
                   );

@@ -7,5 +7,12 @@ export default defineConfig({
   server: {
     port: 3000,
     open: false,
+    proxy: {
+      '/api/efcc': {
+        target: 'https://www.efcc.gov.ng',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/efcc/, '/backend')
+      }
+    }
   },
 });
