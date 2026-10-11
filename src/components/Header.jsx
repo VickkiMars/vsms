@@ -48,6 +48,10 @@ export const Header = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isOrgDropdownOpen, setIsOrgDropdownOpen] = useState(false);
 
+  const effectiveOrgs = (organizations && organizations.length > 0)
+    ? organizations
+    : (currentOrg ? [currentOrg] : []);
+
   const getViewTitle = () => {
     switch (activeView) {
       case 'log': return 'Master Visitor Log';
@@ -168,12 +172,12 @@ export const Header = () => {
               </div>
 
               <div className="max-h-48 overflow-y-auto p-1.5 space-y-1">
-                {(organizations || []).length === 0 ? (
+                {effectiveOrgs.length === 0 ? (
                   <div className="px-3 py-3 text-center text-xs text-neutral-500 dark:text-neutral-400 font-medium">
                     No organizations yet
                   </div>
                 ) : (
-                  (organizations || []).map(org => (
+                  effectiveOrgs.map(org => (
                     <button
                       key={org.id}
                       type="button"
@@ -209,7 +213,7 @@ export const Header = () => {
                   className="w-full py-2 px-3 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm hover:opacity-95 transition cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>+ Setup New Organization</span>
+                  <span>Setup New Organization</span>
                 </button>
               </div>
             </div>

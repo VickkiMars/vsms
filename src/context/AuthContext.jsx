@@ -1,59 +1,73 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { sqliteService, SEED_USERS, SEED_ORGS, DEFAULT_ORG_FIELDS } from '../db/sqliteDb';
+import { supabaseService, DEFAULT_ORG_FIELDS } from '../db/supabaseService';
+import { browserStorageFallback } from '../db/browserStorageFallback';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [organizations, setOrganizations] = useState(SEED_ORGS);
+  const [organizations, setOrganizations] = useState(() => {
+    const fallbackOrgs = browserStorageFallback.getOrganizationsFallback();
+    if (fallbackOrgs && fallbackOrgs.length > 0) return fallbackOrgs;
+    const savedOrg = typeof window !== 'undefined' ? localStorage.getItem('vsms_active_org') : null;
+    if (savedOrg) {
+      try {
+        const parsed = JSON.parse(savedOrg);
+        if (parsed && parsed.id) return [parsed];
+      } catch (e) { console.error(e); }
+    }
+    return [];
+  });
   const [currentOrg, setCurrentOrg] = useState(() => {
     const savedOrg = typeof window !== 'undefined' ? localStorage.getItem('vsms_active_org') : null;
     if (savedOrg) {
       try {
         const parsed = JSON.parse(savedOrg);
-        if (parsed && parsed.id && parsed.id !== 'ORG-DEMO-01' && parsed.slug !== 'apex-global') {
-          return parsed;
-        }
+        if (parsed && parsed.id) return parsed;
       } catch (e) { console.error(e); }
     }
     return null;
   });
 
-  const [users, setUsers] = useState(SEED_USERS);
+  const [users, setUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(() => {
     const saved = typeof window !== 'undefined' ? localStorage.getItem('vsms_active_user') : null;
     if (saved) {
       try { return JSON.parse(saved); } catch (e) { console.error(e); }
     }
-    return SEED_USERS[0]; // Default to Admin
+    return null;
   });
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isOrgWizardOpen, setIsOrgWizardOpen] = useState(false);
   const [authError, setAuthError] = useState('');
 
-  // Synchronize organizations, users and current session with SQLite DB
+  // Bootstrap: load orgs and users from Supabase on mount
   useEffect(() => {
-    sqliteService.initPromise.then(() => {
-      const dbOrgs = sqliteService.getAllOrganizations();
+    supabaseService.initPromise.then(async () => {
+      const dbOrgs = await supabaseService.getAllOrganizations();
       if (dbOrgs && dbOrgs.length > 0) {
         setOrganizations(dbOrgs);
-        // Validate currentOrg is still valid
         const found = dbOrgs.find(o => o.id === currentOrg?.id);
         if (found) {
           setCurrentOrg(found);
         } else if (!currentOrg) {
           setCurrentOrg(dbOrgs[0]);
         }
+      } else if (currentOrg) {
+        setOrganizations([currentOrg]);
       } else {
-        setOrganizations([]);
-        setCurrentOrg(null);
-        // Landing page handles the no-org state; wizard opens via CTA
+        const fallbackOrgs = browserStorageFallback.getOrganizationsFallback();
+        if (fallbackOrgs && fallbackOrgs.length > 0) {
+          setOrganizations(fallbackOrgs);
+          setCurrentOrg(fallbackOrgs[0]);
+        } else {
+          setOrganizations([]);
+          setCurrentOrg(null);
+        }
       }
 
-      const dbUsers = sqliteService.getAllUsers();
-      if (dbUsers && dbUsers.length > 0) {
-        setUsers(dbUsers);
-      }
+      const dbUsers = await supabaseService.getAllUsers();
+      if (dbUsers && dbUsers.length > 0) setUsers(dbUsers);
     });
   }, []);
 
@@ -74,51 +88,45 @@ export const AuthProvider = ({ children }) => {
     }
   }, [currentUser]);
 
-  // Direct email login with automated organization detection
-  const login = (email, password) => {
+  // Login – finds user from Supabase
+  const login = async (email, password) => {
     setAuthError('');
-    const dbUsers = sqliteService.getAllUsers();
+    const dbUsers = await supabaseService.getAllUsers();
     const user = dbUsers.find(u => u.email.toLowerCase() === email.toLowerCase().trim());
 
     if (!user) {
       setAuthError('No account found with this email address.');
       return false;
     }
-
     if (user.password_hash !== password) {
       setAuthError('Incorrect password. Please verify and try again.');
       return false;
     }
 
-    // Auto-detect and switch to user's assigned organization
     if (user.org_id) {
-      const org = sqliteService.getOrganization(user.org_id);
-      if (org) {
-        setCurrentOrg(org);
-      }
+      const org = await supabaseService.getOrganization(user.org_id);
+      if (org) setCurrentOrg(org);
     }
 
-    const updatedUser = {
-      ...user,
-      last_login: new Date().toISOString()
-    };
-
+    const updatedUser = { ...user, last_login: new Date().toISOString() };
     setCurrentUser(updatedUser);
     localStorage.setItem('vsms_role', updatedUser.role);
-    sqliteService.logAction(
+
+    supabaseService.logAction(
       updatedUser.id,
       updatedUser.fullName,
       'USER_LOGIN',
       `User ${updatedUser.email} authenticated successfully as ${updatedUser.role}.`,
       user.org_id || currentOrg?.id
     );
+
     setIsLoginModalOpen(false);
     return true;
   };
 
   const logout = () => {
     if (currentUser) {
-      sqliteService.logAction(
+      supabaseService.logAction(
         currentUser.id,
         currentUser.fullName,
         'USER_LOGOUT',
@@ -130,14 +138,12 @@ export const AuthProvider = ({ children }) => {
     setIsLoginModalOpen(true);
   };
 
-  // Switch organization (for demo or testing)
-  const switchOrganization = (orgId) => {
-    const org = sqliteService.getOrganization(orgId);
+  const switchOrganization = async (orgId) => {
+    const org = await supabaseService.getOrganization(orgId);
     if (!org) return;
     setCurrentOrg(org);
 
-    // Pick first admin or user of that organization
-    const orgUsers = sqliteService.getAllUsers(org.id);
+    const orgUsers = await supabaseService.getAllUsers(org.id);
     const targetUser = orgUsers.find(u => u.role === 'admin') || orgUsers[0] || {
       id: `USR-ADMIN-${org.id}`,
       org_id: org.id,
@@ -150,7 +156,7 @@ export const AuthProvider = ({ children }) => {
 
     setCurrentUser(targetUser);
     localStorage.setItem('vsms_role', targetUser.role);
-    sqliteService.logAction(
+    supabaseService.logAction(
       targetUser.id,
       targetUser.fullName,
       'ORG_SWITCH',
@@ -159,9 +165,9 @@ export const AuthProvider = ({ children }) => {
     );
   };
 
-  const switchUserRole = (roleName) => {
+  const switchUserRole = async (roleName) => {
     const orgId = currentOrg?.id || '';
-    const orgUsers = sqliteService.getAllUsers(orgId);
+    const orgUsers = await supabaseService.getAllUsers(orgId);
     const targetUser = orgUsers.find(u => u.role === roleName) || {
       id: `USR-TMP-${roleName}`,
       org_id: orgId,
@@ -173,7 +179,7 @@ export const AuthProvider = ({ children }) => {
     };
     setCurrentUser(targetUser);
     localStorage.setItem('vsms_role', roleName);
-    sqliteService.logAction(
+    supabaseService.logAction(
       targetUser.id,
       targetUser.fullName,
       'ROLE_SWITCH',
@@ -182,8 +188,8 @@ export const AuthProvider = ({ children }) => {
     );
   };
 
-  // Onboard new organization via Guided 3-Step Setup Wizard
-  const createOrganizationWithAdmin = ({
+  // Onboard new organization via Guided Setup Wizard
+  const createOrganizationWithAdmin = async ({
     orgName,
     slug,
     industry,
@@ -210,13 +216,13 @@ export const AuthProvider = ({ children }) => {
     };
 
     // 1. Save Organization
-    sqliteService.insertOrganization(newOrg);
+    await supabaseService.insertOrganization(newOrg);
 
     // 2. Save Dynamic Form Fields
     if (fields && fields.length > 0) {
-      sqliteService.saveOrganizationFields(orgId, fields);
+      await supabaseService.saveOrganizationFields(orgId, fields);
     } else {
-      sqliteService.initializeOrgFields(orgId, DEFAULT_ORG_FIELDS);
+      await supabaseService.initializeOrgFields(orgId, DEFAULT_ORG_FIELDS);
     }
 
     // 3. Create Org Admin User
@@ -232,38 +238,37 @@ export const AuthProvider = ({ children }) => {
       created_at: new Date().toISOString(),
       last_login: new Date().toISOString()
     };
-    sqliteService.insertUser(adminUser);
+    await supabaseService.insertUser(adminUser);
 
     // 4. Create Initial Receptionists if provisioned in Step 3
-    if (receptionists && receptionists.length > 0) {
-      receptionists.forEach((rec, idx) => {
-        if (!rec.email || !rec.fullName) return;
-        const recUser = {
-          id: `USR-REC-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
-          org_id: orgId,
-          email: rec.email,
-          password_hash: rec.password || 'reception123',
-          fullName: rec.fullName,
-          role: 'reception',
-          desk_location: rec.deskLocation || `Front Desk ${idx + 1}`,
-          avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(rec.fullName)}`,
-          created_at: new Date().toISOString(),
-          last_login: null
-        };
-        sqliteService.insertUser(recUser);
-      });
+    for (const [idx, rec] of (receptionists || []).entries()) {
+      if (!rec.email || !rec.fullName) continue;
+      const recUser = {
+        id: `USR-REC-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
+        org_id: orgId,
+        email: rec.email,
+        password_hash: rec.password || 'reception123',
+        fullName: rec.fullName,
+        role: 'reception',
+        desk_location: rec.deskLocation || `Front Desk ${idx + 1}`,
+        avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(rec.fullName)}`,
+        created_at: new Date().toISOString(),
+        last_login: null
+      };
+      await supabaseService.insertUser(recUser);
     }
 
     // Refresh state
-    const allOrgs = sqliteService.getAllOrganizations();
-    setOrganizations(allOrgs);
-    setUsers(sqliteService.getAllUsers());
+    const allOrgs = await supabaseService.getAllOrganizations();
+    const finalOrgs = (allOrgs && allOrgs.length > 0) ? allOrgs : [newOrg];
+    setOrganizations(finalOrgs);
+    setUsers(await supabaseService.getAllUsers());
 
-    // Switch active context to the new organization and admin user
+    // Switch active context to the new org and admin user
     setCurrentOrg(newOrg);
     setCurrentUser(adminUser);
 
-    sqliteService.logAction(
+    supabaseService.logAction(
       adminUser.id,
       adminUser.fullName,
       'ORG_ONBOARDING',
@@ -274,8 +279,7 @@ export const AuthProvider = ({ children }) => {
     return newOrg;
   };
 
-  // Provision new Receptionist / Staff Account (Admin Console)
-  const provisionReceptionist = ({ fullName, email, password, deskLocation }) => {
+  const provisionReceptionist = async ({ fullName, email, password, deskLocation }) => {
     const orgId = currentOrg?.id || '';
     const newStaff = {
       id: `USR-REC-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
@@ -290,11 +294,11 @@ export const AuthProvider = ({ children }) => {
       last_login: null
     };
 
-    sqliteService.insertUser(newStaff);
-    const updatedUsers = sqliteService.getAllUsers();
+    await supabaseService.insertUser(newStaff);
+    const updatedUsers = await supabaseService.getAllUsers();
     setUsers(updatedUsers);
 
-    sqliteService.logAction(
+    supabaseService.logAction(
       currentUser?.id || 'SYS',
       currentUser?.fullName || 'Administrator',
       'CREATE_RECEPTIONIST',
@@ -305,7 +309,7 @@ export const AuthProvider = ({ children }) => {
     return newStaff;
   };
 
-  const createNewUser = (userData) => {
+  const createNewUser = async (userData) => {
     const orgId = currentOrg?.id || '';
     const newUser = {
       id: `USR-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -320,9 +324,9 @@ export const AuthProvider = ({ children }) => {
       last_login: null
     };
 
-    sqliteService.insertUser(newUser);
-    setUsers(sqliteService.getAllUsers());
-    sqliteService.logAction(
+    await supabaseService.insertUser(newUser);
+    setUsers(await supabaseService.getAllUsers());
+    supabaseService.logAction(
       currentUser?.id || 'SYS',
       currentUser?.fullName || 'System',
       'CREATE_USER',
@@ -332,10 +336,10 @@ export const AuthProvider = ({ children }) => {
     return newUser;
   };
 
-  const changeUserPassword = (userId, newPassword) => {
-    sqliteService.updateUserPassword(userId, newPassword);
-    setUsers(sqliteService.getAllUsers());
-    sqliteService.logAction(
+  const changeUserPassword = async (userId, newPassword) => {
+    await supabaseService.updateUserPassword(userId, newPassword);
+    setUsers(await supabaseService.getAllUsers());
+    supabaseService.logAction(
       currentUser?.id || 'SYS',
       currentUser?.fullName || 'System',
       'UPDATE_PASSWORD',

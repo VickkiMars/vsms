@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthContext } from '../context/AuthContext';
 import { useVisitorContext } from '../context/VisitorContext';
-import { DEFAULT_ORG_FIELDS } from '../db/sqliteDb';
+import { DEFAULT_ORG_FIELDS } from '../data/initialData.js';
 import { 
   Building2, 
   ShieldCheck, 
@@ -115,6 +115,47 @@ export const OrgSetupWizardModal = () => {
 
   // Errors state
   const [stepErrors, setStepErrors] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Reset wizard to clean initial state whenever opened
+  useEffect(() => {
+    if (isOrgWizardOpen) {
+      setStep(1);
+      setStepErrors('');
+      setCopiedIndex(null);
+      setIndustryOptions(DEFAULT_INDUSTRY_OPTIONS);
+      setCustomIndustry('');
+      setOrgData({
+        orgName: '',
+        industry: DEFAULT_INDUSTRY_OPTIONS[0],
+        slug: '',
+        contactEmail: '',
+        adminFullName: '',
+        adminEmail: '',
+        adminPassword: '',
+        confirmAdminPassword: '',
+        deskLocation: ''
+      });
+      setFields(
+        DEFAULT_ORG_FIELDS.map((f, idx) => ({
+          ...f,
+          id: f.id || `FLD-WIZARD-${idx + 1}`,
+          options: Array.isArray(f.options)
+            ? f.options
+            : (f.options_json ? JSON.parse(f.options_json) : []),
+        }))
+      );
+      setReceptionists([]);
+      setNewReceptionist({
+        fullName: '',
+        email: '',
+        password: '',
+        deskLocation: ''
+      });
+      setIsAddingField(false);
+      setIsSubmitting(false);
+    }
+  }, [isOrgWizardOpen]);
 
   if (!isOrgWizardOpen) return null;
 
@@ -353,9 +394,12 @@ export const OrgSetupWizardModal = () => {
   };
 
   // Final Submit: Launch Organization Workspace
-  const handleFinishOnboarding = () => {
+  const handleFinishOnboarding = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setStepErrors('');
     try {
-      const createdOrg = createOrganizationWithAdmin({
+      const createdOrg = await createOrganizationWithAdmin({
         orgName: orgData.orgName,
         slug: orgData.slug,
         industry: orgData.industry,
@@ -386,7 +430,9 @@ export const OrgSetupWizardModal = () => {
 
       setIsOrgWizardOpen(false);
     } catch (err) {
-      setStepErrors(err.message || 'Failed to complete organization onboarding');
+      setStepErrors(err?.message || 'Failed to complete organization onboarding');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -1085,10 +1131,13 @@ export const OrgSetupWizardModal = () => {
               <button
                 type="button"
                 onClick={handleFinishOnboarding}
-                className="px-6 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-900 text-xs font-bold shadow-md flex items-center gap-2 transition-all cursor-pointer"
+                disabled={isSubmitting}
+                className={`px-6 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-900 text-xs font-bold shadow-md flex items-center gap-2 transition-all ${
+                  isSubmitting ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
+                }`}
               >
-                <Sparkles className="w-4 h-4" />
-                <span>Launch Organization Workspace</span>
+                <Sparkles className={`w-4 h-4 ${isSubmitting ? 'animate-spin' : ''}`} />
+                <span>{isSubmitting ? 'Launching Workspace...' : 'Launch Organization Workspace'}</span>
               </button>
             )}
           </div>

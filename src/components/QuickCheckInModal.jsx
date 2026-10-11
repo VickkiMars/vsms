@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useVisitorContext } from '../context/VisitorContext';
 import { useAuthContext } from '../context/AuthContext';
-import { DEFAULT_ORG_FIELDS } from '../db/sqliteDb';
+import { DEFAULT_ORG_FIELDS } from '../data/initialData.js';
 import { 
   X, 
   UserPlus, 
